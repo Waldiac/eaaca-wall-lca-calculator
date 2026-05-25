@@ -1,11 +1,393 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>EAACA Wall LCA Calculator</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EAACA Wall LCA & Thermal Performance Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #f5f7f9;
+      color: #1f2933;
+    }
+
+    header {
+      background: #004b7a;
+      color: white;
+      padding: 24px 40px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 26px;
+    }
+
+    header p {
+      margin: 8px 0 0;
+      font-size: 15px;
+    }
+
+    main {
+      max-width: 1100px;
+      margin: 30px auto;
+      padding: 0 20px;
+    }
+
+    section {
+      background: white;
+      padding: 24px;
+      margin-bottom: 24px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    h2 {
+      margin-top: 0;
+      color: #004b7a;
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    select, input {
+      padding: 8px;
+      width: 100%;
+      box-sizing: border-box;
+      margin-bottom: 12px;
+    }
+
+    button {
+      background: #004b7a;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    button:hover {
+      background: #006aa6;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 16px;
+      font-size: 14px;
+    }
+
+    th, td {
+      border: 1px solid #d0d7de;
+      padding: 8px;
+      text-align: right;
+    }
+
+    th:first-child, td:first-child {
+      text-align: left;
+    }
+
+    th {
+      background: #eef3f7;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 16px;
+      align-items: end;
+    }
+
+    .result-box {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .card {
+      background: #eef3f7;
+      padding: 16px;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .card strong {
+      display: block;
+      font-size: 24px;
+      margin-top: 8px;
+      color: #004b7a;
+    }
+
+    .note {
+      font-size: 13px;
+      color: #4b5563;
+      line-height: 1.45;
+    }
+
+    .delete {
+      background: #b42318;
+      padding: 6px 10px;
+    }
+  </style>
 </head>
+
 <body>
-  <h1>EAACA Wall LCA & Thermal Performance Calculator</h1>
-  <p>First prototype successfully created.</p>
+  <header>
+    <h1>EAACA Wall LCA & Thermal Performance Calculator</h1>
+    <p>Indicative calculator for wall assemblies: U-value and GWP per m² wall area.</p>
+  </header>
+
+  <main>
+    <section>
+      <h2>1. Add wall layer</h2>
+
+      <div class="grid">
+        <div>
+          <label for="material">Material</label>
+          <select id="material"></select>
+        </div>
+
+        <div>
+          <label for="thickness">Thickness [mm]</label>
+          <input id="thickness" type="number" value="300" min="1" />
+        </div>
+
+        <div>
+          <button onclick="addLayer()">Add layer</button>
+        </div>
+      </div>
+
+      <table id="layerTable">
+        <thead>
+          <tr>
+            <th>Layer</th>
+            <th>Thickness [mm]</th>
+            <th>λ [W/mK]</th>
+            <th>R [m²K/W]</th>
+            <th>A1-A3</th>
+            <th>A4-A5</th>
+            <th>B1</th>
+            <th>B4</th>
+            <th>C1-C4</th>
+            <th>D</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>2. Results</h2>
+
+      <div class="result-box">
+        <div class="card">
+          U-value [W/m²K]
+          <strong id="uValue">–</strong>
+        </div>
+
+        <div class="card">
+          GWP A-C incl. B1/B4 [kg CO₂e/m²]
+          <strong id="gwpAC">–</strong>
+        </div>
+
+        <div class="card">
+          Module D separately [kg CO₂e/m²]
+          <strong id="gwpD">–</strong>
+        </div>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Module</th>
+            <th>kg CO₂e/m² wall</th>
+          </tr>
+        </thead>
+        <tbody id="moduleResults"></tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>3. Methodology / Disclaimer</h2>
+      <p class="note">
+        This prototype calculates indicative results for wall assemblies.
+        GWP values are assumed as kg CO₂e per m³ material. The result per m² wall area
+        is calculated by multiplying the material value by the layer thickness in metres.
+      </p>
+      <p class="note">
+        U-value calculation uses: U = 1 / (Rsi + Σ d/λ + Rse).
+        For this first prototype, Rsi = 0.13 m²K/W and Rse = 0.04 m²K/W are used for external walls.
+      </p>
+      <p class="note">
+        Module D is shown separately and is not automatically included in the A-C result.
+        This tool does not replace a verified EPD according to EN 15804 or a project-specific
+        building LCA according to EN 15978.
+      </p>
+    </section>
+  </main>
+
+  <script>
+    const materials = [
+      {
+        name: "AAC 300 kg/m³",
+        lambda: 0.075,
+        gwp: { A1_A3: 147, A4_A5: 8.75, B1: -60.3, B4: 0, C1_C4: 0, D: -1.19 }
+      },
+      {
+        name: "AAC 400 kg/m³",
+        lambda: 0.10,
+        gwp: { A1_A3: 160, A4_A5: 9.4, B1: -68.0, B4: 0, C1_C4: 2.5, D: -4.0 }
+      },
+      {
+        name: "AAC 500 kg/m³",
+        lambda: 0.14,
+        gwp: { A1_A3: 170, A4_A5: 9.99, B1: -76.2, B4: 0, C1_C4: 0, D: -0.23 }
+      },
+      {
+        name: "Calcium silicate unit 1400 kg/m³",
+        lambda: 0.80,
+        gwp: { A1_A3: 189, A4_A5: 26.4, B1: -83.9, B4: 0, C1_C4: 0, D: -3.34 }
+      },
+      {
+        name: "Ceramic block",
+        lambda: 0.18,
+        gwp: { A1_A3: 113, A4_A5: 4.97, B1: 0, B4: 0, C1_C4: 0, D: -10.1 }
+      },
+      {
+        name: "EPS insulation",
+        lambda: 0.038,
+        gwp: { A1_A3: 45, A4_A5: 4, B1: 0, B4: 45, C1_C4: 0, D: 15 }
+      },
+      {
+        name: "Mineral wool insulation",
+        lambda: 0.036,
+        gwp: { A1_A3: 67, A4_A5: 6, B1: 0, B4: 80, C1_C4: 0, D: 5 }
+      },
+      {
+        name: "External render / plaster",
+        lambda: 0.70,
+        gwp: { A1_A3: 250, A4_A5: 15, B1: 0, B4: 0, C1_C4: 5, D: 0 }
+      },
+      {
+        name: "Gypsum plaster",
+        lambda: 0.35,
+        gwp: { A1_A3: 180, A4_A5: 10, B1: 0, B4: 0, C1_C4: 5, D: 0 }
+      }
+    ];
+
+    let layers = [];
+
+    function initMaterials() {
+      const select = document.getElementById("material");
+      materials.forEach((mat, index) => {
+        const option = document.createElement("option");
+        option.value = index;
+        option.textContent = mat.name;
+        select.appendChild(option);
+      });
+    }
+
+    function addLayer() {
+      const materialIndex = document.getElementById("material").value;
+      const thicknessMm = parseFloat(document.getElementById("thickness").value);
+
+      if (!thicknessMm || thicknessMm <= 0) {
+        alert("Please enter a valid thickness.");
+        return;
+      }
+
+      layers.push({
+        material: materials[materialIndex],
+        thicknessMm: thicknessMm
+      });
+
+      calculate();
+    }
+
+    function removeLayer(index) {
+      layers.splice(index, 1);
+      calculate();
+    }
+
+    function format(value) {
+      return Number(value).toFixed(2);
+    }
+
+    function calculate() {
+      const tbody = document.querySelector("#layerTable tbody");
+      tbody.innerHTML = "";
+
+      let rLayers = 0;
+      let sums = {
+        A1_A3: 0,
+        A4_A5: 0,
+        B1: 0,
+        B4: 0,
+        C1_C4: 0,
+        D: 0
+      };
+
+      layers.forEach((layer, index) => {
+        const d = layer.thicknessMm / 1000;
+        const mat = layer.material;
+        const r = d / mat.lambda;
+        rLayers += r;
+
+        const row = document.createElement("tr");
+
+        const gwpLayer = {};
+        Object.keys(sums).forEach(module => {
+          gwpLayer[module] = d * mat.gwp[module];
+          sums[module] += gwpLayer[module];
+        });
+
+        row.innerHTML = `
+          <td>${mat.name}</td>
+          <td>${format(layer.thicknessMm)}</td>
+          <td>${format(mat.lambda)}</td>
+          <td>${format(r)}</td>
+          <td>${format(gwpLayer.A1_A3)}</td>
+          <td>${format(gwpLayer.A4_A5)}</td>
+          <td>${format(gwpLayer.B1)}</td>
+          <td>${format(gwpLayer.B4)}</td>
+          <td>${format(gwpLayer.C1_C4)}</td>
+          <td>${format(gwpLayer.D)}</td>
+          <td><button class="delete" onclick="removeLayer(${index})">X</button></td>
+        `;
+
+        tbody.appendChild(row);
+      });
+
+      const Rsi = 0.13;
+      const Rse = 0.04;
+      const rTotal = Rsi + rLayers + Rse;
+      const uValue = layers.length > 0 ? 1 / rTotal : null;
+
+      const gwpAC = sums.A1_A3 + sums.A4_A5 + sums.B1 + sums.B4 + sums.C1_C4;
+
+      document.getElementById("uValue").textContent = uValue ? format(uValue) : "–";
+      document.getElementById("gwpAC").textContent = layers.length > 0 ? format(gwpAC) : "–";
+      document.getElementById("gwpD").textContent = layers.length > 0 ? format(sums.D) : "–";
+
+      const moduleResults = document.getElementById("moduleResults");
+      moduleResults.innerHTML = `
+        <tr><td>A1-A3 Product stage</td><td>${format(sums.A1_A3)}</td></tr>
+        <tr><td>A4-A5 Transport and construction</td><td>${format(sums.A4_A5)}</td></tr>
+        <tr><td>B1 Use stage / recarbonation</td><td>${format(sums.B1)}</td></tr>
+        <tr><td>B4 Replacement</td><td>${format(sums.B4)}</td></tr>
+        <tr><td>C1-C4 End of life</td><td>${format(sums.C1_C4)}</td></tr>
+        <tr><td>D Beyond system boundary, separately reported</td><td>${format(sums.D)}</td></tr>
+      `;
+    }
+
+    initMaterials();
+    calculate();
+  </script>
 </body>
 </html>
