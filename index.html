@@ -428,19 +428,19 @@
         color: #111;
       }
 
-      .topbar,
-      .site-nav,
-      header.hero,
-      main,
-      .eaaca-footer,
-      button,
-      input,
-      select,
-      .report-actions {
+      body.report-ready .topbar,
+      body.report-ready .site-nav,
+      body.report-ready header.hero,
+      body.report-ready main,
+      body.report-ready .eaaca-footer {
         display: none !important;
       }
 
-      body.print-mode .print-report {
+      body.report-ready .report-toolbar {
+        display: none !important;
+      }
+
+      body.report-ready .print-report {
         display: block !important;
       }
 
@@ -1658,6 +1658,7 @@ loadInitialData();
 </script>
 </body>
 </html>
+
 
 
 
