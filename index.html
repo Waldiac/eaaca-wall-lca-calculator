@@ -3,23 +3,25 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>EAACA Wall LCA & Thermal Performance Calculator</title>
+  <title>EAACA Wall LCA Calculator</title>
 
   <style>
     :root {
-      --blue: #004b7a;
-      --blue2: #006aa6;
-      --bg: #f5f7f9;
-      --line: #d0d7de;
-      --soft: #eef3f7;
-      --text: #1f2933;
+      --blue: #006fb6;
+      --blue2: #00558f;
+      --dark: #22313f;
+      --aqua: #1f9ac4;
+      --green: #6aa84f;
+      --bg: #f4f7f9;
+      --line: #d7e0e6;
+      --soft: #eef6fa;
+      --text: #25313b;
       --red: #b42318;
-      --green: #1a7f37;
-      --grey: #536471;
+      --grey: #66727c;
       --warn: #fff4d6;
-      --bar1: #004b7a;
-      --bar2: #2f7d32;
-      --bar3: #8a6d3b;
+      --bar1: #006fb6;
+      --bar2: #6aa84f;
+      --bar3: #f2b705;
       --bar4: #7b4fa3;
       --bar5: #c56b2c;
       --bar6: #2c7f8f;
@@ -27,45 +29,114 @@
     }
 
     body {
-      font-family: Arial, sans-serif;
+      font-family: Arial, Helvetica, sans-serif;
       margin: 0;
       background: var(--bg);
       color: var(--text);
     }
 
-    header {
-      background: var(--blue);
+    .topbar {
+      background: #eef6fa;
+      color: #41515d;
+      font-size: 13px;
+      padding: 8px 40px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .site-nav {
+      background: white;
+      border-bottom: 1px solid var(--line);
+      padding: 16px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .brand {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.05;
+      letter-spacing: .04em;
+    }
+
+    .brand strong {
+      color: var(--blue);
+      font-size: 30px;
+      font-weight: 800;
+    }
+
+    .brand span {
+      color: var(--grey);
+      font-size: 12px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 22px;
+      flex-wrap: wrap;
+      font-size: 14px;
+      color: #405160;
+    }
+
+    .hero {
+      background:
+        linear-gradient(110deg, rgba(0,111,182,.94), rgba(31,154,196,.88)),
+        linear-gradient(45deg, #dfeff5, #ffffff);
       color: white;
-      padding: 24px 40px;
+      padding: 42px 40px;
+      border-bottom: 5px solid var(--green);
+    }
+
+    .hero-inner {
+      max-width: 1260px;
+      margin: 0 auto;
+    }
+
+    .eyebrow {
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      font-size: 13px;
+      font-weight: bold;
+      opacity: .9;
+      margin-bottom: 12px;
     }
 
     header h1 {
       margin: 0;
-      font-size: 26px;
+      font-size: 34px;
+      line-height: 1.15;
+      max-width: 900px;
     }
 
     header p {
-      margin: 8px 0 0;
-      font-size: 15px;
+      margin: 12px 0 0;
+      font-size: 17px;
+      max-width: 860px;
     }
 
     main {
       max-width: 1260px;
-      margin: 30px auto;
+      margin: 34px auto;
       padding: 0 20px;
     }
 
     section {
       background: white;
-      padding: 24px;
-      margin-bottom: 24px;
-      border-radius: 10px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      padding: 26px;
+      margin-bottom: 26px;
+      border-radius: 4px;
+      border-top: 4px solid var(--blue);
+      box-shadow: 0 2px 12px rgba(34,49,63,0.08);
     }
 
     h2 {
       margin-top: 0;
       color: var(--blue);
+      font-size: 24px;
+      letter-spacing: .01em;
     }
 
     h3 {
@@ -91,19 +162,20 @@
     }
 
     button {
-      background: var(--blue);
+      background: var(--green);
       color: white;
       border: none;
       padding: 10px 16px;
-      border-radius: 6px;
+      border-radius: 3px;
       cursor: pointer;
       font-weight: bold;
       margin-right: 6px;
       margin-bottom: 6px;
+      text-transform: none;
     }
 
     button:hover {
-      background: var(--blue2);
+      background: #5b9543;
     }
 
     .secondary { background: var(--grey); }
@@ -172,15 +244,16 @@
     }
 
     .card {
-      background: var(--soft);
-      padding: 16px;
-      border-radius: 8px;
+      background: linear-gradient(180deg, #ffffff, var(--soft));
+      padding: 18px;
+      border-radius: 4px;
       text-align: center;
+      border: 1px solid var(--line);
     }
 
     .card strong {
       display: block;
-      font-size: 24px;
+      font-size: 26px;
       margin-top: 8px;
       color: var(--blue);
     }
@@ -235,6 +308,17 @@
       display: inline-block;
     }
 
+    .eaaca-footer {
+      background: var(--dark);
+      color: white;
+      padding: 26px 40px;
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
     @media(max-width: 900px) {
       .grid-2, .grid-3, .grid-4, .grid-6, .result-box {
         grid-template-columns: 1fr;
@@ -243,14 +327,45 @@
       table {
         font-size: 12px;
       }
+
+      .site-nav, .eaaca-footer {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      header h1 {
+        font-size: 26px;
+      }
     }
   </style>
 </head>
 
 <body>
-<header>
-  <h1>EAACA Wall LCA & Thermal Performance Calculator</h1>
-  <p>Indicative calculator for wall assemblies: U-value and GWP per m² wall area.</p>
+<div class="topbar">
+  +49 (0) 3382 7060 112 &nbsp;&nbsp;|&nbsp;&nbsp; info@eaaca.org
+</div>
+
+<nav class="site-nav" aria-label="EAACA navigation">
+  <div class="brand">
+    <strong>EAACA</strong>
+    <span>European Autoclaved Aerated Concrete Association</span>
+  </div>
+  <div class="nav-links">
+    <span>EAACA</span>
+    <span>AAC</span>
+    <span>NetZero</span>
+    <span>Products & Applications</span>
+    <span>Downloads</span>
+    <span>Contact</span>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="eyebrow">AAC · NetZero · Carbon accounting</div>
+    <h1>Wall LCA & Thermal Performance Calculator</h1>
+    <p>Indicative calculation of U-value and GWP per m² wall area for transparent comparison of AAC wall assemblies and alternative constructions.</p>
+  </div>
 </header>
 
 <main>
@@ -439,6 +554,16 @@
   </section>
 
 </main>
+
+<footer class="eaaca-footer">
+  <div>
+    <strong>EAACA</strong><br>
+    Hohes Steinfeld 1 · 14797 Kloster Lehnin · Germany
+  </div>
+  <div>
+    Indicative tool for technical communication. Module D is reported separately.
+  </div>
+</footer>
 
 <script>
 const STORAGE_MATERIALS = "eaaca_materials_v4";
@@ -1074,3 +1199,4 @@ loadInitialData();
 </script>
 </body>
 </html>
+
