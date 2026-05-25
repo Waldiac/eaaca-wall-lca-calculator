@@ -789,6 +789,8 @@
 
 </main>
 
+<div id="printReport" class="print-report"></div>
+
 <footer class="eaaca-footer">
   <div>
     <strong>EAACA</strong><br>
@@ -1488,11 +1490,13 @@ function buildCurrentLayerRowsForReport() {
 }
 
 function doPrintReport(html) {
-  const report = document.getElementById("printReport");
+  let report = document.getElementById("printReport");
 
   if (!report) {
-    alert("Internal error: report container not found.");
-    return;
+    report = document.createElement("div");
+    report.id = "printReport";
+    report.className = "print-report";
+    document.body.appendChild(report);
   }
 
   report.innerHTML = `
@@ -1696,7 +1700,6 @@ loadInitialData();
 </script>
 </body>
 </html>
-
 
 
 
