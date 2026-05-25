@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>EAACA Wall LCA & Thermal Performance Calculator</title>
+
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -29,7 +30,7 @@
     }
 
     main {
-      max-width: 1100px;
+      max-width: 1180px;
       margin: 30px auto;
       padding: 0 20px;
     }
@@ -47,10 +48,16 @@
       color: #004b7a;
     }
 
+    h3 {
+      margin-top: 18px;
+      color: #004b7a;
+    }
+
     label {
       display: block;
       font-weight: bold;
       margin-bottom: 6px;
+      font-size: 14px;
     }
 
     select, input {
@@ -58,6 +65,8 @@
       width: 100%;
       box-sizing: border-box;
       margin-bottom: 12px;
+      border: 1px solid #b8c2cc;
+      border-radius: 4px;
     }
 
     button {
@@ -68,23 +77,38 @@
       border-radius: 6px;
       cursor: pointer;
       font-weight: bold;
+      margin-right: 6px;
+      margin-bottom: 6px;
     }
 
     button:hover {
       background: #006aa6;
     }
 
+    .secondary {
+      background: #536471;
+    }
+
+    .danger {
+      background: #b42318;
+    }
+
+    .success {
+      background: #1a7f37;
+    }
+
     table {
       width: 100%;
       border-collapse: collapse;
       margin-top: 16px;
-      font-size: 14px;
+      font-size: 13px;
     }
 
     th, td {
       border: 1px solid #d0d7de;
-      padding: 8px;
+      padding: 7px;
       text-align: right;
+      vertical-align: middle;
     }
 
     th:first-child, td:first-child {
@@ -95,11 +119,29 @@
       background: #eef3f7;
     }
 
-    .grid {
+    td input {
+      margin: 0;
+      padding: 5px;
+      font-size: 13px;
+    }
+
+    .grid-3 {
       display: grid;
       grid-template-columns: 2fr 1fr 1fr;
       gap: 16px;
       align-items: end;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+
+    .grid-6 {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 12px;
     }
 
     .result-box {
@@ -129,9 +171,28 @@
       line-height: 1.45;
     }
 
-    .delete {
-      background: #b42318;
-      padding: 6px 10px;
+    .warning {
+      background: #fff4d6;
+      border-left: 5px solid #d18b00;
+      padding: 12px;
+      margin: 12px 0;
+      font-size: 14px;
+    }
+
+    canvas {
+      width: 100%;
+      max-width: 100%;
+      height: 360px;
+      border: 1px solid #d0d7de;
+      border-radius: 8px;
+      margin-top: 16px;
+      background: #ffffff;
+    }
+
+    @media (max-width: 900px) {
+      .grid-3, .grid-4, .grid-6, .result-box {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
@@ -143,13 +204,14 @@
   </header>
 
   <main>
+
     <section>
       <h2>1. Add wall layer</h2>
 
-      <div class="grid">
+      <div class="grid-3">
         <div>
-          <label for="material">Material</label>
-          <select id="material"></select>
+          <label for="materialSelect">Material</label>
+          <select id="materialSelect"></select>
         </div>
 
         <div>
@@ -166,6 +228,7 @@
         <thead>
           <tr>
             <th>Layer</th>
+            <th>Basis</th>
             <th>Thickness [mm]</th>
             <th>λ [W/mK]</th>
             <th>R [m²K/W]</th>
@@ -211,91 +274,267 @@
         </thead>
         <tbody id="moduleResults"></tbody>
       </table>
+
+      <h3>Diagram</h3>
+      <canvas id="resultChart" width="1100" height="360"></canvas>
     </section>
 
     <section>
-      <h2>3. Methodology / Disclaimer</h2>
+      <h2>3. Save / Load construction</h2>
+
+      <div class="grid-3">
+        <div>
+          <label for="constructionName">Construction name</label>
+          <input id="constructionName" type="text" placeholder="e.g. AAC 300 + EPS" />
+        </div>
+
+        <div>
+          <label for="savedConstructions">Saved constructions</label>
+          <select id="savedConstructions"></select>
+        </div>
+
+        <div>
+          <button class="success" onclick="saveConstruction()">Save</button>
+          <button onclick="loadConstruction()">Load</button>
+          <button class="danger" onclick="deleteConstruction()">Delete</button>
+        </div>
+      </div>
+
       <p class="note">
-        This prototype calculates indicative results for wall assemblies.
-        GWP values are assumed as kg CO₂e per m³ material. The result per m² wall area
-        is calculated by multiplying the material value by the layer thickness in metres.
-      </p>
-      <p class="note">
-        U-value calculation uses: U = 1 / (Rsi + Σ d/λ + Rse).
-        For this first prototype, Rsi = 0.13 m²K/W and Rse = 0.04 m²K/W are used for external walls.
-      </p>
-      <p class="note">
-        Module D is shown separately and is not automatically included in the A-C result.
-        This tool does not replace a verified EPD according to EN 15804 or a project-specific
-        building LCA according to EN 15978.
+        Saved constructions are stored locally in this browser. They are not yet stored in a central database.
       </p>
     </section>
+
+    <section>
+      <h2>4. Add or edit material</h2>
+
+      <div class="warning">
+        For newly added individual materials, the GWP values A1-A3 to D shall be entered as
+        <strong>kg CO₂e/m² wall area</strong>. These values are then used directly and are not multiplied by thickness.
+        The λ-value and thickness are still used for the U-value calculation.
+      </div>
+
+      <div class="grid-4">
+        <div>
+          <label for="editMaterialSelect">Select material to edit</label>
+          <select id="editMaterialSelect" onchange="loadMaterialForEditing()"></select>
+        </div>
+
+        <div>
+          <label for="matName">Material name</label>
+          <input id="matName" type="text" placeholder="Material name" />
+        </div>
+
+        <div>
+          <label for="matLambda">λ [W/mK]</label>
+          <input id="matLambda" type="number" step="0.001" value="0.10" />
+        </div>
+
+        <div>
+          <label for="matBasis">GWP basis</label>
+          <select id="matBasis">
+            <option value="per_m3">kg CO₂e/m³ material</option>
+            <option value="per_m2">kg CO₂e/m² wall area</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid-6">
+        <div>
+          <label for="matA1A3">A1-A3</label>
+          <input id="matA1A3" type="number" step="0.01" value="0" />
+        </div>
+
+        <div>
+          <label for="matA4A5">A4-A5</label>
+          <input id="matA4A5" type="number" step="0.01" value="0" />
+        </div>
+
+        <div>
+          <label for="matB1">B1</label>
+          <input id="matB1" type="number" step="0.01" value="0" />
+        </div>
+
+        <div>
+          <label for="matB4">B4</label>
+          <input id="matB4" type="number" step="0.01" value="0" />
+        </div>
+
+        <div>
+          <label for="matC1C4">C1-C4</label>
+          <input id="matC1C4" type="number" step="0.01" value="0" />
+        </div>
+
+        <div>
+          <label for="matD">D</label>
+          <input id="matD" type="number" step="0.01" value="0" />
+        </div>
+      </div>
+
+      <button class="success" onclick="saveMaterial()">Save material</button>
+      <button class="secondary" onclick="newMaterialForm()">New material</button>
+      <button class="danger" onclick="deleteMaterial()">Delete selected material</button>
+
+      <p class="note">
+        Existing materials may be edited. Standard materials are initially stored as kg CO₂e/m³ material.
+        Project-specific materials may be entered directly as kg CO₂e/m² wall area.
+      </p>
+    </section>
+
+    <section>
+      <h2>5. Methodology / Disclaimer</h2>
+
+      <p class="note">
+        This prototype calculates indicative results for wall assemblies. For standard materials,
+        GWP values are assumed as kg CO₂e per m³ material. The result per m² wall area is calculated by multiplying
+        the material value by the layer thickness in metres.
+      </p>
+
+      <p class="note">
+        For individual project-specific materials with the basis “kg CO₂e/m² wall area”, the GWP values are used directly.
+        Thickness changes then affect the U-value, but not the GWP of that material.
+      </p>
+
+      <p class="note">
+        U-value calculation uses: U = 1 / (Rsi + Σ d/λ + Rse).
+        For this prototype, Rsi = 0.13 m²K/W and Rse = 0.04 m²K/W are used for external walls.
+      </p>
+
+      <p class="note">
+        Module D is shown separately and is not automatically included in the A-C result.
+        This tool does not replace a verified EPD according to EN 15804 or a project-specific building LCA according to EN 15978.
+      </p>
+    </section>
+
   </main>
 
   <script>
-    const materials = [
+    const defaultMaterials = [
       {
+        id: "aac_300",
         name: "AAC 300 kg/m³",
         lambda: 0.075,
+        basis: "per_m3",
         gwp: { A1_A3: 147, A4_A5: 8.75, B1: -60.3, B4: 0, C1_C4: 0, D: -1.19 }
       },
       {
+        id: "aac_400",
         name: "AAC 400 kg/m³",
         lambda: 0.10,
+        basis: "per_m3",
         gwp: { A1_A3: 160, A4_A5: 9.4, B1: -68.0, B4: 0, C1_C4: 2.5, D: -4.0 }
       },
       {
+        id: "aac_500",
         name: "AAC 500 kg/m³",
         lambda: 0.14,
+        basis: "per_m3",
         gwp: { A1_A3: 170, A4_A5: 9.99, B1: -76.2, B4: 0, C1_C4: 0, D: -0.23 }
       },
       {
+        id: "csu_1400",
         name: "Calcium silicate unit 1400 kg/m³",
         lambda: 0.80,
+        basis: "per_m3",
         gwp: { A1_A3: 189, A4_A5: 26.4, B1: -83.9, B4: 0, C1_C4: 0, D: -3.34 }
       },
       {
+        id: "ceramic_block",
         name: "Ceramic block",
         lambda: 0.18,
+        basis: "per_m3",
         gwp: { A1_A3: 113, A4_A5: 4.97, B1: 0, B4: 0, C1_C4: 0, D: -10.1 }
       },
       {
+        id: "eps",
         name: "EPS insulation",
         lambda: 0.038,
+        basis: "per_m3",
         gwp: { A1_A3: 45, A4_A5: 4, B1: 0, B4: 45, C1_C4: 0, D: 15 }
       },
       {
+        id: "mineral_wool",
         name: "Mineral wool insulation",
         lambda: 0.036,
+        basis: "per_m3",
         gwp: { A1_A3: 67, A4_A5: 6, B1: 0, B4: 80, C1_C4: 0, D: 5 }
       },
       {
+        id: "external_render",
         name: "External render / plaster",
         lambda: 0.70,
+        basis: "per_m3",
         gwp: { A1_A3: 250, A4_A5: 15, B1: 0, B4: 0, C1_C4: 5, D: 0 }
       },
       {
+        id: "gypsum_plaster",
         name: "Gypsum plaster",
         lambda: 0.35,
+        basis: "per_m3",
         gwp: { A1_A3: 180, A4_A5: 10, B1: 0, B4: 0, C1_C4: 5, D: 0 }
       }
     ];
 
+    let materials = [];
     let layers = [];
+    let currentMaterialId = null;
 
-    function initMaterials() {
-      const select = document.getElementById("material");
-      materials.forEach((mat, index) => {
-        const option = document.createElement("option");
-        option.value = index;
-        option.textContent = mat.name;
-        select.appendChild(option);
+    function loadInitialData() {
+      const storedMaterials = localStorage.getItem("eaaca_materials_v2");
+
+      if (storedMaterials) {
+        materials = JSON.parse(storedMaterials);
+      } else {
+        materials = JSON.parse(JSON.stringify(defaultMaterials));
+        saveMaterialsToStorage();
+      }
+
+      refreshMaterialSelects();
+      refreshSavedConstructions();
+      calculate();
+    }
+
+    function saveMaterialsToStorage() {
+      localStorage.setItem("eaaca_materials_v2", JSON.stringify(materials));
+    }
+
+    function refreshMaterialSelects() {
+      const materialSelect = document.getElementById("materialSelect");
+      const editMaterialSelect = document.getElementById("editMaterialSelect");
+
+      materialSelect.innerHTML = "";
+      editMaterialSelect.innerHTML = "";
+
+      materials.forEach((mat) => {
+        const opt1 = document.createElement("option");
+        opt1.value = mat.id;
+        opt1.textContent = mat.name;
+        materialSelect.appendChild(opt1);
+
+        const opt2 = document.createElement("option");
+        opt2.value = mat.id;
+        opt2.textContent = mat.name;
+        editMaterialSelect.appendChild(opt2);
       });
+
+      if (materials.length > 0) {
+        editMaterialSelect.value = materials[0].id;
+        loadMaterialForEditing();
+      }
+    }
+
+    function getMaterialById(id) {
+      return materials.find(m => m.id === id);
     }
 
     function addLayer() {
-      const materialIndex = document.getElementById("material").value;
+      const materialId = document.getElementById("materialSelect").value;
       const thicknessMm = parseFloat(document.getElementById("thickness").value);
+
+      if (!materialId) {
+        alert("Please select a material.");
+        return;
+      }
 
       if (!thicknessMm || thicknessMm <= 0) {
         alert("Please enter a valid thickness.");
@@ -303,7 +542,7 @@
       }
 
       layers.push({
-        material: materials[materialIndex],
+        materialId: materialId,
         thicknessMm: thicknessMm
       });
 
@@ -315,8 +554,44 @@
       calculate();
     }
 
+    function updateLayerThickness(index, value) {
+      const thickness = parseFloat(value);
+      if (!thickness || thickness <= 0) {
+        return;
+      }
+
+      layers[index].thicknessMm = thickness;
+      calculate();
+    }
+
+    function updateLayerMaterial(index, materialId) {
+      layers[index].materialId = materialId;
+      calculate();
+    }
+
     function format(value) {
+      if (isNaN(value) || value === null || value === undefined) return "0.00";
       return Number(value).toFixed(2);
+    }
+
+    function shortBasis(basis) {
+      return basis === "per_m2" ? "kg/m²" : "kg/m³";
+    }
+
+    function calculateLayerGwp(layer, mat) {
+      const d = layer.thicknessMm / 1000;
+
+      const gwpLayer = {};
+
+      Object.keys(mat.gwp).forEach(module => {
+        if (mat.basis === "per_m2") {
+          gwpLayer[module] = Number(mat.gwp[module]);
+        } else {
+          gwpLayer[module] = d * Number(mat.gwp[module]);
+        }
+      });
+
+      return gwpLayer;
     }
 
     function calculate() {
@@ -334,22 +609,38 @@
       };
 
       layers.forEach((layer, index) => {
+        const mat = getMaterialById(layer.materialId);
+        if (!mat) return;
+
         const d = layer.thicknessMm / 1000;
-        const mat = layer.material;
-        const r = d / mat.lambda;
+        const r = d / Number(mat.lambda);
         rLayers += r;
+
+        const gwpLayer = calculateLayerGwp(layer, mat);
+
+        Object.keys(sums).forEach(module => {
+          sums[module] += Number(gwpLayer[module]);
+        });
 
         const row = document.createElement("tr");
 
-        const gwpLayer = {};
-        Object.keys(sums).forEach(module => {
-          gwpLayer[module] = d * mat.gwp[module];
-          sums[module] += gwpLayer[module];
+        let materialOptions = "";
+        materials.forEach(m => {
+          materialOptions += `<option value="${m.id}" ${m.id === mat.id ? "selected" : ""}>${m.name}</option>`;
         });
 
         row.innerHTML = `
-          <td>${mat.name}</td>
-          <td>${format(layer.thicknessMm)}</td>
+          <td>
+            <select onchange="updateLayerMaterial(${index}, this.value)">
+              ${materialOptions}
+            </select>
+          </td>
+          <td>${shortBasis(mat.basis)}</td>
+          <td>
+            <input type="number" value="${layer.thicknessMm}" min="1"
+              onchange="updateLayerThickness(${index}, this.value)"
+              oninput="updateLayerThickness(${index}, this.value)" />
+          </td>
           <td>${format(mat.lambda)}</td>
           <td>${format(r)}</td>
           <td>${format(gwpLayer.A1_A3)}</td>
@@ -358,7 +649,7 @@
           <td>${format(gwpLayer.B4)}</td>
           <td>${format(gwpLayer.C1_C4)}</td>
           <td>${format(gwpLayer.D)}</td>
-          <td><button class="delete" onclick="removeLayer(${index})">X</button></td>
+          <td><button class="danger" onclick="removeLayer(${index})">X</button></td>
         `;
 
         tbody.appendChild(row);
@@ -383,11 +674,256 @@
         <tr><td>B4 Replacement</td><td>${format(sums.B4)}</td></tr>
         <tr><td>C1-C4 End of life</td><td>${format(sums.C1_C4)}</td></tr>
         <tr><td>D Beyond system boundary, separately reported</td><td>${format(sums.D)}</td></tr>
+        <tr><td><strong>A-C total, without D</strong></td><td><strong>${format(gwpAC)}</strong></td></tr>
       `;
+
+      drawChart(sums, gwpAC);
     }
 
-    initMaterials();
-    calculate();
+    function drawChart(sums, gwpAC) {
+      const canvas = document.getElementById("resultChart");
+      const ctx = canvas.getContext("2d");
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const data = [
+        { label: "A1-A3", value: sums.A1_A3 },
+        { label: "A4-A5", value: sums.A4_A5 },
+        { label: "B1", value: sums.B1 },
+        { label: "B4", value: sums.B4 },
+        { label: "C1-C4", value: sums.C1_C4 },
+        { label: "D", value: sums.D },
+        { label: "A-C total", value: gwpAC }
+      ];
+
+      const values = data.map(d => d.value);
+      const maxAbs = Math.max(10, ...values.map(v => Math.abs(v)));
+
+      const chartLeft = 80;
+      const chartRight = canvas.width - 40;
+      const chartTop = 30;
+      const chartBottom = canvas.height - 70;
+      const chartHeight = chartBottom - chartTop;
+      const zeroY = chartTop + chartHeight / 2;
+
+      ctx.font = "14px Arial";
+      ctx.fillStyle = "#1f2933";
+      ctx.textAlign = "left";
+      ctx.fillText("GWP by life-cycle module [kg CO₂e/m² wall]", chartLeft, 20);
+
+      ctx.strokeStyle = "#444";
+      ctx.beginPath();
+      ctx.moveTo(chartLeft, zeroY);
+      ctx.lineTo(chartRight, zeroY);
+      ctx.stroke();
+
+      ctx.fillStyle = "#666";
+      ctx.textAlign = "right";
+      ctx.fillText("0", chartLeft - 8, zeroY + 4);
+
+      const barAreaWidth = chartRight - chartLeft;
+      const step = barAreaWidth / data.length;
+      const barWidth = Math.min(70, step * 0.55);
+
+      data.forEach((item, i) => {
+        const x = chartLeft + step * i + step / 2 - barWidth / 2;
+        const barHeight = Math.abs(item.value) / maxAbs * (chartHeight / 2 - 20);
+
+        let y;
+        if (item.value >= 0) {
+          y = zeroY - barHeight;
+        } else {
+          y = zeroY;
+        }
+
+        ctx.fillStyle = item.value >= 0 ? "#004b7a" : "#8a2d2d";
+        ctx.fillRect(x, y, barWidth, barHeight);
+
+        ctx.fillStyle = "#1f2933";
+        ctx.textAlign = "center";
+        ctx.font = "12px Arial";
+        ctx.fillText(item.label, x + barWidth / 2, chartBottom + 22);
+        ctx.fillText(format(item.value), x + barWidth / 2, item.value >= 0 ? y - 6 : y + barHeight + 16);
+      });
+    }
+
+    function loadMaterialForEditing() {
+      const id = document.getElementById("editMaterialSelect").value;
+      const mat = getMaterialById(id);
+      if (!mat) return;
+
+      currentMaterialId = mat.id;
+
+      document.getElementById("matName").value = mat.name;
+      document.getElementById("matLambda").value = mat.lambda;
+      document.getElementById("matBasis").value = mat.basis;
+      document.getElementById("matA1A3").value = mat.gwp.A1_A3;
+      document.getElementById("matA4A5").value = mat.gwp.A4_A5;
+      document.getElementById("matB1").value = mat.gwp.B1;
+      document.getElementById("matB4").value = mat.gwp.B4;
+      document.getElementById("matC1C4").value = mat.gwp.C1_C4;
+      document.getElementById("matD").value = mat.gwp.D;
+    }
+
+    function newMaterialForm() {
+      currentMaterialId = null;
+      document.getElementById("editMaterialSelect").value = "";
+      document.getElementById("matName").value = "";
+      document.getElementById("matLambda").value = 0.10;
+      document.getElementById("matBasis").value = "per_m2";
+      document.getElementById("matA1A3").value = 0;
+      document.getElementById("matA4A5").value = 0;
+      document.getElementById("matB1").value = 0;
+      document.getElementById("matB4").value = 0;
+      document.getElementById("matC1C4").value = 0;
+      document.getElementById("matD").value = 0;
+    }
+
+    function saveMaterial() {
+      const name = document.getElementById("matName").value.trim();
+      const lambda = parseFloat(document.getElementById("matLambda").value);
+      const basis = document.getElementById("matBasis").value;
+
+      if (!name) {
+        alert("Please enter a material name.");
+        return;
+      }
+
+      if (!lambda || lambda <= 0) {
+        alert("Please enter a valid lambda value.");
+        return;
+      }
+
+      const matData = {
+        id: currentMaterialId || "custom_" + Date.now(),
+        name: name,
+        lambda: lambda,
+        basis: basis,
+        gwp: {
+          A1_A3: parseFloat(document.getElementById("matA1A3").value) || 0,
+          A4_A5: parseFloat(document.getElementById("matA4A5").value) || 0,
+          B1: parseFloat(document.getElementById("matB1").value) || 0,
+          B4: parseFloat(document.getElementById("matB4").value) || 0,
+          C1_C4: parseFloat(document.getElementById("matC1C4").value) || 0,
+          D: parseFloat(document.getElementById("matD").value) || 0
+        }
+      };
+
+      if (currentMaterialId) {
+        const index = materials.findIndex(m => m.id === currentMaterialId);
+        materials[index] = matData;
+      } else {
+        materials.push(matData);
+        currentMaterialId = matData.id;
+      }
+
+      saveMaterialsToStorage();
+      refreshMaterialSelects();
+      document.getElementById("editMaterialSelect").value = currentMaterialId;
+      calculate();
+
+      alert("Material saved.");
+    }
+
+    function deleteMaterial() {
+      const id = document.getElementById("editMaterialSelect").value;
+
+      if (!id) return;
+
+      const used = layers.some(layer => layer.materialId === id);
+
+      if (used) {
+        alert("This material is used in the current construction. Remove the layer first.");
+        return;
+      }
+
+      if (!confirm("Delete selected material?")) return;
+
+      materials = materials.filter(m => m.id !== id);
+      saveMaterialsToStorage();
+      currentMaterialId = null;
+      refreshMaterialSelects();
+      calculate();
+    }
+
+    function getSavedConstructions() {
+      const stored = localStorage.getItem("eaaca_constructions_v2");
+      return stored ? JSON.parse(stored) : {};
+    }
+
+    function setSavedConstructions(data) {
+      localStorage.setItem("eaaca_constructions_v2", JSON.stringify(data));
+    }
+
+    function refreshSavedConstructions() {
+      const saved = getSavedConstructions();
+      const select = document.getElementById("savedConstructions");
+
+      select.innerHTML = "";
+
+      Object.keys(saved).forEach(name => {
+        const option = document.createElement("option");
+        option.value = name;
+        option.textContent = name;
+        select.appendChild(option);
+      });
+    }
+
+    function saveConstruction() {
+      const name = document.getElementById("constructionName").value.trim();
+
+      if (!name) {
+        alert("Please enter a construction name.");
+        return;
+      }
+
+      if (layers.length === 0) {
+        alert("No layers to save.");
+        return;
+      }
+
+      const saved = getSavedConstructions();
+
+      saved[name] = {
+        name: name,
+        layers: layers
+      };
+
+      setSavedConstructions(saved);
+      refreshSavedConstructions();
+      document.getElementById("savedConstructions").value = name;
+
+      alert("Construction saved.");
+    }
+
+    function loadConstruction() {
+      const name = document.getElementById("savedConstructions").value;
+      const saved = getSavedConstructions();
+
+      if (!saved[name]) {
+        alert("No construction selected.");
+        return;
+      }
+
+      layers = JSON.parse(JSON.stringify(saved[name].layers));
+      document.getElementById("constructionName").value = name;
+      calculate();
+    }
+
+    function deleteConstruction() {
+      const name = document.getElementById("savedConstructions").value;
+      const saved = getSavedConstructions();
+
+      if (!saved[name]) return;
+
+      if (!confirm("Delete selected construction?")) return;
+
+      delete saved[name];
+      setSavedConstructions(saved);
+      refreshSavedConstructions();
+    }
+
+    loadInitialData();
   </script>
 </body>
 </html>
