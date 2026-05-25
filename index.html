@@ -19,13 +19,6 @@
       --red: #b42318;
       --grey: #66727c;
       --warn: #fff4d6;
-      --bar1: #006fb6;
-      --bar2: #6aa84f;
-      --bar3: #f2b705;
-      --bar4: #7b4fa3;
-      --bar5: #c56b2c;
-      --bar6: #2c7f8f;
-      --bar7: #8a2d2d;
     }
 
     body {
@@ -114,7 +107,18 @@
     header p {
       margin: 12px 0 0;
       font-size: 17px;
-      max-width: 860px;
+      max-width: 900px;
+    }
+
+    .legal-note {
+      max-width: 1260px;
+      margin: 18px auto 0;
+      background: #ffffff;
+      border-left: 5px solid var(--green);
+      padding: 14px 18px;
+      color: #2d3b45;
+      box-shadow: 0 2px 10px rgba(34,49,63,0.06);
+      font-size: 14px;
     }
 
     main {
@@ -171,13 +175,9 @@
       font-weight: bold;
       margin-right: 6px;
       margin-bottom: 6px;
-      text-transform: none;
     }
 
-    button:hover {
-      background: #5b9543;
-    }
-
+    button:hover { background: #5b9543; }
     .secondary { background: var(--grey); }
     .danger { background: var(--red); }
     .success { background: var(--green); }
@@ -197,24 +197,13 @@
       vertical-align: middle;
     }
 
-    th:first-child, td:first-child {
-      text-align: left;
-    }
-
-    th {
-      background: var(--soft);
-    }
+    th:first-child, td:first-child { text-align: left; }
+    th { background: var(--soft); }
 
     td input, td select {
       margin: 0;
       padding: 5px;
       font-size: 13px;
-    }
-
-    .grid-2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
     }
 
     .grid-3 {
@@ -230,9 +219,9 @@
       gap: 14px;
     }
 
-    .grid-6 {
+    .grid-5 {
       display: grid;
-      grid-template-columns: repeat(6, 1fr);
+      grid-template-columns: repeat(5, 1fr);
       gap: 12px;
     }
 
@@ -274,7 +263,7 @@
 
     canvas {
       width: 100%;
-      height: 400px;
+      height: 430px;
       border: 1px solid var(--line);
       border-radius: 8px;
       margin-top: 16px;
@@ -308,18 +297,6 @@
       display: inline-block;
     }
 
-    .eaaca-footer {
-      background: var(--dark);
-      color: white;
-      padding: 26px 40px;
-      display: flex;
-      justify-content: space-between;
-      gap: 24px;
-      font-size: 13px;
-      line-height: 1.5;
-    }
-
-
     .report-actions {
       margin-top: 18px;
       padding-top: 14px;
@@ -330,13 +307,13 @@
       display: none;
     }
 
-    body.report-ready .print-report {
-      display: block;
+    body.report-ready #printReport.print-report {
+      display: block !important;
+      visibility: visible !important;
       max-width: 1100px;
       margin: 30px auto;
       padding: 24px;
       background: white;
-      border-radius: 4px;
       border-top: 4px solid var(--green);
       box-shadow: 0 2px 12px rgba(34,49,63,0.12);
     }
@@ -410,33 +387,23 @@
       line-height: 1.45;
     }
 
-
-    .report-title {
-      color: var(--blue);
-      margin-bottom: 4px;
-    }
-
-    .report-meta {
-      color: #4b5563;
+    .eaaca-footer {
+      background: var(--dark);
+      color: white;
+      padding: 26px 40px;
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
       font-size: 13px;
-      margin-bottom: 16px;
-    }
-
-
-    body.report-ready #printReport.print-report {
-      display: block !important;
-      visibility: visible !important;
+      line-height: 1.5;
     }
 
     @media print {
-      body {
-        background: white;
-        color: #111;
-      }
-
+      body { background: white; color: #111; }
       body.report-ready .topbar,
       body.report-ready .site-nav,
       body.report-ready header.hero,
+      body.report-ready .legal-note,
       body.report-ready main,
       body.report-ready .eaaca-footer {
         display: none !important;
@@ -448,38 +415,13 @@
 
       body.report-ready .print-report {
         display: block !important;
-      }
-
-      .print-report {
-        margin: 0;
-        padding: 0;
-        font-family: Arial, Helvetica, sans-serif;
-        font-size: 10.5pt;
-        line-height: 1.35;
-      }
-
-      .print-report h1 {
-        font-size: 20pt;
-        color: #006fb6;
-        margin: 0 0 6mm 0;
-      }
-
-      .print-report h2 {
-        font-size: 14pt;
-        color: #006fb6;
-        margin: 8mm 0 3mm 0;
-      }
-
-      .print-report h3 {
-        font-size: 11.5pt;
-        color: #22313f;
-        margin: 5mm 0 2mm 0;
+        box-shadow: none !important;
+        border-top: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
       }
 
       .print-report table {
-        width: 100%;
-        border-collapse: collapse;
-        margin: 3mm 0 6mm 0;
         font-size: 9.5pt;
       }
 
@@ -487,56 +429,6 @@
       .print-report td {
         border: 0.2mm solid #999;
         padding: 1.8mm;
-        text-align: right;
-      }
-
-      .print-report th:first-child,
-      .print-report td:first-child {
-        text-align: left;
-      }
-
-      .print-report th {
-        background: #eaf4f9;
-      }
-
-      .print-report .report-boxes {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 5mm;
-        margin: 5mm 0;
-      }
-
-      .print-report .report-box {
-        border: 0.3mm solid #b8c2cc;
-        padding: 4mm;
-        text-align: center;
-        background: #f4f7f9;
-      }
-
-      .print-report .report-box strong {
-        display: block;
-        font-size: 15pt;
-        color: #006fb6;
-        margin-top: 2mm;
-      }
-
-      .report-toolbar {
-        display: none !important;
-      }
-
-      .print-report img {
-        max-width: 100%;
-        height: auto;
-        border: 0.2mm solid #ccc;
-        margin-top: 3mm;
-      }
-
-      .print-report .disclaimer {
-        font-size: 9pt;
-        color: #333;
-        border-top: 0.3mm solid #999;
-        margin-top: 8mm;
-        padding-top: 3mm;
       }
 
       @page {
@@ -546,22 +438,18 @@
     }
 
     @media(max-width: 900px) {
-      .grid-2, .grid-3, .grid-4, .grid-6, .result-box {
+      .grid-3, .grid-4, .grid-5, .result-box {
         grid-template-columns: 1fr;
       }
 
-      table {
-        font-size: 12px;
-      }
+      table { font-size: 12px; }
 
       .site-nav, .eaaca-footer {
         flex-direction: column;
         align-items: flex-start;
       }
 
-      header h1 {
-        font-size: 26px;
-      }
+      header h1 { font-size: 26px; }
     }
   </style>
 </head>
@@ -594,6 +482,11 @@
   </div>
 </header>
 
+<div class="legal-note">
+  <strong>In accordance with Directive (EU) 2024/1275 (EPBD recast):</strong>
+  this tool supports transparent communication of life-cycle greenhouse gas indicators for wall constructions. Results are indicative and depend on selected datasets and scenarios.
+</div>
+
 <main>
 
   <section>
@@ -623,13 +516,18 @@
         <th>Thickness [mm]</th>
         <th>λ [W/(mK)]</th>
         <th>R [m²K/W]</th>
+        <th>Replacement cycles</th>
         <th>GWP basis</th>
-        <th>A1-A3 [kg/m²]</th>
-        <th>A4-A5 [kg/m²]</th>
-        <th>B1 [kg/m²]</th>
-        <th>B4 [kg/m²]</th>
-        <th>C1-C4 [kg/m²]</th>
-        <th>D [kg/m²]</th>
+        <th>A1-A3</th>
+        <th>A4-A5</th>
+        <th>B1</th>
+        <th>B2</th>
+        <th>B3</th>
+        <th>B4 repl.</th>
+        <th>C1</th>
+        <th>C2</th>
+        <th>C3/C4</th>
+        <th>D</th>
         <th></th>
       </tr>
       </thead>
@@ -637,7 +535,8 @@
     </table>
 
     <p class="note">
-      The table always shows module results in kg CO₂e/m² wall area. The column “GWP basis” shows whether the material dataset is stored as kg CO₂e/m³ material or directly as kg CO₂e/m² wall area.
+      Module values in the layer table are shown in kg CO₂e/m² wall area. “Replacement cycles” defines additional replacements within the reference period:
+      0 = no replacement, 1 = one replacement, 2 = two replacements. For example, a layer with one replacement is counted twice in the life-cycle calculation: once as the initial layer and once as replacement in module B4.
     </p>
   </section>
 
@@ -646,7 +545,7 @@
 
     <div class="result-box">
       <div class="card">U-value [W/m²K]<strong id="uValue">–</strong></div>
-      <div class="card">GWP A-C incl. B1/B4 [kg CO₂e/m²]<strong id="gwpAC">–</strong></div>
+      <div class="card">GWP A-C incl. B modules [kg CO₂e/m²]<strong id="gwpAC">–</strong></div>
       <div class="card">Module D separately [kg CO₂e/m²]<strong id="gwpD">–</strong></div>
     </div>
 
@@ -661,7 +560,7 @@
     </table>
 
     <h3>Layer-resolved module diagram</h3>
-    <canvas id="resultChart" width="1150" height="400"></canvas>
+    <canvas id="resultChart" width="1150" height="430"></canvas>
     <div class="legend" id="layerLegend"></div>
 
     <div class="report-actions">
@@ -724,7 +623,7 @@
       The material editor supports both options:
       <strong>kg CO₂e/m³ material</strong> and <strong>kg CO₂e/m² wall area</strong>.
       If kg CO₂e/m³ is selected, the GWP result is multiplied by layer thickness in metres.
-      If kg CO₂e/m² is selected, the GWP values are used directly.
+      If kg CO₂e/m² is selected, the GWP values are used directly. B4 is calculated from the replacement cycles of each layer.
     </div>
 
     <div class="grid-4">
@@ -752,12 +651,15 @@
       </div>
     </div>
 
-    <div class="grid-6">
+    <div class="grid-5">
       <div><label for="matA1A3">A1-A3</label><input id="matA1A3" type="number" step="0.01" value="0" /></div>
       <div><label for="matA4A5">A4-A5</label><input id="matA4A5" type="number" step="0.01" value="0" /></div>
       <div><label for="matB1">B1</label><input id="matB1" type="number" step="0.01" value="0" /></div>
-      <div><label for="matB4">B4</label><input id="matB4" type="number" step="0.01" value="0" /></div>
-      <div><label for="matC1C4">C1-C4</label><input id="matC1C4" type="number" step="0.01" value="0" /></div>
+      <div><label for="matB2">B2 Maintenance</label><input id="matB2" type="number" step="0.01" value="0" /></div>
+      <div><label for="matB3">B3 Repair</label><input id="matB3" type="number" step="0.01" value="0" /></div>
+      <div><label for="matC1">C1 Deconstruction</label><input id="matC1" type="number" step="0.01" value="0" /></div>
+      <div><label for="matC2">C2 Transport</label><input id="matC2" type="number" step="0.01" value="0" /></div>
+      <div><label for="matC3C4">C3/C4 Recovery or disposal</label><input id="matC3C4" type="number" step="0.01" value="0" /></div>
       <div><label for="matD">D</label><input id="matD" type="number" step="0.01" value="0" /></div>
     </div>
 
@@ -775,15 +677,17 @@
     </p>
 
     <p class="note">
-      For individual project-specific materials with the input basis kg CO₂e/m² wall area, module results are used directly. Thickness changes then affect the U-value, but not the GWP of that material.
+      Replacement cycles are shown in module B4. In this prototype, B4 is calculated as the additional product, transport/construction and end-of-life impacts of the replaced layer:
+      B4 = replacement cycles × (A1-A3 + A4-A5 + C1 + C2 + C3/C4). Module D is shown separately and is multiplied by the total number of layer occurrences.
+    </p>
+
+    <p class="note">
+      C1 and C2 are shown separately. C3/C4 is combined because a layer is normally either routed to recovery/recycling or to disposal in a scenario, not both as independent alternatives.
     </p>
 
     <p class="note">
       U-value calculation uses: U = 1 / (Rsi + Σ d/λ + Rse). For this prototype, Rsi = 0.13 m²K/W and Rse = 0.04 m²K/W are used for external walls.
-    </p>
-
-    <p class="note">
-      Module D is shown separately and is not automatically included in the A-C result. This tool does not replace a verified EPD according to EN 15804 or a project-specific building LCA according to EN 15978.
+      This tool does not replace a verified EPD according to EN 15804 or a project-specific building LCA according to EN 15978.
     </p>
   </section>
 
@@ -802,22 +706,37 @@
 </footer>
 
 <script>
-const STORAGE_MATERIALS = "eaaca_materials_v4";
-const STORAGE_CONSTRUCTIONS = "eaaca_constructions_v4";
-const STORAGE_COMPARE = "eaaca_compare_selection_v4";
+const STORAGE_MATERIALS = "eaaca_materials_v13";
+const STORAGE_CONSTRUCTIONS = "eaaca_constructions_v13";
+const STORAGE_COMPARE = "eaaca_compare_selection_v13";
 
-const layerColors = ["#004b7a", "#2f7d32", "#8a6d3b", "#7b4fa3", "#c56b2c", "#2c7f8f", "#607d8b", "#a33"];
+const layerColors = ["#006fb6", "#6aa84f", "#f2b705", "#7b4fa3", "#c56b2c", "#2c7f8f", "#607d8b", "#a33"];
+
+const moduleKeys = ["A1_A3", "A4_A5", "B1", "B2", "B3", "B4", "C1", "C2", "C3_C4", "D"];
+const chartModules = [
+  { key:"A1_A3", label:"A1-A3" },
+  { key:"A4_A5", label:"A4-A5" },
+  { key:"B1", label:"B1" },
+  { key:"B2", label:"B2" },
+  { key:"B3", label:"B3" },
+  { key:"B4", label:"B4 repl." },
+  { key:"C1", label:"C1" },
+  { key:"C2", label:"C2" },
+  { key:"C3_C4", label:"C3/C4" },
+  { key:"D", label:"D" },
+  { key:"AC", label:"A-C total" }
+];
 
 const defaultMaterials = [
-  {id:"aac_300",name:"AAC 300 kg/m³",lambda:0.075,basis:"per_m3",gwp:{A1_A3:147,A4_A5:8.75,B1:-60.3,B4:0,C1_C4:0,D:-1.19}},
-  {id:"aac_400",name:"AAC 400 kg/m³",lambda:0.10,basis:"per_m3",gwp:{A1_A3:160,A4_A5:9.4,B1:-68.0,B4:0,C1_C4:2.5,D:-4.0}},
-  {id:"aac_500",name:"AAC 500 kg/m³",lambda:0.14,basis:"per_m3",gwp:{A1_A3:170,A4_A5:9.99,B1:-76.2,B4:0,C1_C4:0,D:-0.23}},
-  {id:"csu_1400",name:"Calcium silicate unit 1400 kg/m³",lambda:0.80,basis:"per_m3",gwp:{A1_A3:189,A4_A5:26.4,B1:-83.9,B4:0,C1_C4:0,D:-3.34}},
-  {id:"ceramic_block",name:"Ceramic block",lambda:0.18,basis:"per_m3",gwp:{A1_A3:113,A4_A5:4.97,B1:0,B4:0,C1_C4:0,D:-10.1}},
-  {id:"eps",name:"EPS insulation",lambda:0.038,basis:"per_m3",gwp:{A1_A3:45,A4_A5:4,B1:0,B4:45,C1_C4:0,D:15}},
-  {id:"mineral_wool",name:"Mineral wool insulation",lambda:0.036,basis:"per_m3",gwp:{A1_A3:67,A4_A5:6,B1:0,B4:80,C1_C4:0,D:5}},
-  {id:"external_render",name:"External render / plaster",lambda:0.70,basis:"per_m3",gwp:{A1_A3:250,A4_A5:15,B1:0,B4:0,C1_C4:5,D:0}},
-  {id:"gypsum_plaster",name:"Gypsum plaster",lambda:0.35,basis:"per_m3",gwp:{A1_A3:180,A4_A5:10,B1:0,B4:0,C1_C4:5,D:0}}
+  {id:"aac_300",name:"AAC 300 kg/m³",lambda:0.075,basis:"per_m3",gwp:{A1_A3:147,A4_A5:8.75,B1:-60.3,B2:0,B3:0,C1:0,C2:0,C3_C4:0,D:-1.19}},
+  {id:"aac_400",name:"AAC 400 kg/m³",lambda:0.10,basis:"per_m3",gwp:{A1_A3:160,A4_A5:9.4,B1:-68.0,B2:0,B3:0,C1:0,C2:0,C3_C4:2.5,D:-4.0}},
+  {id:"aac_500",name:"AAC 500 kg/m³",lambda:0.14,basis:"per_m3",gwp:{A1_A3:170,A4_A5:9.99,B1:-76.2,B2:0,B3:0,C1:0,C2:0,C3_C4:0,D:-0.23}},
+  {id:"csu_1400",name:"Calcium silicate unit 1400 kg/m³",lambda:0.80,basis:"per_m3",gwp:{A1_A3:189,A4_A5:26.4,B1:-83.9,B2:0,B3:0,C1:0,C2:0,C3_C4:0,D:-3.34}},
+  {id:"ceramic_block",name:"Ceramic block",lambda:0.18,basis:"per_m3",gwp:{A1_A3:113,A4_A5:4.97,B1:0,B2:0,B3:0,C1:0,C2:0,C3_C4:0,D:-10.1}},
+  {id:"eps",name:"EPS insulation",lambda:0.038,basis:"per_m3",gwp:{A1_A3:45,A4_A5:4,B1:0,B2:0,B3:0,C1:0,C2:0,C3_C4:0,D:15}},
+  {id:"mineral_wool",name:"Mineral wool insulation",lambda:0.036,basis:"per_m3",gwp:{A1_A3:67,A4_A5:6,B1:0,B2:0,B3:0,C1:0,C2:0,C3_C4:0,D:5}},
+  {id:"external_render",name:"External render / plaster",lambda:0.70,basis:"per_m3",gwp:{A1_A3:250,A4_A5:15,B1:0,B2:0,B3:0,C1:0,C2:0,C3_C4:5,D:0}},
+  {id:"gypsum_plaster",name:"Gypsum plaster",lambda:0.35,basis:"per_m3",gwp:{A1_A3:180,A4_A5:10,B1:0,B2:0,B3:0,C1:0,C2:0,C3_C4:5,D:0}}
 ];
 
 let materials = [];
@@ -838,9 +757,25 @@ function getMaterialById(id) {
   return materials.find(m => m.id === id);
 }
 
+function normaliseMaterial(mat) {
+  const old = mat.gwp || {};
+  mat.gwp = {
+    A1_A3: Number(old.A1_A3 || 0),
+    A4_A5: Number(old.A4_A5 || 0),
+    B1: Number(old.B1 || 0),
+    B2: Number(old.B2 || 0),
+    B3: Number(old.B3 || 0),
+    C1: Number(old.C1 || 0),
+    C2: Number(old.C2 || 0),
+    C3_C4: Number(old.C3_C4 ?? old.C1_C4 ?? 0),
+    D: Number(old.D || 0)
+  };
+  return mat;
+}
+
 function loadInitialData() {
   const stored = localStorage.getItem(STORAGE_MATERIALS);
-  materials = stored ? JSON.parse(stored) : clone(defaultMaterials);
+  materials = stored ? JSON.parse(stored).map(normaliseMaterial) : clone(defaultMaterials).map(normaliseMaterial);
   saveMaterialsToStorage();
   refreshMaterialSelects();
   refreshSavedConstructions();
@@ -883,7 +818,7 @@ function addLayer() {
   if (!materialId) return alert("Please select a material.");
   if (!thicknessMm || thicknessMm <= 0) return alert("Please enter a valid thickness.");
 
-  layers.push({ materialId, thicknessMm });
+  layers.push({ materialId, thicknessMm, replacements: 0 });
   calculate();
 }
 
@@ -910,7 +845,12 @@ function updateLayerMaterial(index, materialId) {
   calculate();
 }
 
-function calculateLayerGwp(layer, mat) {
+function updateLayerReplacements(index, value) {
+  layers[index].replacements = Number(value) || 0;
+  calculate();
+}
+
+function baseLayerGwp(layer, mat) {
   const d = layer.thicknessMm / 1000;
   const out = {};
   Object.keys(mat.gwp).forEach(mod => {
@@ -919,11 +859,36 @@ function calculateLayerGwp(layer, mat) {
   return out;
 }
 
+function calculateLayerGwp(layer, mat) {
+  const base = baseLayerGwp(layer, mat);
+  const repl = Number(layer.replacements || 0);
+
+  const out = {
+    A1_A3: base.A1_A3,
+    A4_A5: base.A4_A5,
+    B1: base.B1,
+    B2: base.B2,
+    B3: base.B3,
+    B4: repl * (base.A1_A3 + base.A4_A5 + base.C1 + base.C2 + base.C3_C4),
+    C1: base.C1,
+    C2: base.C2,
+    C3_C4: base.C3_C4,
+    D: (1 + repl) * base.D
+  };
+
+  return out;
+}
+
+function calcAC(sums) {
+  return sums.A1_A3 + sums.A4_A5 + sums.B1 + sums.B2 + sums.B3 + sums.B4 + sums.C1 + sums.C2 + sums.C3_C4;
+}
+
 function calcForLayers(layerSet) {
   let rLayers = 0;
-  let sums = { A1_A3:0, A4_A5:0, B1:0, B4:0, C1_C4:0, D:0 };
+  let sums = { A1_A3:0, A4_A5:0, B1:0, B2:0, B3:0, B4:0, C1:0, C2:0, C3_C4:0, D:0 };
 
   layerSet.forEach(layer => {
+    if (layer.replacements === undefined) layer.replacements = 0;
     const mat = getMaterialById(layer.materialId);
     if (!mat) return;
 
@@ -931,11 +896,11 @@ function calcForLayers(layerSet) {
     rLayers += d / Number(mat.lambda);
 
     const g = calculateLayerGwp(layer, mat);
-    Object.keys(sums).forEach(k => sums[k] += Number(g[k]));
+    Object.keys(sums).forEach(k => sums[k] += Number(g[k] || 0));
   });
 
   const u = layerSet.length ? 1 / (0.13 + rLayers + 0.04) : null;
-  const ac = sums.A1_A3 + sums.A4_A5 + sums.B1 + sums.B4 + sums.C1_C4;
+  const ac = calcAC(sums);
 
   return { u, ac, d: sums.D, sums };
 }
@@ -944,24 +909,21 @@ function calculate() {
   const tbody = document.querySelector("#layerTable tbody");
   tbody.innerHTML = "";
 
-  let rLayers = 0;
-  let sums = { A1_A3:0, A4_A5:0, B1:0, B4:0, C1_C4:0, D:0 };
   let layerResults = [];
 
   layers.forEach((layer, index) => {
+    if (layer.replacements === undefined) layer.replacements = 0;
     const mat = getMaterialById(layer.materialId);
     if (!mat) return;
 
     const d = layer.thicknessMm / 1000;
     const r = d / Number(mat.lambda);
-    rLayers += r;
-
     const g = calculateLayerGwp(layer, mat);
-    Object.keys(sums).forEach(k => sums[k] += Number(g[k]));
 
     layerResults.push({
       layerName: mat.name,
       thicknessMm: layer.thicknessMm,
+      replacements: Number(layer.replacements || 0),
       gwp: g
     });
 
@@ -976,12 +938,23 @@ function calculate() {
       <td><input type="number" value="${layer.thicknessMm}" min="1" oninput="updateLayerThickness(${index}, this.value)" /></td>
       <td>${format(mat.lambda)}</td>
       <td>${format(r)}</td>
+      <td>
+        <select onchange="updateLayerReplacements(${index}, this.value)">
+          <option value="0" ${Number(layer.replacements) === 0 ? "selected" : ""}>0</option>
+          <option value="1" ${Number(layer.replacements) === 1 ? "selected" : ""}>1</option>
+          <option value="2" ${Number(layer.replacements) === 2 ? "selected" : ""}>2</option>
+        </select>
+      </td>
       <td>${shortBasis(mat.basis)}</td>
       <td>${format(g.A1_A3)}</td>
       <td>${format(g.A4_A5)}</td>
       <td>${format(g.B1)}</td>
+      <td>${format(g.B2)}</td>
+      <td>${format(g.B3)}</td>
       <td>${format(g.B4)}</td>
-      <td>${format(g.C1_C4)}</td>
+      <td>${format(g.C1)}</td>
+      <td>${format(g.C2)}</td>
+      <td>${format(g.C3_C4)}</td>
       <td>${format(g.D)}</td>
       <td><button class="danger smallbtn" onclick="removeLayer(${index})">X</button></td>
     `;
@@ -995,19 +968,27 @@ function calculate() {
   document.getElementById("gwpAC").textContent = layers.length ? format(result.ac) : "–";
   document.getElementById("gwpD").textContent = layers.length ? format(result.d) : "–";
 
-  document.getElementById("moduleResults").innerHTML = `
-    <tr><td>A1-A3 Product stage</td><td>${format(result.sums.A1_A3)}</td></tr>
-    <tr><td>A4-A5 Transport and construction</td><td>${format(result.sums.A4_A5)}</td></tr>
-    <tr><td>B1 Use stage / recarbonation</td><td>${format(result.sums.B1)}</td></tr>
-    <tr><td>B4 Replacement</td><td>${format(result.sums.B4)}</td></tr>
-    <tr><td>C1-C4 End of life</td><td>${format(result.sums.C1_C4)}</td></tr>
-    <tr><td>D Beyond system boundary, separately reported</td><td>${format(result.sums.D)}</td></tr>
-    <tr><td><strong>A-C total, without D</strong></td><td><strong>${format(result.ac)}</strong></td></tr>
-  `;
+  document.getElementById("moduleResults").innerHTML = moduleRowsHtml(result.sums, result.ac);
 
   drawLayerChart(layerResults, result.ac);
   refreshComparisonTable();
   drawComparisonChart();
+}
+
+function moduleRowsHtml(sums, ac) {
+  return `
+    <tr><td>A1-A3 Product stage</td><td>${format(sums.A1_A3)}</td></tr>
+    <tr><td>A4-A5 Transport and construction</td><td>${format(sums.A4_A5)}</td></tr>
+    <tr><td>B1 Use stage / recarbonation</td><td>${format(sums.B1)}</td></tr>
+    <tr><td>B2 Maintenance / Instandhaltung</td><td>${format(sums.B2)}</td></tr>
+    <tr><td>B3 Repair / Instandsetzung</td><td>${format(sums.B3)}</td></tr>
+    <tr><td>B4 Replacement / Austausch</td><td>${format(sums.B4)}</td></tr>
+    <tr><td>C1 Deconstruction</td><td>${format(sums.C1)}</td></tr>
+    <tr><td>C2 Transport</td><td>${format(sums.C2)}</td></tr>
+    <tr><td>C3/C4 Recovery or disposal</td><td>${format(sums.C3_C4)}</td></tr>
+    <tr><td>D Beyond system boundary, separately reported</td><td>${format(sums.D)}</td></tr>
+    <tr><td><strong>A-C total, without D</strong></td><td><strong>${format(ac)}</strong></td></tr>
+  `;
 }
 
 function drawLayerChart(layerResults, acTotal) {
@@ -1015,17 +996,7 @@ function drawLayerChart(layerResults, acTotal) {
   const ctx = canvas.getContext("2d");
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  const modules = [
-    { key:"A1_A3", label:"A1-A3" },
-    { key:"A4_A5", label:"A4-A5" },
-    { key:"B1", label:"B1" },
-    { key:"B4", label:"B4" },
-    { key:"C1_C4", label:"C1-C4" },
-    { key:"D", label:"D" },
-    { key:"AC", label:"A-C total" }
-  ];
-
-  const totals = modules.map(m => {
+  const totals = chartModules.map(m => {
     if (m.key === "AC") return acTotal;
     return layerResults.reduce((sum, l) => sum + Number(l.gwp[m.key] || 0), 0);
   });
@@ -1034,7 +1005,7 @@ function drawLayerChart(layerResults, acTotal) {
   const left = 80;
   const right = canvas.width - 40;
   const top = 38;
-  const bottom = canvas.height - 76;
+  const bottom = canvas.height - 82;
   const h = bottom - top;
   const zeroY = top + h / 2;
 
@@ -1053,10 +1024,10 @@ function drawLayerChart(layerResults, acTotal) {
   ctx.textAlign = "right";
   ctx.fillText("0", left - 8, zeroY + 4);
 
-  const step = (right - left) / modules.length;
-  const groupWidth = Math.min(90, step * 0.68);
+  const step = (right - left) / chartModules.length;
+  const groupWidth = Math.min(78, step * 0.70);
 
-  modules.forEach((module, i) => {
+  chartModules.forEach((module, i) => {
     const groupX = left + step * i + step / 2 - groupWidth / 2;
 
     if (module.key === "AC") {
@@ -1067,7 +1038,7 @@ function drawLayerChart(layerResults, acTotal) {
       ctx.fillRect(groupX, y, groupWidth, bh);
       ctx.fillStyle = "#1f2933";
       ctx.textAlign = "center";
-      ctx.font = "12px Arial";
+      ctx.font = "11px Arial";
       ctx.fillText(format(totalValue), groupX + groupWidth / 2, totalValue >= 0 ? y - 6 : y + bh + 16);
     } else {
       const subWidth = groupWidth / Math.max(layerResults.length, 1);
@@ -1081,7 +1052,7 @@ function drawLayerChart(layerResults, acTotal) {
         ctx.fillStyle = layerColors[li % layerColors.length];
         ctx.fillRect(x, y, Math.max(3, subWidth - 2), bh);
 
-        if (Math.abs(value) > maxAbs * 0.04) {
+        if (Math.abs(value) > maxAbs * 0.045) {
           ctx.fillStyle = "#1f2933";
           ctx.textAlign = "center";
           ctx.font = "10px Arial";
@@ -1092,10 +1063,10 @@ function drawLayerChart(layerResults, acTotal) {
 
     ctx.fillStyle = "#1f2933";
     ctx.textAlign = "center";
-    ctx.font = "12px Arial";
-    ctx.fillText(module.label, left + step * i + step / 2, bottom + 24);
+    ctx.font = "11px Arial";
+    ctx.fillText(module.label, left + step * i + step / 2, bottom + 22);
     if (module.key !== "AC") {
-      ctx.fillText("Σ " + format(totals[i]), left + step * i + step / 2, bottom + 42);
+      ctx.fillText("Σ " + format(totals[i]), left + step * i + step / 2, bottom + 40);
     }
   });
 
@@ -1104,7 +1075,7 @@ function drawLayerChart(layerResults, acTotal) {
   layerResults.forEach((layer, i) => {
     const div = document.createElement("div");
     div.className = "legend-item";
-    div.innerHTML = `<span class="legend-color" style="background:${layerColors[i % layerColors.length]}"></span>${i + 1}. ${layer.layerName} (${format(layer.thicknessMm)} mm)`;
+    div.innerHTML = `<span class="legend-color" style="background:${layerColors[i % layerColors.length]}"></span>${i + 1}. ${layer.layerName} (${format(layer.thicknessMm)} mm, repl. ${layer.replacements})`;
     legend.appendChild(div);
   });
 
@@ -1119,6 +1090,7 @@ function loadMaterialForEditing() {
   const mat = getMaterialById(id);
   if (!mat) return;
 
+  normaliseMaterial(mat);
   currentMaterialId = mat.id;
 
   document.getElementById("matName").value = mat.name;
@@ -1127,8 +1099,11 @@ function loadMaterialForEditing() {
   document.getElementById("matA1A3").value = mat.gwp.A1_A3;
   document.getElementById("matA4A5").value = mat.gwp.A4_A5;
   document.getElementById("matB1").value = mat.gwp.B1;
-  document.getElementById("matB4").value = mat.gwp.B4;
-  document.getElementById("matC1C4").value = mat.gwp.C1_C4;
+  document.getElementById("matB2").value = mat.gwp.B2;
+  document.getElementById("matB3").value = mat.gwp.B3;
+  document.getElementById("matC1").value = mat.gwp.C1;
+  document.getElementById("matC2").value = mat.gwp.C2;
+  document.getElementById("matC3C4").value = mat.gwp.C3_C4;
   document.getElementById("matD").value = mat.gwp.D;
   document.getElementById("materialStatus").textContent = "";
 }
@@ -1139,7 +1114,7 @@ function newMaterialForm() {
   document.getElementById("matName").value = "";
   document.getElementById("matLambda").value = 0.10;
   document.getElementById("matBasis").value = "per_m2";
-  ["matA1A3","matA4A5","matB1","matB4","matC1C4","matD"].forEach(id => document.getElementById(id).value = 0);
+  ["matA1A3","matA4A5","matB1","matB2","matB3","matC1","matC2","matC3C4","matD"].forEach(id => document.getElementById(id).value = 0);
   document.getElementById("materialStatus").textContent = "New material mode.";
 }
 
@@ -1160,8 +1135,11 @@ function saveMaterial() {
       A1_A3: parseFloat(document.getElementById("matA1A3").value) || 0,
       A4_A5: parseFloat(document.getElementById("matA4A5").value) || 0,
       B1: parseFloat(document.getElementById("matB1").value) || 0,
-      B4: parseFloat(document.getElementById("matB4").value) || 0,
-      C1_C4: parseFloat(document.getElementById("matC1C4").value) || 0,
+      B2: parseFloat(document.getElementById("matB2").value) || 0,
+      B3: parseFloat(document.getElementById("matB3").value) || 0,
+      C1: parseFloat(document.getElementById("matC1").value) || 0,
+      C2: parseFloat(document.getElementById("matC2").value) || 0,
+      C3_C4: parseFloat(document.getElementById("matC3C4").value) || 0,
       D: parseFloat(document.getElementById("matD").value) || 0
     }
   };
@@ -1265,7 +1243,10 @@ function loadConstruction() {
 
   if (!saved[name]) return alert("No construction selected.");
 
-  layers = clone(saved[name].layers);
+  layers = clone(saved[name].layers).map(l => {
+    if (l.replacements === undefined) l.replacements = 0;
+    return l;
+  });
   document.getElementById("constructionName").value = name;
   calculate();
 }
@@ -1322,14 +1303,19 @@ function refreshComparisonTable() {
   }
 
   names.forEach(name => {
-    const result = calcForLayers(saved[name].layers || []);
-    const layerNames = (saved[name].layers || []).map(l => {
+    const constructionLayers = clone(saved[name].layers || []).map(l => {
+      if (l.replacements === undefined) l.replacements = 0;
+      return l;
+    });
+    const result = calcForLayers(constructionLayers);
+    const layerNames = constructionLayers.map(l => {
       const m = getMaterialById(l.materialId);
-      return `${m ? m.name : "unknown"} ${format(l.thicknessMm)} mm`;
+      return `${m ? m.name : "unknown"} ${format(l.thicknessMm)} mm, repl. ${l.replacements}`;
     }).join(" / ");
 
     const checked = selection.includes(name) ? "checked" : "";
 
+    const safe = name.replace(/'/g, "\\'");
     const row = document.createElement("tr");
     row.innerHTML = `
       <td>${name}</td>
@@ -1337,7 +1323,7 @@ function refreshComparisonTable() {
       <td>${format(result.u)}</td>
       <td>${format(result.ac)}</td>
       <td>${format(result.d)}</td>
-      <td style="text-align:center;"><input type="checkbox" ${checked} onchange="toggleComparison('${name.replace(/'/g, "\\'")}', this.checked)" /></td>
+      <td style="text-align:center;"><input type="checkbox" ${checked} onchange="toggleComparison('${safe}', this.checked)" /></td>
     `;
     tbody.appendChild(row);
   });
@@ -1359,7 +1345,11 @@ function drawComparisonChart() {
   }
 
   const data = selection.map(name => {
-    const r = calcForLayers(saved[name].layers || []);
+    const l = clone(saved[name].layers || []).map(layer => {
+      if (layer.replacements === undefined) layer.replacements = 0;
+      return layer;
+    });
+    const r = calcForLayers(l);
     return { name, ac: r.ac, d: r.d, u: r.u };
   });
 
@@ -1393,7 +1383,7 @@ function drawComparisonChart() {
     const cx = left + step * i + step / 2;
 
     const bars = [
-      { label: "A-C", value: item.ac, color: "#004b7a", xOffset: -barW - 3 },
+      { label: "A-C", value: item.ac, color: "#006fb6", xOffset: -barW - 3 },
       { label: "D", value: item.d, color: "#8a2d2d", xOffset: 3 }
     ];
 
@@ -1419,7 +1409,7 @@ function drawComparisonChart() {
     ctx.fillText("U = " + format(item.u), cx, bottom + 42);
   });
 
-  ctx.fillStyle = "#004b7a";
+  ctx.fillStyle = "#006fb6";
   ctx.fillRect(right - 170, 20, 14, 14);
   ctx.fillStyle = "#1f2933";
   ctx.textAlign = "left";
@@ -1430,7 +1420,6 @@ function drawComparisonChart() {
   ctx.fillStyle = "#1f2933";
   ctx.fillText("D", right - 80, 32);
 }
-
 
 function htmlEscape(value) {
   return String(value)
@@ -1451,20 +1440,9 @@ function currentDateString() {
   });
 }
 
-function moduleRowsHtml(sums, ac) {
-  return `
-    <tr><td>A1-A3 Product stage</td><td>${format(sums.A1_A3)}</td></tr>
-    <tr><td>A4-A5 Transport and construction</td><td>${format(sums.A4_A5)}</td></tr>
-    <tr><td>B1 Use stage / recarbonation</td><td>${format(sums.B1)}</td></tr>
-    <tr><td>B4 Replacement</td><td>${format(sums.B4)}</td></tr>
-    <tr><td>C1-C4 End of life</td><td>${format(sums.C1_C4)}</td></tr>
-    <tr><td>D Beyond system boundary, separately reported</td><td>${format(sums.D)}</td></tr>
-    <tr><td><strong>A-C total, without D</strong></td><td><strong>${format(ac)}</strong></td></tr>
-  `;
-}
-
 function buildCurrentLayerRowsForReport() {
   return layers.map((layer, index) => {
+    if (layer.replacements === undefined) layer.replacements = 0;
     const mat = getMaterialById(layer.materialId);
     if (!mat) return "";
     const d = layer.thicknessMm / 1000;
@@ -1477,12 +1455,17 @@ function buildCurrentLayerRowsForReport() {
         <td>${format(layer.thicknessMm)}</td>
         <td>${format(mat.lambda)}</td>
         <td>${format(r)}</td>
+        <td>${layer.replacements}</td>
         <td>${shortBasis(mat.basis)}</td>
         <td>${format(g.A1_A3)}</td>
         <td>${format(g.A4_A5)}</td>
         <td>${format(g.B1)}</td>
+        <td>${format(g.B2)}</td>
+        <td>${format(g.B3)}</td>
         <td>${format(g.B4)}</td>
-        <td>${format(g.C1_C4)}</td>
+        <td>${format(g.C1)}</td>
+        <td>${format(g.C2)}</td>
+        <td>${format(g.C3_C4)}</td>
         <td>${format(g.D)}</td>
       </tr>
     `;
@@ -1554,7 +1537,6 @@ function closeVisibleReport() {
   }
 }
 
-
 function getReportDownloadFilename() {
   const now = new Date();
   const stamp = now.getFullYear() + "-"
@@ -1594,100 +1576,23 @@ function downloadVisibleReportHtml() {
 <meta charset="UTF-8">
 <title>EAACA Calculator Report</title>
 <style>
-  body {
-    font-family: Arial, Helvetica, sans-serif;
-    color: #111;
-    margin: 22px;
-    font-size: 10.5pt;
-    line-height: 1.35;
-  }
-  h1 {
-    font-size: 20pt;
-    color: #006fb6;
-    margin: 0 0 6mm 0;
-  }
-  h2 {
-    font-size: 14pt;
-    color: #006fb6;
-    margin: 8mm 0 3mm 0;
-  }
-  h3 {
-    font-size: 11.5pt;
-    color: #22313f;
-    margin: 5mm 0 2mm 0;
-  }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 3mm 0 6mm 0;
-    font-size: 9.5pt;
-  }
-  th, td {
-    border: 0.2mm solid #999;
-    padding: 1.8mm;
-    text-align: right;
-    vertical-align: top;
-  }
-  th:first-child, td:first-child {
-    text-align: left;
-  }
-  th {
-    background: #eaf4f9;
-  }
-  .report-meta {
-    color: #4b5563;
-    font-size: 10pt;
-    margin-bottom: 16px;
-  }
-  .report-boxes {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 5mm;
-    margin: 5mm 0;
-  }
-  .report-box {
-    border: 0.3mm solid #b8c2cc;
-    padding: 4mm;
-    text-align: center;
-    background: #f4f7f9;
-  }
-  .report-box strong {
-    display: block;
-    font-size: 15pt;
-    color: #006fb6;
-    margin-top: 2mm;
-  }
-  img {
-    max-width: 100%;
-    height: auto;
-    border: 0.2mm solid #ccc;
-    margin-top: 3mm;
-  }
-  .disclaimer {
-    font-size: 9pt;
-    color: #333;
-    border-top: 0.3mm solid #999;
-    margin-top: 8mm;
-    padding-top: 3mm;
-  }
-  .printbar {
-    padding: 10px 0 14px 0;
-    margin-bottom: 12px;
-    border-bottom: 1px solid #ddd;
-  }
-  .printbar button {
-    background: #6aa84f;
-    color: white;
-    border: 0;
-    padding: 10px 16px;
-    border-radius: 3px;
-    font-weight: bold;
-    cursor: pointer;
-  }
-  @media print {
-    .printbar { display: none; }
-    @page { size: A4; margin: 14mm; }
-  }
+  body { font-family: Arial, Helvetica, sans-serif; color: #111; margin: 22px; font-size: 10.5pt; line-height: 1.35; }
+  h1 { font-size: 20pt; color: #006fb6; margin: 0 0 6mm 0; }
+  h2 { font-size: 14pt; color: #006fb6; margin: 8mm 0 3mm 0; }
+  h3 { font-size: 11.5pt; color: #22313f; margin: 5mm 0 2mm 0; }
+  table { width: 100%; border-collapse: collapse; margin: 3mm 0 6mm 0; font-size: 9.5pt; }
+  th, td { border: 0.2mm solid #999; padding: 1.8mm; text-align: right; vertical-align: top; }
+  th:first-child, td:first-child { text-align: left; }
+  th { background: #eaf4f9; }
+  .report-meta { color: #4b5563; font-size: 10pt; margin-bottom: 16px; }
+  .report-boxes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5mm; margin: 5mm 0; }
+  .report-box { border: 0.3mm solid #b8c2cc; padding: 4mm; text-align: center; background: #f4f7f9; }
+  .report-box strong { display: block; font-size: 15pt; color: #006fb6; margin-top: 2mm; }
+  img { max-width: 100%; height: auto; border: 0.2mm solid #ccc; margin-top: 3mm; }
+  .disclaimer { font-size: 9pt; color: #333; border-top: 0.3mm solid #999; margin-top: 8mm; padding-top: 3mm; }
+  .printbar { padding: 10px 0 14px 0; margin-bottom: 12px; border-bottom: 1px solid #ddd; }
+  .printbar button { background: #6aa84f; color: white; border: 0; padding: 10px 16px; border-radius: 3px; font-weight: bold; cursor: pointer; }
+  @media print { .printbar { display: none; } @page { size: A4; margin: 14mm; } }
 </style>
 </head>
 <body>
@@ -1711,7 +1616,6 @@ ${reportClone.innerHTML}
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-
 function printConstructionReport() {
   if (!layers.length) {
     alert("No current construction available for report.");
@@ -1730,7 +1634,7 @@ function printConstructionReport() {
 
     <div class="report-boxes">
       <div class="report-box">U-value [W/m²K]<strong>${format(result.u)}</strong></div>
-      <div class="report-box">GWP A-C incl. B1/B4 [kg CO₂e/m²]<strong>${format(result.ac)}</strong></div>
+      <div class="report-box">GWP A-C incl. B modules [kg CO₂e/m²]<strong>${format(result.ac)}</strong></div>
       <div class="report-box">Module D separately [kg CO₂e/m²]<strong>${format(result.d)}</strong></div>
     </div>
 
@@ -1742,12 +1646,17 @@ function printConstructionReport() {
           <th>Thickness [mm]</th>
           <th>λ [W/(mK)]</th>
           <th>R [m²K/W]</th>
+          <th>Repl.</th>
           <th>GWP basis</th>
           <th>A1-A3</th>
           <th>A4-A5</th>
           <th>B1</th>
+          <th>B2</th>
+          <th>B3</th>
           <th>B4</th>
-          <th>C1-C4</th>
+          <th>C1</th>
+          <th>C2</th>
+          <th>C3/C4</th>
           <th>D</th>
         </tr>
       </thead>
@@ -1765,10 +1674,9 @@ function printConstructionReport() {
 
     <div class="disclaimer">
       <strong>Methodology / Disclaimer:</strong>
+      The calculation is provided in accordance with Directive (EU) 2024/1275 for transparent communication of life-cycle greenhouse gas indicators.
       For datasets with input basis kg CO₂e/m³ material, module results are converted to kg CO₂e/m² wall area by multiplication with layer thickness in metres.
-      For datasets with input basis kg CO₂e/m² wall area, values are used directly.
-      U-value calculation uses U = 1 / (Rsi + Σ d/λ + Rse), with Rsi = 0.13 m²K/W and Rse = 0.04 m²K/W for this prototype.
-      Module D is shown separately and is not automatically included in the A-C result.
+      B4 is calculated as replacement cycles × (A1-A3 + A4-A5 + C1 + C2 + C3/C4). Module D is shown separately and multiplied by the total number of layer occurrences.
       This tool does not replace a verified EPD according to EN 15804 or a project-specific building LCA according to EN 15978.
     </div>
   `;
@@ -1794,10 +1702,14 @@ function printComparisonReport() {
 
   const rows = names.map(name => {
     const c = saved[name];
-    const r = calcForLayers(c.layers || []);
-    const layerText = (c.layers || []).map(l => {
+    const constructionLayers = clone(c.layers || []).map(l => {
+      if (l.replacements === undefined) l.replacements = 0;
+      return l;
+    });
+    const r = calcForLayers(constructionLayers);
+    const layerText = constructionLayers.map(l => {
       const m = getMaterialById(l.materialId);
-      return `${m ? m.name : "unknown"} ${format(l.thicknessMm)} mm`;
+      return `${m ? m.name : "unknown"} ${format(l.thicknessMm)} mm, repl. ${l.replacements}`;
     }).join(" / ");
 
     return `
@@ -1808,8 +1720,12 @@ function printComparisonReport() {
         <td>${format(r.sums.A1_A3)}</td>
         <td>${format(r.sums.A4_A5)}</td>
         <td>${format(r.sums.B1)}</td>
+        <td>${format(r.sums.B2)}</td>
+        <td>${format(r.sums.B3)}</td>
         <td>${format(r.sums.B4)}</td>
-        <td>${format(r.sums.C1_C4)}</td>
+        <td>${format(r.sums.C1)}</td>
+        <td>${format(r.sums.C2)}</td>
+        <td>${format(r.sums.C3_C4)}</td>
         <td>${format(r.ac)}</td>
         <td>${format(r.d)}</td>
       </tr>
@@ -1830,8 +1746,12 @@ function printComparisonReport() {
           <th>A1-A3</th>
           <th>A4-A5</th>
           <th>B1</th>
+          <th>B2</th>
+          <th>B3</th>
           <th>B4</th>
-          <th>C1-C4</th>
+          <th>C1</th>
+          <th>C2</th>
+          <th>C3/C4</th>
           <th>A-C total</th>
           <th>D separately</th>
         </tr>
@@ -1853,7 +1773,6 @@ function printComparisonReport() {
 
   doPrintReport(html);
 }
-
 
 loadInitialData();
 </script>
