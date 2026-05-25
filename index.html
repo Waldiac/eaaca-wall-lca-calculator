@@ -1,46 +1,1075 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EAACA Wall LCA Calculator</title>
-<style>
-:root{--blue:#004b7a;--bg:#f5f7f9;--line:#d0d7de;--soft:#eef3f7;--red:#b42318;--green:#1a7f37;--grey:#536471;--warn:#fff4d6}body{font-family:Arial,sans-serif;margin:0;background:var(--bg);color:#1f2933}header{background:var(--blue);color:white;padding:24px 40px}header h1{margin:0;font-size:26px}main{max-width:1220px;margin:30px auto;padding:0 20px}section{background:white;padding:24px;margin-bottom:24px;border-radius:10px;box-shadow:0 2px 8px #0001}h2,h3{color:var(--blue);margin-top:0}label{display:block;font-weight:bold;margin-bottom:6px;font-size:14px}select,input{padding:8px;width:100%;box-sizing:border-box;margin-bottom:12px;border:1px solid #b8c2cc;border-radius:4px}button{background:var(--blue);color:white;border:0;padding:10px 16px;border-radius:6px;cursor:pointer;font-weight:bold;margin:0 6px 6px 0}.secondary{background:var(--grey)}.danger{background:var(--red)}.success{background:var(--green)}table{width:100%;border-collapse:collapse;margin-top:16px;font-size:13px}th,td{border:1px solid var(--line);padding:7px;text-align:right;vertical-align:middle}th:first-child,td:first-child{text-align:left}th{background:var(--soft)}td input,td select{margin:0;padding:5px;font-size:13px}.grid3{display:grid;grid-template-columns:2fr 1fr 1.2fr;gap:16px;align-items:end}.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.grid6{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:16px}.card{background:var(--soft);padding:16px;border-radius:8px;text-align:center}.card strong{display:block;font-size:24px;margin-top:8px;color:var(--blue)}.note{font-size:13px;color:#4b5563;line-height:1.45}.warning{background:var(--warn);border-left:5px solid #d18b00;padding:12px;margin:12px 0;font-size:14px}canvas{width:100%;height:360px;border:1px solid var(--line);border-radius:8px;margin-top:16px;background:white}.status{font-size:13px;color:var(--green);font-weight:bold}@media(max-width:900px){.grid3,.grid4,.grid6,.cards{grid-template-columns:1fr}table{font-size:12px}}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EAACA Wall LCA & Thermal Performance Calculator</title>
+
+  <style>
+    :root {
+      --blue: #004b7a;
+      --blue2: #006aa6;
+      --bg: #f5f7f9;
+      --line: #d0d7de;
+      --soft: #eef3f7;
+      --text: #1f2933;
+      --red: #b42318;
+      --green: #1a7f37;
+      --grey: #536471;
+      --warn: #fff4d6;
+      --bar1: #004b7a;
+      --bar2: #2f7d32;
+      --bar3: #8a6d3b;
+      --bar4: #7b4fa3;
+      --bar5: #c56b2c;
+      --bar6: #2c7f8f;
+      --bar7: #8a2d2d;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    header {
+      background: var(--blue);
+      color: white;
+      padding: 24px 40px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 26px;
+    }
+
+    header p {
+      margin: 8px 0 0;
+      font-size: 15px;
+    }
+
+    main {
+      max-width: 1260px;
+      margin: 30px auto;
+      padding: 0 20px;
+    }
+
+    section {
+      background: white;
+      padding: 24px;
+      margin-bottom: 24px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    h2 {
+      margin-top: 0;
+      color: var(--blue);
+    }
+
+    h3 {
+      margin: 20px 0 8px;
+      color: var(--blue);
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+
+    select, input {
+      padding: 8px;
+      width: 100%;
+      box-sizing: border-box;
+      margin-bottom: 12px;
+      border: 1px solid #b8c2cc;
+      border-radius: 4px;
+      background: white;
+    }
+
+    button {
+      background: var(--blue);
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      margin-right: 6px;
+      margin-bottom: 6px;
+    }
+
+    button:hover {
+      background: var(--blue2);
+    }
+
+    .secondary { background: var(--grey); }
+    .danger { background: var(--red); }
+    .success { background: var(--green); }
+    .smallbtn { padding: 6px 9px; margin: 0; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 16px;
+      font-size: 13px;
+    }
+
+    th, td {
+      border: 1px solid var(--line);
+      padding: 7px;
+      text-align: right;
+      vertical-align: middle;
+    }
+
+    th:first-child, td:first-child {
+      text-align: left;
+    }
+
+    th {
+      background: var(--soft);
+    }
+
+    td input, td select {
+      margin: 0;
+      padding: 5px;
+      font-size: 13px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 16px;
+      align-items: end;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+
+    .grid-6 {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 12px;
+    }
+
+    .result-box {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .card {
+      background: var(--soft);
+      padding: 16px;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .card strong {
+      display: block;
+      font-size: 24px;
+      margin-top: 8px;
+      color: var(--blue);
+    }
+
+    .note {
+      font-size: 13px;
+      color: #4b5563;
+      line-height: 1.45;
+    }
+
+    .warning {
+      background: var(--warn);
+      border-left: 5px solid #d18b00;
+      padding: 12px;
+      margin: 12px 0;
+      font-size: 14px;
+    }
+
+    canvas {
+      width: 100%;
+      height: 400px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      margin-top: 16px;
+      background: #fff;
+    }
+
+    .status {
+      font-size: 13px;
+      color: #1a7f37;
+      font-weight: bold;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 18px;
+      margin-top: 10px;
+      font-size: 13px;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .legend-color {
+      width: 14px;
+      height: 14px;
+      border-radius: 3px;
+      display: inline-block;
+    }
+
+    @media(max-width: 900px) {
+      .grid-2, .grid-3, .grid-4, .grid-6, .result-box {
+        grid-template-columns: 1fr;
+      }
+
+      table {
+        font-size: 12px;
+      }
+    }
+  </style>
 </head>
+
 <body>
-<header><h1>EAACA Wall LCA & Thermal Performance Calculator</h1><p>Indicative calculator for wall assemblies: U-value and GWP per m² wall area.</p></header>
+<header>
+  <h1>EAACA Wall LCA & Thermal Performance Calculator</h1>
+  <p>Indicative calculator for wall assemblies: U-value and GWP per m² wall area.</p>
+</header>
+
 <main>
-<section><h2>1. Wall build-up</h2><div class="grid3"><div><label>Material</label><select id="materialSelect"></select></div><div><label>Thickness [mm]</label><input id="thickness" type="number" value="300" min="1"></div><div><button onclick="addLayer()">Add layer</button><button class="secondary" onclick="clearLayers()">Clear</button></div></div><table id="layerTable"><thead><tr><th>Layer</th><th>Basis</th><th>Thickness [mm]</th><th>λ [W/mK]</th><th>R [m²K/W]</th><th>A1-A3</th><th>A4-A5</th><th>B1</th><th>B4</th><th>C1-C4</th><th>D</th><th></th></tr></thead><tbody></tbody></table><p class="note">Changing the thickness directly in the table immediately updates the U-value and, for kg/m³ datasets, the GWP values.</p></section>
-<section><h2>2. Results for current construction</h2><div class="cards"><div class="card">U-value [W/m²K]<strong id="uValue">–</strong></div><div class="card">GWP A-C incl. B1/B4 [kg CO₂e/m²]<strong id="gwpAC">–</strong></div><div class="card">Module D separately [kg CO₂e/m²]<strong id="gwpD">–</strong></div></div><table><thead><tr><th>Module</th><th>kg CO₂e/m² wall</th></tr></thead><tbody id="moduleResults"></tbody></table><h3>Module diagram</h3><canvas id="resultChart" width="1100" height="360"></canvas></section>
-<section><h2>3. Save / load comparison constructions</h2><div class="grid3"><div><label>Construction name</label><input id="constructionName" type="text" placeholder="e.g. AAC 300 + EPS 160 mm"></div><div><label>Saved constructions</label><select id="savedConstructions"></select></div><div><button class="success" onclick="saveConstruction()">Save current construction</button><button onclick="loadConstruction()">Load</button><button class="danger" onclick="deleteConstruction()">Delete</button></div></div><h3>Comparison library</h3><table><thead><tr><th>Construction</th><th>Layers</th><th>U-value [W/m²K]</th><th>A-C [kg CO₂e/m²]</th><th>D [kg CO₂e/m²]</th></tr></thead><tbody id="comparisonTable"></tbody></table><p class="note">Saved constructions are stored locally in this browser via localStorage.</p></section>
-<section><h2>4. Add or edit material</h2><div class="warning">For newly added individual materials, the GWP values A1-A3 to D shall be entered as <strong>kg CO₂e/m² wall area</strong>, unless the basis is deliberately changed to kg CO₂e/m³ material. If “kg CO₂e/m² wall area” is selected, the values are used directly and are not multiplied by thickness.</div><div class="grid4"><div><label>Select material to edit</label><select id="editMaterialSelect" onchange="loadMaterialForEditing()"></select></div><div><label>Material name</label><input id="matName" type="text"></div><div><label>λ [W/mK]</label><input id="matLambda" type="number" step="0.001" value="0.10"></div><div><label>GWP basis</label><select id="matBasis"><option value="per_m3">kg CO₂e/m³ material</option><option value="per_m2">kg CO₂e/m² wall area</option></select></div></div><div class="grid6"><div><label>A1-A3</label><input id="matA1A3" type="number" step="0.01" value="0"></div><div><label>A4-A5</label><input id="matA4A5" type="number" step="0.01" value="0"></div><div><label>B1</label><input id="matB1" type="number" step="0.01" value="0"></div><div><label>B4</label><input id="matB4" type="number" step="0.01" value="0"></div><div><label>C1-C4</label><input id="matC1C4" type="number" step="0.01" value="0"></div><div><label>D</label><input id="matD" type="number" step="0.01" value="0"></div></div><button class="success" onclick="saveMaterial()">Save material</button><button class="secondary" onclick="newMaterialForm()">New material</button><button class="danger" onclick="deleteMaterial()">Delete selected material</button><span class="status" id="materialStatus"></span></section>
-<section><h2>5. Methodology / Disclaimer</h2><p class="note">For standard materials, GWP values are treated as kg CO₂e per m³ material. The result per m² wall area is calculated by multiplying the material value by the layer thickness in metres.</p><p class="note">For individual project-specific materials with the basis “kg CO₂e/m² wall area”, the GWP values are used directly. Thickness changes then affect the U-value, but not the GWP of that material.</p><p class="note">U-value calculation uses: U = 1 / (Rsi + Σ d/λ + Rse). For this prototype, Rsi = 0.13 m²K/W and Rse = 0.04 m²K/W are used for external walls.</p><p class="note">Module D is shown separately and is not automatically included in the A-C result. This tool does not replace a verified EPD according to EN 15804 or a project-specific building LCA according to EN 15978.</p></section>
+
+  <section>
+    <h2>1. Wall build-up</h2>
+
+    <div class="grid-3">
+      <div>
+        <label for="materialSelect">Material</label>
+        <select id="materialSelect"></select>
+      </div>
+
+      <div>
+        <label for="thickness">Thickness [mm]</label>
+        <input id="thickness" type="number" value="300" min="1" />
+      </div>
+
+      <div>
+        <button onclick="addLayer()">Add layer</button>
+        <button class="secondary" onclick="clearLayers()">Clear</button>
+      </div>
+    </div>
+
+    <table id="layerTable">
+      <thead>
+      <tr>
+        <th>Layer</th>
+        <th>Thickness [mm]</th>
+        <th>λ [W/(mK)]</th>
+        <th>R [m²K/W]</th>
+        <th>GWP basis</th>
+        <th>A1-A3 [kg/m²]</th>
+        <th>A4-A5 [kg/m²]</th>
+        <th>B1 [kg/m²]</th>
+        <th>B4 [kg/m²]</th>
+        <th>C1-C4 [kg/m²]</th>
+        <th>D [kg/m²]</th>
+        <th></th>
+      </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <p class="note">
+      The table always shows module results in kg CO₂e/m² wall area. The column “GWP basis” shows whether the material dataset is stored as kg CO₂e/m³ material or directly as kg CO₂e/m² wall area.
+    </p>
+  </section>
+
+  <section>
+    <h2>2. Results for current construction</h2>
+
+    <div class="result-box">
+      <div class="card">U-value [W/m²K]<strong id="uValue">–</strong></div>
+      <div class="card">GWP A-C incl. B1/B4 [kg CO₂e/m²]<strong id="gwpAC">–</strong></div>
+      <div class="card">Module D separately [kg CO₂e/m²]<strong id="gwpD">–</strong></div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Module</th>
+          <th>kg CO₂e/m² wall</th>
+        </tr>
+      </thead>
+      <tbody id="moduleResults"></tbody>
+    </table>
+
+    <h3>Layer-resolved module diagram</h3>
+    <canvas id="resultChart" width="1150" height="400"></canvas>
+    <div class="legend" id="layerLegend"></div>
+  </section>
+
+  <section>
+    <h2>3. Save / load comparison constructions</h2>
+
+    <div class="grid-3">
+      <div>
+        <label for="constructionName">Construction name</label>
+        <input id="constructionName" type="text" placeholder="e.g. AAC 365 + render + EPS 40" />
+      </div>
+
+      <div>
+        <label for="savedConstructions">Saved constructions</label>
+        <select id="savedConstructions"></select>
+      </div>
+
+      <div>
+        <button class="success" onclick="saveConstruction()">Save current construction</button>
+        <button onclick="loadConstruction()">Load</button>
+        <button class="danger" onclick="deleteConstruction()">Delete</button>
+      </div>
+    </div>
+
+    <h3>Comparison library</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Construction</th>
+          <th>Layers</th>
+          <th>U-value [W/m²K]</th>
+          <th>A-C [kg CO₂e/m²]</th>
+          <th>D [kg CO₂e/m²]</th>
+          <th>Select for diagram</th>
+        </tr>
+      </thead>
+      <tbody id="comparisonTable"></tbody>
+    </table>
+
+    <h3>Comparison diagram, max. 5 constructions</h3>
+    <canvas id="comparisonChart" width="1150" height="420"></canvas>
+
+    <p class="note">
+      Up to five saved constructions can be selected for comparison. Saved constructions are stored locally in this browser.
+    </p>
+  </section>
+
+  <section>
+    <h2>4. Add or edit material</h2>
+
+    <div class="warning">
+      The material editor supports both options:
+      <strong>kg CO₂e/m³ material</strong> and <strong>kg CO₂e/m² wall area</strong>.
+      If kg CO₂e/m³ is selected, the GWP result is multiplied by layer thickness in metres.
+      If kg CO₂e/m² is selected, the GWP values are used directly.
+    </div>
+
+    <div class="grid-4">
+      <div>
+        <label for="editMaterialSelect">Select material to edit</label>
+        <select id="editMaterialSelect" onchange="loadMaterialForEditing()"></select>
+      </div>
+
+      <div>
+        <label for="matName">Material name</label>
+        <input id="matName" type="text" />
+      </div>
+
+      <div>
+        <label for="matLambda">λ [W/(mK)]</label>
+        <input id="matLambda" type="number" step="0.001" value="0.10" />
+      </div>
+
+      <div>
+        <label for="matBasis">GWP input basis</label>
+        <select id="matBasis">
+          <option value="per_m3">kg CO₂e/m³ material</option>
+          <option value="per_m2">kg CO₂e/m² wall area</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="grid-6">
+      <div><label for="matA1A3">A1-A3</label><input id="matA1A3" type="number" step="0.01" value="0" /></div>
+      <div><label for="matA4A5">A4-A5</label><input id="matA4A5" type="number" step="0.01" value="0" /></div>
+      <div><label for="matB1">B1</label><input id="matB1" type="number" step="0.01" value="0" /></div>
+      <div><label for="matB4">B4</label><input id="matB4" type="number" step="0.01" value="0" /></div>
+      <div><label for="matC1C4">C1-C4</label><input id="matC1C4" type="number" step="0.01" value="0" /></div>
+      <div><label for="matD">D</label><input id="matD" type="number" step="0.01" value="0" /></div>
+    </div>
+
+    <button class="success" onclick="saveMaterial()">Save material</button>
+    <button class="secondary" onclick="newMaterialForm()">New material</button>
+    <button class="danger" onclick="deleteMaterial()">Delete selected material</button>
+    <span class="status" id="materialStatus"></span>
+  </section>
+
+  <section>
+    <h2>5. Methodology / Disclaimer</h2>
+
+    <p class="note">
+      For standard materials with the input basis kg CO₂e/m³ material, module results are converted to kg CO₂e/m² wall area by multiplication with layer thickness in metres.
+    </p>
+
+    <p class="note">
+      For individual project-specific materials with the input basis kg CO₂e/m² wall area, module results are used directly. Thickness changes then affect the U-value, but not the GWP of that material.
+    </p>
+
+    <p class="note">
+      U-value calculation uses: U = 1 / (Rsi + Σ d/λ + Rse). For this prototype, Rsi = 0.13 m²K/W and Rse = 0.04 m²K/W are used for external walls.
+    </p>
+
+    <p class="note">
+      Module D is shown separately and is not automatically included in the A-C result. This tool does not replace a verified EPD according to EN 15804 or a project-specific building LCA according to EN 15978.
+    </p>
+  </section>
+
 </main>
+
 <script>
-const STORAGE_MATERIALS="eaaca_materials_v3", STORAGE_CONSTRUCTIONS="eaaca_constructions_v3";
-const defaultMaterials=[{id:"aac_300",name:"AAC 300 kg/m³",lambda:0.075,basis:"per_m3",gwp:{A1_A3:147,A4_A5:8.75,B1:-60.3,B4:0,C1_C4:0,D:-1.19}},{id:"aac_400",name:"AAC 400 kg/m³",lambda:0.10,basis:"per_m3",gwp:{A1_A3:160,A4_A5:9.4,B1:-68.0,B4:0,C1_C4:2.5,D:-4.0}},{id:"aac_500",name:"AAC 500 kg/m³",lambda:0.14,basis:"per_m3",gwp:{A1_A3:170,A4_A5:9.99,B1:-76.2,B4:0,C1_C4:0,D:-0.23}},{id:"csu_1400",name:"Calcium silicate unit 1400 kg/m³",lambda:0.80,basis:"per_m3",gwp:{A1_A3:189,A4_A5:26.4,B1:-83.9,B4:0,C1_C4:0,D:-3.34}},{id:"ceramic_block",name:"Ceramic block",lambda:0.18,basis:"per_m3",gwp:{A1_A3:113,A4_A5:4.97,B1:0,B4:0,C1_C4:0,D:-10.1}},{id:"eps",name:"EPS insulation",lambda:0.038,basis:"per_m3",gwp:{A1_A3:45,A4_A5:4,B1:0,B4:45,C1_C4:0,D:15}},{id:"mineral_wool",name:"Mineral wool insulation",lambda:0.036,basis:"per_m3",gwp:{A1_A3:67,A4_A5:6,B1:0,B4:80,C1_C4:0,D:5}},{id:"external_render",name:"External render / plaster",lambda:0.70,basis:"per_m3",gwp:{A1_A3:250,A4_A5:15,B1:0,B4:0,C1_C4:5,D:0}},{id:"gypsum_plaster",name:"Gypsum plaster",lambda:0.35,basis:"per_m3",gwp:{A1_A3:180,A4_A5:10,B1:0,B4:0,C1_C4:5,D:0}}];
-let materials=[],layers=[],currentMaterialId=null;
-function clone(o){return JSON.parse(JSON.stringify(o))} function format(v){return isFinite(v)?Number(v).toFixed(2):"0.00"} function shortBasis(b){return b==="per_m2"?"kg/m²":"kg/m³"} function getMaterialById(id){return materials.find(m=>m.id===id)}
-function loadInitialData(){materials=localStorage.getItem(STORAGE_MATERIALS)?JSON.parse(localStorage.getItem(STORAGE_MATERIALS)):clone(defaultMaterials);saveMaterialsToStorage();refreshMaterialSelects();refreshSavedConstructions();calculate()}
-function saveMaterialsToStorage(){localStorage.setItem(STORAGE_MATERIALS,JSON.stringify(materials))}
-function refreshMaterialSelects(){const a=document.getElementById("materialSelect"),b=document.getElementById("editMaterialSelect");a.innerHTML="";b.innerHTML="";materials.forEach(m=>{let o=document.createElement("option");o.value=m.id;o.textContent=m.name;a.appendChild(o);let p=document.createElement("option");p.value=m.id;p.textContent=m.name;b.appendChild(p)});if(materials.length){b.value=currentMaterialId&&getMaterialById(currentMaterialId)?currentMaterialId:materials[0].id;loadMaterialForEditing()}}
-function addLayer(){const id=document.getElementById("materialSelect").value,t=parseFloat(document.getElementById("thickness").value);if(!id)return alert("Please select a material.");if(!t||t<=0)return alert("Please enter a valid thickness.");layers.push({materialId:id,thicknessMm:t});calculate()}
-function clearLayers(){if(layers.length&&!confirm("Clear current construction?"))return;layers=[];calculate()} function removeLayer(i){layers.splice(i,1);calculate()} function updateLayerThickness(i,v){let t=parseFloat(v);if(!t||t<=0)return;layers[i].thicknessMm=t;calculate()} function updateLayerMaterial(i,id){layers[i].materialId=id;calculate()}
-function calculateLayerGwp(layer,mat){const d=layer.thicknessMm/1000,out={};Object.keys(mat.gwp).forEach(k=>out[k]=mat.basis==="per_m2"?Number(mat.gwp[k]):d*Number(mat.gwp[k]));return out}
-function calcForLayers(set){let r=0,s={A1_A3:0,A4_A5:0,B1:0,B4:0,C1_C4:0,D:0};set.forEach(l=>{let m=getMaterialById(l.materialId);if(!m)return;let d=l.thicknessMm/1000;r+=d/Number(m.lambda);let g=calculateLayerGwp(l,m);Object.keys(s).forEach(k=>s[k]+=Number(g[k]))});let u=set.length?1/(0.13+r+0.04):null,ac=s.A1_A3+s.A4_A5+s.B1+s.B4+s.C1_C4;return{u,ac,d:s.D,s}}
-function calculate(){const tbody=document.querySelector("#layerTable tbody");tbody.innerHTML="";let r=0,s={A1_A3:0,A4_A5:0,B1:0,B4:0,C1_C4:0,D:0};layers.forEach((l,i)=>{let m=getMaterialById(l.materialId);if(!m)return;let d=l.thicknessMm/1000,R=d/Number(m.lambda);r+=R;let g=calculateLayerGwp(l,m);Object.keys(s).forEach(k=>s[k]+=Number(g[k]));let opts="";materials.forEach(x=>opts+=`<option value="${x.id}" ${x.id===m.id?"selected":""}>${x.name}</option>`);let row=document.createElement("tr");row.innerHTML=`<td><select onchange="updateLayerMaterial(${i},this.value)">${opts}</select></td><td>${shortBasis(m.basis)}</td><td><input type="number" value="${l.thicknessMm}" min="1" oninput="updateLayerThickness(${i},this.value)"></td><td>${format(m.lambda)}</td><td>${format(R)}</td><td>${format(g.A1_A3)}</td><td>${format(g.A4_A5)}</td><td>${format(g.B1)}</td><td>${format(g.B4)}</td><td>${format(g.C1_C4)}</td><td>${format(g.D)}</td><td><button class="danger" onclick="removeLayer(${i})">X</button></td>`;tbody.appendChild(row)});let u=layers.length?1/(0.13+r+0.04):null,ac=s.A1_A3+s.A4_A5+s.B1+s.B4+s.C1_C4;document.getElementById("uValue").textContent=u?format(u):"–";document.getElementById("gwpAC").textContent=layers.length?format(ac):"–";document.getElementById("gwpD").textContent=layers.length?format(s.D):"–";document.getElementById("moduleResults").innerHTML=`<tr><td>A1-A3 Product stage</td><td>${format(s.A1_A3)}</td></tr><tr><td>A4-A5 Transport and construction</td><td>${format(s.A4_A5)}</td></tr><tr><td>B1 Use stage / recarbonation</td><td>${format(s.B1)}</td></tr><tr><td>B4 Replacement</td><td>${format(s.B4)}</td></tr><tr><td>C1-C4 End of life</td><td>${format(s.C1_C4)}</td></tr><tr><td>D Beyond system boundary, separately reported</td><td>${format(s.D)}</td></tr><tr><td><strong>A-C total, without D</strong></td><td><strong>${format(ac)}</strong></td></tr>`;drawChart(s,ac);refreshComparisonTable()}
-function drawChart(s,ac){const c=document.getElementById("resultChart"),ctx=c.getContext("2d");ctx.clearRect(0,0,c.width,c.height);const data=[{label:"A1-A3",value:s.A1_A3},{label:"A4-A5",value:s.A4_A5},{label:"B1",value:s.B1},{label:"B4",value:s.B4},{label:"C1-C4",value:s.C1_C4},{label:"D",value:s.D},{label:"A-C total",value:ac}],maxAbs=Math.max(10,...data.map(x=>Math.abs(x.value))),left=80,right=c.width-40,top=35,bottom=c.height-75,h=bottom-top,zeroY=top+h/2;ctx.font="15px Arial";ctx.fillStyle="#1f2933";ctx.textAlign="left";ctx.fillText("GWP by life-cycle module [kg CO₂e/m² wall]",left,22);ctx.strokeStyle="#333";ctx.beginPath();ctx.moveTo(left,zeroY);ctx.lineTo(right,zeroY);ctx.stroke();const step=(right-left)/data.length,bw=Math.min(74,step*.55);data.forEach((it,i)=>{let x=left+step*i+step/2-bw/2,bh=Math.abs(it.value)/maxAbs*(h/2-24),y=it.value>=0?zeroY-bh:zeroY;ctx.fillStyle=it.value>=0?"#004b7a":"#8a2d2d";ctx.fillRect(x,y,bw,bh);ctx.fillStyle="#1f2933";ctx.textAlign="center";ctx.font="12px Arial";ctx.fillText(it.label,x+bw/2,bottom+22);ctx.fillText(format(it.value),x+bw/2,it.value>=0?y-6:y+bh+16)})}
-function loadMaterialForEditing(){let id=document.getElementById("editMaterialSelect").value,m=getMaterialById(id);if(!m)return;currentMaterialId=m.id;document.getElementById("matName").value=m.name;document.getElementById("matLambda").value=m.lambda;document.getElementById("matBasis").value=m.basis;document.getElementById("matA1A3").value=m.gwp.A1_A3;document.getElementById("matA4A5").value=m.gwp.A4_A5;document.getElementById("matB1").value=m.gwp.B1;document.getElementById("matB4").value=m.gwp.B4;document.getElementById("matC1C4").value=m.gwp.C1_C4;document.getElementById("matD").value=m.gwp.D;document.getElementById("materialStatus").textContent=""}
-function newMaterialForm(){currentMaterialId=null;document.getElementById("editMaterialSelect").value="";document.getElementById("matName").value="";document.getElementById("matLambda").value=.1;document.getElementById("matBasis").value="per_m2";["matA1A3","matA4A5","matB1","matB4","matC1C4","matD"].forEach(id=>document.getElementById(id).value=0);document.getElementById("materialStatus").textContent="New material mode."}
-function saveMaterial(){let name=document.getElementById("matName").value.trim(),lambda=parseFloat(document.getElementById("matLambda").value),basis=document.getElementById("matBasis").value;if(!name)return alert("Please enter a material name.");if(!lambda||lambda<=0)return alert("Please enter a valid lambda value.");let m={id:currentMaterialId||"custom_"+Date.now(),name,lambda,basis,gwp:{A1_A3:parseFloat(document.getElementById("matA1A3").value)||0,A4_A5:parseFloat(document.getElementById("matA4A5").value)||0,B1:parseFloat(document.getElementById("matB1").value)||0,B4:parseFloat(document.getElementById("matB4").value)||0,C1_C4:parseFloat(document.getElementById("matC1C4").value)||0,D:parseFloat(document.getElementById("matD").value)||0}};let idx=materials.findIndex(x=>x.id===m.id);if(idx>=0)materials[idx]=m;else materials.push(m);currentMaterialId=m.id;saveMaterialsToStorage();refreshMaterialSelects();document.getElementById("editMaterialSelect").value=currentMaterialId;calculate();document.getElementById("materialStatus").textContent="Material saved."}
-function deleteMaterial(){let id=document.getElementById("editMaterialSelect").value;if(!id)return;if(layers.some(l=>l.materialId===id))return alert("This material is used in the current construction. Remove the layer first.");if(!confirm("Delete selected material?"))return;materials=materials.filter(m=>m.id!==id);currentMaterialId=null;saveMaterialsToStorage();refreshMaterialSelects();calculate()}
-function getSavedConstructions(){return localStorage.getItem(STORAGE_CONSTRUCTIONS)?JSON.parse(localStorage.getItem(STORAGE_CONSTRUCTIONS)):{} } function setSavedConstructions(d){localStorage.setItem(STORAGE_CONSTRUCTIONS,JSON.stringify(d))}
-function refreshSavedConstructions(){let saved=getSavedConstructions(),sel=document.getElementById("savedConstructions");sel.innerHTML="";Object.keys(saved).sort().forEach(n=>{let o=document.createElement("option");o.value=n;o.textContent=n;sel.appendChild(o)});refreshComparisonTable()}
-function saveConstruction(){let name=document.getElementById("constructionName").value.trim();if(!name)return alert("Please enter a construction name.");if(!layers.length)return alert("No layers to save.");let saved=getSavedConstructions();saved[name]={name,layers:clone(layers),savedAt:new Date().toISOString()};setSavedConstructions(saved);refreshSavedConstructions();document.getElementById("savedConstructions").value=name;alert("Construction saved.")}
-function loadConstruction(){let name=document.getElementById("savedConstructions").value,saved=getSavedConstructions();if(!saved[name])return alert("No construction selected.");layers=clone(saved[name].layers);document.getElementById("constructionName").value=name;calculate()}
-function deleteConstruction(){let name=document.getElementById("savedConstructions").value,saved=getSavedConstructions();if(!saved[name])return;if(!confirm("Delete selected construction?"))return;delete saved[name];setSavedConstructions(saved);refreshSavedConstructions()}
-function refreshComparisonTable(){let tbody=document.getElementById("comparisonTable");if(!tbody)return;let saved=getSavedConstructions(),names=Object.keys(saved).sort();tbody.innerHTML="";if(!names.length){tbody.innerHTML='<tr><td colspan="5">No saved constructions yet.</td></tr>';return}names.forEach(name=>{let result=calcForLayers(saved[name].layers||[]),layerNames=(saved[name].layers||[]).map(l=>{let m=getMaterialById(l.materialId);return `${m?m.name:"unknown"} ${format(l.thicknessMm)} mm`}).join(" / "),row=document.createElement("tr");row.innerHTML=`<td>${name}</td><td>${layerNames}</td><td>${format(result.u)}</td><td>${format(result.ac)}</td><td>${format(result.d)}</td>`;tbody.appendChild(row)})}
+const STORAGE_MATERIALS = "eaaca_materials_v4";
+const STORAGE_CONSTRUCTIONS = "eaaca_constructions_v4";
+const STORAGE_COMPARE = "eaaca_compare_selection_v4";
+
+const layerColors = ["#004b7a", "#2f7d32", "#8a6d3b", "#7b4fa3", "#c56b2c", "#2c7f8f", "#607d8b", "#a33"];
+
+const defaultMaterials = [
+  {id:"aac_300",name:"AAC 300 kg/m³",lambda:0.075,basis:"per_m3",gwp:{A1_A3:147,A4_A5:8.75,B1:-60.3,B4:0,C1_C4:0,D:-1.19}},
+  {id:"aac_400",name:"AAC 400 kg/m³",lambda:0.10,basis:"per_m3",gwp:{A1_A3:160,A4_A5:9.4,B1:-68.0,B4:0,C1_C4:2.5,D:-4.0}},
+  {id:"aac_500",name:"AAC 500 kg/m³",lambda:0.14,basis:"per_m3",gwp:{A1_A3:170,A4_A5:9.99,B1:-76.2,B4:0,C1_C4:0,D:-0.23}},
+  {id:"csu_1400",name:"Calcium silicate unit 1400 kg/m³",lambda:0.80,basis:"per_m3",gwp:{A1_A3:189,A4_A5:26.4,B1:-83.9,B4:0,C1_C4:0,D:-3.34}},
+  {id:"ceramic_block",name:"Ceramic block",lambda:0.18,basis:"per_m3",gwp:{A1_A3:113,A4_A5:4.97,B1:0,B4:0,C1_C4:0,D:-10.1}},
+  {id:"eps",name:"EPS insulation",lambda:0.038,basis:"per_m3",gwp:{A1_A3:45,A4_A5:4,B1:0,B4:45,C1_C4:0,D:15}},
+  {id:"mineral_wool",name:"Mineral wool insulation",lambda:0.036,basis:"per_m3",gwp:{A1_A3:67,A4_A5:6,B1:0,B4:80,C1_C4:0,D:5}},
+  {id:"external_render",name:"External render / plaster",lambda:0.70,basis:"per_m3",gwp:{A1_A3:250,A4_A5:15,B1:0,B4:0,C1_C4:5,D:0}},
+  {id:"gypsum_plaster",name:"Gypsum plaster",lambda:0.35,basis:"per_m3",gwp:{A1_A3:180,A4_A5:10,B1:0,B4:0,C1_C4:5,D:0}}
+];
+
+let materials = [];
+let layers = [];
+let currentMaterialId = null;
+
+function clone(obj) { return JSON.parse(JSON.stringify(obj)); }
+
+function format(v) {
+  return (isFinite(v) && v !== null && v !== undefined) ? Number(v).toFixed(2) : "0.00";
+}
+
+function shortBasis(basis) {
+  return basis === "per_m2" ? "input kg/m²" : "input kg/m³";
+}
+
+function getMaterialById(id) {
+  return materials.find(m => m.id === id);
+}
+
+function loadInitialData() {
+  const stored = localStorage.getItem(STORAGE_MATERIALS);
+  materials = stored ? JSON.parse(stored) : clone(defaultMaterials);
+  saveMaterialsToStorage();
+  refreshMaterialSelects();
+  refreshSavedConstructions();
+  calculate();
+}
+
+function saveMaterialsToStorage() {
+  localStorage.setItem(STORAGE_MATERIALS, JSON.stringify(materials));
+}
+
+function refreshMaterialSelects() {
+  const materialSelect = document.getElementById("materialSelect");
+  const editMaterialSelect = document.getElementById("editMaterialSelect");
+
+  materialSelect.innerHTML = "";
+  editMaterialSelect.innerHTML = "";
+
+  materials.forEach(mat => {
+    const o1 = document.createElement("option");
+    o1.value = mat.id;
+    o1.textContent = mat.name;
+    materialSelect.appendChild(o1);
+
+    const o2 = document.createElement("option");
+    o2.value = mat.id;
+    o2.textContent = mat.name;
+    editMaterialSelect.appendChild(o2);
+  });
+
+  if (materials.length > 0) {
+    editMaterialSelect.value = currentMaterialId && getMaterialById(currentMaterialId) ? currentMaterialId : materials[0].id;
+    loadMaterialForEditing();
+  }
+}
+
+function addLayer() {
+  const materialId = document.getElementById("materialSelect").value;
+  const thicknessMm = parseFloat(document.getElementById("thickness").value);
+
+  if (!materialId) return alert("Please select a material.");
+  if (!thicknessMm || thicknessMm <= 0) return alert("Please enter a valid thickness.");
+
+  layers.push({ materialId, thicknessMm });
+  calculate();
+}
+
+function clearLayers() {
+  if (layers.length && !confirm("Clear current construction?")) return;
+  layers = [];
+  calculate();
+}
+
+function removeLayer(index) {
+  layers.splice(index, 1);
+  calculate();
+}
+
+function updateLayerThickness(index, value) {
+  const t = parseFloat(value);
+  if (!t || t <= 0) return;
+  layers[index].thicknessMm = t;
+  calculate();
+}
+
+function updateLayerMaterial(index, materialId) {
+  layers[index].materialId = materialId;
+  calculate();
+}
+
+function calculateLayerGwp(layer, mat) {
+  const d = layer.thicknessMm / 1000;
+  const out = {};
+  Object.keys(mat.gwp).forEach(mod => {
+    out[mod] = mat.basis === "per_m2" ? Number(mat.gwp[mod]) : d * Number(mat.gwp[mod]);
+  });
+  return out;
+}
+
+function calcForLayers(layerSet) {
+  let rLayers = 0;
+  let sums = { A1_A3:0, A4_A5:0, B1:0, B4:0, C1_C4:0, D:0 };
+
+  layerSet.forEach(layer => {
+    const mat = getMaterialById(layer.materialId);
+    if (!mat) return;
+
+    const d = layer.thicknessMm / 1000;
+    rLayers += d / Number(mat.lambda);
+
+    const g = calculateLayerGwp(layer, mat);
+    Object.keys(sums).forEach(k => sums[k] += Number(g[k]));
+  });
+
+  const u = layerSet.length ? 1 / (0.13 + rLayers + 0.04) : null;
+  const ac = sums.A1_A3 + sums.A4_A5 + sums.B1 + sums.B4 + sums.C1_C4;
+
+  return { u, ac, d: sums.D, sums };
+}
+
+function calculate() {
+  const tbody = document.querySelector("#layerTable tbody");
+  tbody.innerHTML = "";
+
+  let rLayers = 0;
+  let sums = { A1_A3:0, A4_A5:0, B1:0, B4:0, C1_C4:0, D:0 };
+  let layerResults = [];
+
+  layers.forEach((layer, index) => {
+    const mat = getMaterialById(layer.materialId);
+    if (!mat) return;
+
+    const d = layer.thicknessMm / 1000;
+    const r = d / Number(mat.lambda);
+    rLayers += r;
+
+    const g = calculateLayerGwp(layer, mat);
+    Object.keys(sums).forEach(k => sums[k] += Number(g[k]));
+
+    layerResults.push({
+      layerName: mat.name,
+      thicknessMm: layer.thicknessMm,
+      gwp: g
+    });
+
+    let opts = "";
+    materials.forEach(m => {
+      opts += `<option value="${m.id}" ${m.id === mat.id ? "selected" : ""}>${m.name}</option>`;
+    });
+
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td><select onchange="updateLayerMaterial(${index}, this.value)">${opts}</select></td>
+      <td><input type="number" value="${layer.thicknessMm}" min="1" oninput="updateLayerThickness(${index}, this.value)" /></td>
+      <td>${format(mat.lambda)}</td>
+      <td>${format(r)}</td>
+      <td>${shortBasis(mat.basis)}</td>
+      <td>${format(g.A1_A3)}</td>
+      <td>${format(g.A4_A5)}</td>
+      <td>${format(g.B1)}</td>
+      <td>${format(g.B4)}</td>
+      <td>${format(g.C1_C4)}</td>
+      <td>${format(g.D)}</td>
+      <td><button class="danger smallbtn" onclick="removeLayer(${index})">X</button></td>
+    `;
+
+    tbody.appendChild(row);
+  });
+
+  const result = calcForLayers(layers);
+
+  document.getElementById("uValue").textContent = result.u ? format(result.u) : "–";
+  document.getElementById("gwpAC").textContent = layers.length ? format(result.ac) : "–";
+  document.getElementById("gwpD").textContent = layers.length ? format(result.d) : "–";
+
+  document.getElementById("moduleResults").innerHTML = `
+    <tr><td>A1-A3 Product stage</td><td>${format(result.sums.A1_A3)}</td></tr>
+    <tr><td>A4-A5 Transport and construction</td><td>${format(result.sums.A4_A5)}</td></tr>
+    <tr><td>B1 Use stage / recarbonation</td><td>${format(result.sums.B1)}</td></tr>
+    <tr><td>B4 Replacement</td><td>${format(result.sums.B4)}</td></tr>
+    <tr><td>C1-C4 End of life</td><td>${format(result.sums.C1_C4)}</td></tr>
+    <tr><td>D Beyond system boundary, separately reported</td><td>${format(result.sums.D)}</td></tr>
+    <tr><td><strong>A-C total, without D</strong></td><td><strong>${format(result.ac)}</strong></td></tr>
+  `;
+
+  drawLayerChart(layerResults, result.ac);
+  refreshComparisonTable();
+  drawComparisonChart();
+}
+
+function drawLayerChart(layerResults, acTotal) {
+  const canvas = document.getElementById("resultChart");
+  const ctx = canvas.getContext("2d");
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  const modules = [
+    { key:"A1_A3", label:"A1-A3" },
+    { key:"A4_A5", label:"A4-A5" },
+    { key:"B1", label:"B1" },
+    { key:"B4", label:"B4" },
+    { key:"C1_C4", label:"C1-C4" },
+    { key:"D", label:"D" },
+    { key:"AC", label:"A-C total" }
+  ];
+
+  const totals = modules.map(m => {
+    if (m.key === "AC") return acTotal;
+    return layerResults.reduce((sum, l) => sum + Number(l.gwp[m.key] || 0), 0);
+  });
+
+  const maxAbs = Math.max(10, ...totals.map(v => Math.abs(v)));
+  const left = 80;
+  const right = canvas.width - 40;
+  const top = 38;
+  const bottom = canvas.height - 76;
+  const h = bottom - top;
+  const zeroY = top + h / 2;
+
+  ctx.font = "15px Arial";
+  ctx.fillStyle = "#1f2933";
+  ctx.textAlign = "left";
+  ctx.fillText("Layer contributions by life-cycle module [kg CO₂e/m² wall]", left, 24);
+
+  ctx.strokeStyle = "#333";
+  ctx.beginPath();
+  ctx.moveTo(left, zeroY);
+  ctx.lineTo(right, zeroY);
+  ctx.stroke();
+
+  ctx.fillStyle = "#555";
+  ctx.textAlign = "right";
+  ctx.fillText("0", left - 8, zeroY + 4);
+
+  const step = (right - left) / modules.length;
+  const groupWidth = Math.min(90, step * 0.68);
+
+  modules.forEach((module, i) => {
+    const groupX = left + step * i + step / 2 - groupWidth / 2;
+
+    if (module.key === "AC") {
+      const totalValue = acTotal;
+      const bh = Math.abs(totalValue) / maxAbs * (h / 2 - 26);
+      const y = totalValue >= 0 ? zeroY - bh : zeroY;
+      ctx.fillStyle = "#111827";
+      ctx.fillRect(groupX, y, groupWidth, bh);
+      ctx.fillStyle = "#1f2933";
+      ctx.textAlign = "center";
+      ctx.font = "12px Arial";
+      ctx.fillText(format(totalValue), groupX + groupWidth / 2, totalValue >= 0 ? y - 6 : y + bh + 16);
+    } else {
+      const subWidth = groupWidth / Math.max(layerResults.length, 1);
+
+      layerResults.forEach((layer, li) => {
+        const value = Number(layer.gwp[module.key] || 0);
+        const bh = Math.abs(value) / maxAbs * (h / 2 - 26);
+        const x = groupX + li * subWidth;
+        const y = value >= 0 ? zeroY - bh : zeroY;
+
+        ctx.fillStyle = layerColors[li % layerColors.length];
+        ctx.fillRect(x, y, Math.max(3, subWidth - 2), bh);
+
+        if (Math.abs(value) > maxAbs * 0.04) {
+          ctx.fillStyle = "#1f2933";
+          ctx.textAlign = "center";
+          ctx.font = "10px Arial";
+          ctx.fillText(format(value), x + subWidth / 2, value >= 0 ? y - 5 : y + bh + 13);
+        }
+      });
+    }
+
+    ctx.fillStyle = "#1f2933";
+    ctx.textAlign = "center";
+    ctx.font = "12px Arial";
+    ctx.fillText(module.label, left + step * i + step / 2, bottom + 24);
+    if (module.key !== "AC") {
+      ctx.fillText("Σ " + format(totals[i]), left + step * i + step / 2, bottom + 42);
+    }
+  });
+
+  const legend = document.getElementById("layerLegend");
+  legend.innerHTML = "";
+  layerResults.forEach((layer, i) => {
+    const div = document.createElement("div");
+    div.className = "legend-item";
+    div.innerHTML = `<span class="legend-color" style="background:${layerColors[i % layerColors.length]}"></span>${i + 1}. ${layer.layerName} (${format(layer.thicknessMm)} mm)`;
+    legend.appendChild(div);
+  });
+
+  const totalLegend = document.createElement("div");
+  totalLegend.className = "legend-item";
+  totalLegend.innerHTML = `<span class="legend-color" style="background:#111827"></span>A-C total`;
+  legend.appendChild(totalLegend);
+}
+
+function loadMaterialForEditing() {
+  const id = document.getElementById("editMaterialSelect").value;
+  const mat = getMaterialById(id);
+  if (!mat) return;
+
+  currentMaterialId = mat.id;
+
+  document.getElementById("matName").value = mat.name;
+  document.getElementById("matLambda").value = mat.lambda;
+  document.getElementById("matBasis").value = mat.basis;
+  document.getElementById("matA1A3").value = mat.gwp.A1_A3;
+  document.getElementById("matA4A5").value = mat.gwp.A4_A5;
+  document.getElementById("matB1").value = mat.gwp.B1;
+  document.getElementById("matB4").value = mat.gwp.B4;
+  document.getElementById("matC1C4").value = mat.gwp.C1_C4;
+  document.getElementById("matD").value = mat.gwp.D;
+  document.getElementById("materialStatus").textContent = "";
+}
+
+function newMaterialForm() {
+  currentMaterialId = null;
+  document.getElementById("editMaterialSelect").value = "";
+  document.getElementById("matName").value = "";
+  document.getElementById("matLambda").value = 0.10;
+  document.getElementById("matBasis").value = "per_m2";
+  ["matA1A3","matA4A5","matB1","matB4","matC1C4","matD"].forEach(id => document.getElementById(id).value = 0);
+  document.getElementById("materialStatus").textContent = "New material mode.";
+}
+
+function saveMaterial() {
+  const name = document.getElementById("matName").value.trim();
+  const lambda = parseFloat(document.getElementById("matLambda").value);
+  const basis = document.getElementById("matBasis").value;
+
+  if (!name) return alert("Please enter a material name.");
+  if (!lambda || lambda <= 0) return alert("Please enter a valid lambda value.");
+
+  const matData = {
+    id: currentMaterialId || "custom_" + Date.now(),
+    name,
+    lambda,
+    basis,
+    gwp: {
+      A1_A3: parseFloat(document.getElementById("matA1A3").value) || 0,
+      A4_A5: parseFloat(document.getElementById("matA4A5").value) || 0,
+      B1: parseFloat(document.getElementById("matB1").value) || 0,
+      B4: parseFloat(document.getElementById("matB4").value) || 0,
+      C1_C4: parseFloat(document.getElementById("matC1C4").value) || 0,
+      D: parseFloat(document.getElementById("matD").value) || 0
+    }
+  };
+
+  const index = materials.findIndex(m => m.id === matData.id);
+  if (index >= 0) {
+    materials[index] = matData;
+  } else {
+    materials.push(matData);
+  }
+
+  currentMaterialId = matData.id;
+  saveMaterialsToStorage();
+  refreshMaterialSelects();
+  document.getElementById("editMaterialSelect").value = currentMaterialId;
+  calculate();
+  document.getElementById("materialStatus").textContent = "Material saved.";
+}
+
+function deleteMaterial() {
+  const id = document.getElementById("editMaterialSelect").value;
+  if (!id) return;
+
+  if (layers.some(l => l.materialId === id)) {
+    return alert("This material is used in the current construction. Remove the layer first.");
+  }
+
+  if (!confirm("Delete selected material?")) return;
+
+  materials = materials.filter(m => m.id !== id);
+  currentMaterialId = null;
+  saveMaterialsToStorage();
+  refreshMaterialSelects();
+  calculate();
+}
+
+function getSavedConstructions() {
+  const stored = localStorage.getItem(STORAGE_CONSTRUCTIONS);
+  return stored ? JSON.parse(stored) : {};
+}
+
+function setSavedConstructions(data) {
+  localStorage.setItem(STORAGE_CONSTRUCTIONS, JSON.stringify(data));
+}
+
+function getCompareSelection() {
+  const stored = localStorage.getItem(STORAGE_COMPARE);
+  return stored ? JSON.parse(stored) : [];
+}
+
+function setCompareSelection(selection) {
+  localStorage.setItem(STORAGE_COMPARE, JSON.stringify(selection));
+}
+
+function refreshSavedConstructions() {
+  const saved = getSavedConstructions();
+  const select = document.getElementById("savedConstructions");
+
+  select.innerHTML = "";
+
+  Object.keys(saved).sort().forEach(name => {
+    const option = document.createElement("option");
+    option.value = name;
+    option.textContent = name;
+    select.appendChild(option);
+  });
+
+  refreshComparisonTable();
+  drawComparisonChart();
+}
+
+function saveConstruction() {
+  const name = document.getElementById("constructionName").value.trim();
+
+  if (!name) return alert("Please enter a construction name.");
+  if (!layers.length) return alert("No layers to save.");
+
+  const saved = getSavedConstructions();
+  saved[name] = {
+    name,
+    layers: clone(layers),
+    savedAt: new Date().toISOString()
+  };
+
+  setSavedConstructions(saved);
+
+  let selection = getCompareSelection();
+  if (!selection.includes(name)) {
+    if (selection.length < 5) selection.push(name);
+  }
+  setCompareSelection(selection);
+
+  refreshSavedConstructions();
+  document.getElementById("savedConstructions").value = name;
+  alert("Construction saved.");
+}
+
+function loadConstruction() {
+  const name = document.getElementById("savedConstructions").value;
+  const saved = getSavedConstructions();
+
+  if (!saved[name]) return alert("No construction selected.");
+
+  layers = clone(saved[name].layers);
+  document.getElementById("constructionName").value = name;
+  calculate();
+}
+
+function deleteConstruction() {
+  const name = document.getElementById("savedConstructions").value;
+  const saved = getSavedConstructions();
+
+  if (!saved[name]) return;
+  if (!confirm("Delete selected construction?")) return;
+
+  delete saved[name];
+  setSavedConstructions(saved);
+
+  let selection = getCompareSelection().filter(x => x !== name);
+  setCompareSelection(selection);
+
+  refreshSavedConstructions();
+}
+
+function toggleComparison(name, checked) {
+  let selection = getCompareSelection();
+
+  if (checked) {
+    if (selection.length >= 5) {
+      alert("Maximum 5 constructions can be compared.");
+      refreshComparisonTable();
+      return;
+    }
+    if (!selection.includes(name)) selection.push(name);
+  } else {
+    selection = selection.filter(x => x !== name);
+  }
+
+  setCompareSelection(selection);
+  refreshComparisonTable();
+  drawComparisonChart();
+}
+
+function refreshComparisonTable() {
+  const tbody = document.getElementById("comparisonTable");
+  if (!tbody) return;
+
+  const saved = getSavedConstructions();
+  const selection = getCompareSelection();
+
+  tbody.innerHTML = "";
+
+  const names = Object.keys(saved).sort();
+
+  if (!names.length) {
+    tbody.innerHTML = `<tr><td colspan="6">No saved constructions yet.</td></tr>`;
+    return;
+  }
+
+  names.forEach(name => {
+    const result = calcForLayers(saved[name].layers || []);
+    const layerNames = (saved[name].layers || []).map(l => {
+      const m = getMaterialById(l.materialId);
+      return `${m ? m.name : "unknown"} ${format(l.thicknessMm)} mm`;
+    }).join(" / ");
+
+    const checked = selection.includes(name) ? "checked" : "";
+
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${name}</td>
+      <td>${layerNames}</td>
+      <td>${format(result.u)}</td>
+      <td>${format(result.ac)}</td>
+      <td>${format(result.d)}</td>
+      <td style="text-align:center;"><input type="checkbox" ${checked} onchange="toggleComparison('${name.replace(/'/g, "\\'")}', this.checked)" /></td>
+    `;
+    tbody.appendChild(row);
+  });
+}
+
+function drawComparisonChart() {
+  const canvas = document.getElementById("comparisonChart");
+  const ctx = canvas.getContext("2d");
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  const saved = getSavedConstructions();
+  const selection = getCompareSelection().filter(name => saved[name]).slice(0, 5);
+
+  if (!selection.length) {
+    ctx.font = "16px Arial";
+    ctx.fillStyle = "#4b5563";
+    ctx.fillText("Select up to five saved constructions for comparison.", 40, 50);
+    return;
+  }
+
+  const data = selection.map(name => {
+    const r = calcForLayers(saved[name].layers || []);
+    return { name, ac: r.ac, d: r.d, u: r.u };
+  });
+
+  const maxValue = Math.max(10, ...data.map(d => Math.max(Math.abs(d.ac), Math.abs(d.d))));
+  const left = 80;
+  const right = canvas.width - 40;
+  const top = 42;
+  const bottom = canvas.height - 92;
+  const h = bottom - top;
+  const zeroY = top + h / 2;
+
+  ctx.font = "15px Arial";
+  ctx.fillStyle = "#1f2933";
+  ctx.textAlign = "left";
+  ctx.fillText("Comparison of saved constructions: A-C and D [kg CO₂e/m² wall]", left, 24);
+
+  ctx.strokeStyle = "#333";
+  ctx.beginPath();
+  ctx.moveTo(left, zeroY);
+  ctx.lineTo(right, zeroY);
+  ctx.stroke();
+
+  ctx.fillStyle = "#555";
+  ctx.textAlign = "right";
+  ctx.fillText("0", left - 8, zeroY + 4);
+
+  const step = (right - left) / data.length;
+  const barW = Math.min(54, step * 0.22);
+
+  data.forEach((item, i) => {
+    const cx = left + step * i + step / 2;
+
+    const bars = [
+      { label: "A-C", value: item.ac, color: "#004b7a", xOffset: -barW - 3 },
+      { label: "D", value: item.d, color: "#8a2d2d", xOffset: 3 }
+    ];
+
+    bars.forEach(bar => {
+      const bh = Math.abs(bar.value) / maxValue * (h / 2 - 26);
+      const x = cx + bar.xOffset;
+      const y = bar.value >= 0 ? zeroY - bh : zeroY;
+
+      ctx.fillStyle = bar.color;
+      ctx.fillRect(x, y, barW, bh);
+
+      ctx.fillStyle = "#1f2933";
+      ctx.textAlign = "center";
+      ctx.font = "11px Arial";
+      ctx.fillText(format(bar.value), x + barW / 2, bar.value >= 0 ? y - 5 : y + bh + 14);
+    });
+
+    ctx.fillStyle = "#1f2933";
+    ctx.textAlign = "center";
+    ctx.font = "12px Arial";
+    const shortName = item.name.length > 22 ? item.name.substring(0, 22) + "…" : item.name;
+    ctx.fillText(shortName, cx, bottom + 24);
+    ctx.fillText("U = " + format(item.u), cx, bottom + 42);
+  });
+
+  ctx.fillStyle = "#004b7a";
+  ctx.fillRect(right - 170, 20, 14, 14);
+  ctx.fillStyle = "#1f2933";
+  ctx.textAlign = "left";
+  ctx.fillText("A-C", right - 150, 32);
+
+  ctx.fillStyle = "#8a2d2d";
+  ctx.fillRect(right - 100, 20, 14, 14);
+  ctx.fillStyle = "#1f2933";
+  ctx.fillText("D", right - 80, 32);
+}
+
 loadInitialData();
 </script>
 </body>
