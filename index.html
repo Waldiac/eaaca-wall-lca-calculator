@@ -422,6 +422,12 @@
       margin-bottom: 16px;
     }
 
+
+    body.report-ready #printReport.print-report {
+      display: block !important;
+      visibility: visible !important;
+    }
+
     @media print {
       body {
         background: white;
@@ -659,7 +665,7 @@
     <div class="legend" id="layerLegend"></div>
 
     <div class="report-actions">
-      <button onclick="printConstructionReport()">Print / save construction report as PDF</button>
+      <button onclick="printConstructionReport()">Generate construction report preview / PDF</button>
     </div>
   </section>
 
@@ -703,7 +709,7 @@
     <canvas id="comparisonChart" width="1150" height="420"></canvas>
 
     <div class="report-actions">
-      <button onclick="printComparisonReport()">Print / save comparison report as PDF</button>
+      <button onclick="printComparisonReport()">Generate comparison report preview / PDF</button>
     </div>
 
     <p class="note">
@@ -1484,20 +1490,46 @@ function buildCurrentLayerRowsForReport() {
 function doPrintReport(html) {
   const report = document.getElementById("printReport");
 
+  if (!report) {
+    alert("Internal error: report container not found.");
+    return;
+  }
+
   report.innerHTML = `
     <div class="report-toolbar">
-      <button onclick="printVisibleReport()">Open browser print dialog / Save as PDF</button>
-      <button class="secondary" onclick="closeVisibleReport()">Close report preview</button>
+      <button type="button" onclick="printVisibleReport()">Open browser print dialog / Save as PDF</button>
+      <button type="button" class="secondary" onclick="closeVisibleReport()">Close report preview</button>
     </div>
     ${html}
   `;
 
+  report.style.display = "block";
+  report.style.visibility = "visible";
+  report.style.maxWidth = "1100px";
+  report.style.margin = "30px auto";
+  report.style.padding = "24px";
+  report.style.background = "white";
+  report.style.borderTop = "4px solid #6aa84f";
+  report.style.boxShadow = "0 2px 12px rgba(34,49,63,0.12)";
+
   document.body.classList.add("report-ready");
-  report.scrollIntoView({ behavior: "smooth", block: "start" });
+
+  setTimeout(() => {
+    report.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, 50);
 }
 
 function printVisibleReport() {
+  const report = document.getElementById("printReport");
+
+  if (!report || report.innerHTML.trim() === "") {
+    alert("No report preview is available. Please create a report first.");
+    return;
+  }
+
+  document.body.classList.add("report-ready");
   document.body.classList.add("print-mode");
+
   setTimeout(() => {
     window.print();
     setTimeout(() => {
@@ -1507,8 +1539,14 @@ function printVisibleReport() {
 }
 
 function closeVisibleReport() {
+  const report = document.getElementById("printReport");
   document.body.classList.remove("report-ready");
-  document.getElementById("printReport").innerHTML = "";
+  document.body.classList.remove("print-mode");
+
+  if (report) {
+    report.innerHTML = "";
+    report.style.display = "none";
+  }
 }
 
 function printConstructionReport() {
