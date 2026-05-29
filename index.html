@@ -387,6 +387,82 @@
       line-height: 1.45;
     }
 
+
+    .manual-nav-button {
+      background: var(--blue);
+      padding: 8px 12px;
+      font-size: 13px;
+      margin: -4px 0 0 0;
+    }
+
+    .manual-overlay {
+      display: none;
+      position: fixed;
+      z-index: 9999;
+      inset: 0;
+      background: rgba(34,49,63,0.72);
+      padding: 30px 20px;
+      overflow-y: auto;
+    }
+
+    .manual-overlay.open {
+      display: block;
+    }
+
+    .manual-box {
+      max-width: 980px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 6px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+      border-top: 6px solid var(--green);
+    }
+
+    .manual-header {
+      padding: 22px 26px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 20px;
+    }
+
+    .manual-header h2 {
+      margin: 0;
+      color: var(--blue);
+    }
+
+    .manual-content {
+      padding: 24px 26px 30px;
+      max-height: 78vh;
+      overflow-y: auto;
+      line-height: 1.5;
+      font-size: 14px;
+    }
+
+    .manual-content h3 {
+      color: var(--blue);
+      margin-top: 22px;
+      margin-bottom: 8px;
+    }
+
+    .manual-content table {
+      font-size: 13px;
+      margin: 10px 0 18px;
+    }
+
+    .manual-content .manual-note {
+      background: #eef6fa;
+      border-left: 4px solid var(--blue);
+      padding: 10px 12px;
+      margin: 12px 0;
+    }
+
+    .manual-close {
+      background: var(--red);
+      white-space: nowrap;
+    }
+
     .eaaca-footer {
       background: var(--dark);
       color: white;
@@ -471,6 +547,7 @@
     <span>Products & Applications</span>
     <span>Downloads</span>
     <span>Contact</span>
+    <button class="manual-nav-button" onclick="openManual()">Manual / Handbuch</button>
   </div>
 </nav>
 
@@ -514,6 +591,8 @@
       <tr>
         <th>Layer</th>
         <th>Thickness [mm]</th>
+        <th>Product share [%]</th>
+        <th>Linear amount [m/m²]</th>
         <th>λ [W/(mK)]</th>
         <th>R [m²K/W]</th>
         <th>Replacement cycles</th>
@@ -535,8 +614,10 @@
     </table>
 
     <p class="note">
-      Module values in the layer table are shown in kg CO₂e/m² wall area. “Replacement cycles” defines additional replacements within the reference period:
+      Module values in the layer table are shown in kg CO₂e/m² wall area. Product share [%] multiplies the environmental module values and can be used for mixed systems such as timber frame walls, e.g. timber studs 15% and insulation 85%. Linear amount [m/m²] is used for datasets entered as kg CO₂e/m, e.g. CW profiles, studs or rails.
+      “Replacement cycles” defines additional replacements within the reference period:
       0 = no replacement, 1 = one replacement, 2 = two replacements. For example, a layer with one replacement is counted twice in the life-cycle calculation: once as the initial layer and once as replacement in module B4.
+      Note: in this prototype, product share affects GWP only. The U-value calculation remains a simplified layer-by-layer calculation and does not fully model parallel thermal paths.
     </p>
   </section>
 
@@ -621,9 +702,9 @@
 
     <div class="warning">
       The material editor supports both options:
-      <strong>kg CO₂e/m³ material</strong> and <strong>kg CO₂e/m² wall area</strong>.
+      <strong>kg CO₂e/m³ material</strong>, <strong>kg CO₂e/m² wall area</strong> and <strong>kg CO₂e/m linear product</strong>.
       If kg CO₂e/m³ is selected, the GWP result is multiplied by layer thickness in metres.
-      If kg CO₂e/m² is selected, the GWP values are used directly. B4 is calculated from the replacement cycles of each layer.
+      If kg CO₂e/m² is selected, the GWP values are used directly. If kg CO₂e/m is selected, the GWP values are multiplied by the layer's linear amount in m/m². B4 is calculated from the replacement cycles of each layer.
     </div>
 
     <div class="grid-4">
@@ -647,6 +728,7 @@
         <select id="matBasis">
           <option value="per_m3">kg CO₂e/m³ material</option>
           <option value="per_m2">kg CO₂e/m² wall area</option>
+          <option value="per_m">kg CO₂e/m linear product</option>
         </select>
       </div>
     </div>
@@ -677,8 +759,10 @@
     </p>
 
     <p class="note">
+      Product share [%] can be used for products that cover only part of the wall area, such as timber studs in a timber-frame wall. The share factor multiplies the environmental module values of the layer. For linear products with input basis kg CO₂e/m, the values are multiplied by the layer's Linear amount [m/m²].
       Replacement cycles are shown in module B4. In this prototype, B4 is calculated as the additional product, transport/construction and end-of-life impacts of the replaced layer:
       B4 = replacement cycles × (A1-A3 + A4-A5 + C1 + C2 + C3/C4). Module D is shown separately and is multiplied by the total number of layer occurrences.
+      Product share affects GWP results. The U-value calculation remains a simplified layer-by-layer calculation and does not fully model parallel heat flow paths.
     </p>
 
     <p class="note">
@@ -704,6 +788,171 @@
     Indicative tool for technical communication. Module D is reported separately.
   </div>
 </footer>
+
+
+<div id="manualOverlay" class="manual-overlay" role="dialog" aria-modal="true" aria-labelledby="manualTitle">
+  <div class="manual-box">
+    <div class="manual-header">
+      <div>
+        <h2 id="manualTitle">User Manual / Kurzanleitung</h2>
+        <div class="note">EAACA Wall LCA & Thermal Performance Calculator</div>
+      </div>
+      <button class="manual-close" onclick="closeManual()">Close / Schließen</button>
+    </div>
+
+    <div class="manual-content">
+      <h3>1. Zweck des Tools</h3>
+      <p>
+        Das Tool berechnet orientierende Kennwerte für Wandaufbauten:
+        U-Wert, GWP je m² Wandfläche und Lebenszyklusmodule A1-A3, A4-A5, B1, B2, B3, B4, C1, C2, C3/C4 sowie D.
+        Es dient der technischen Kommunikation und dem Vergleich von Konstruktionen.
+      </p>
+      <div class="manual-note">
+        Das Tool ersetzt keine verifizierte EPD nach EN 15804 und keine projektspezifische Gebäudeökobilanz nach EN 15978.
+        Die Ergebnisse hängen von den gewählten Materialdaten, Szenarien und Austauschzyklen ab.
+      </div>
+
+      <h3>2. Grundprinzip der Eingabe</h3>
+      <ol>
+        <li>Im Abschnitt <strong>Wall build-up</strong> ein Material auswählen.</li>
+        <li>Die Schichtdicke in <strong>mm</strong> eingeben.</li>
+        <li>Mit <strong>Add layer</strong> die Schicht zum Aufbau hinzufügen.</li>
+        <li>Weitere Schichten in der Reihenfolge des Wandaufbaus ergänzen.</li>
+      </ol>
+      <p>
+        Die Schichtdicke kann später direkt in der Tabelle geändert werden. Der U-Wert und die GWP-Ergebnisse werden automatisch aktualisiert.
+      </p>
+
+      <h3>3. Bedeutung der wichtigsten Spalten</h3>
+      <table>
+        <thead>
+          <tr><th>Spalte</th><th>Bedeutung</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Thickness [mm]</td><td>Schichtdicke der jeweiligen Lage.</td></tr>
+          <tr><td>λ [W/(mK)]</td><td>Wärmeleitfähigkeit des Materials.</td></tr>
+          <tr><td>R [m²K/W]</td><td>Wärmedurchlasswiderstand der Schicht, berechnet aus d/λ.</td></tr>
+          <tr><td>Product share [%]</td><td>Flächenanteil des Produktes am Gesamtaufbau. 100% bedeutet vollflächig, 15% kann z. B. für Holzständer stehen.</td></tr>
+          <tr><td>Linear amount [m/m²]</td><td>Laufmeter eines linearen Produktes je m² Wandfläche. Wird für kg CO₂e/m-Datensätze verwendet, z. B. CW-Profile.</td></tr>
+          <tr><td>Replacement cycles</td><td>Anzahl zusätzlicher Austausche innerhalb des Betrachtungszeitraums.</td></tr>
+          <tr><td>GWP basis</td><td>Zeigt, ob der Datensatz als kg CO₂e/m³ Material oder direkt als kg CO₂e/m² Wandfläche eingegeben wurde.</td></tr>
+          <tr><td>A1-A3 bis D</td><td>Ergebnisse je Modul in kg CO₂e/m² Wandfläche.</td></tr>
+        </tbody>
+      </table>
+
+      <h3>4. Produktanteile / Product share</h3>
+      <p>
+        Mit <strong>Product share [%]</strong> können Produkte angesetzt werden, die nur einen Anteil der Fläche einnehmen.
+        Das ist besonders hilfreich für Holzrahmen- oder Ständerwände.
+      </p>
+      <p>
+        Beispiel: Eine Holzrahmenwand kann in der gleichen Schichtebene vereinfacht mit zwei Produktzeilen eingegeben werden:
+        Holzständer 15% und Gefachdämmung 85%. Die Modulwerte werden entsprechend gewichtet.
+      </p>
+      <p>
+        Für lineare Produkte wie CW-Profile kann im Materialeditor die Eingabebasis <strong>kg CO₂e/m linear product</strong> gewählt werden.
+        In der Schichttabelle wird dann über <strong>Linear amount [m/m²]</strong> angegeben, wie viele laufende Meter je m² Wandfläche enthalten sind.
+      </p>
+      <div class="manual-note">
+        Der Produktanteil beeinflusst in dieser Version die GWP-Berechnung. Die U-Wert-Berechnung bleibt eine vereinfachte Schichtrechnung und bildet parallele Wärmewege nicht vollständig ab.
+        Für eine genauere thermische Bewertung sollte eine äquivalente Wärmeleitfähigkeit der gemischten Schicht verwendet werden.
+      </div>
+
+      <h3>5. Austauschzyklen / Replacement cycles</h3>
+      <p>Für jede Schicht kann ein Austauschzyklus gewählt werden:</p>
+      <table>
+        <thead>
+          <tr><th>Auswahl</th><th>Interpretation</th><th>Typische Anwendung</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>0</td><td>kein Austausch</td><td>Lebensdauer etwa 50 Jahre oder länger</td></tr>
+          <tr><td>1</td><td>ein Austausch</td><td>Lebensdauer unter 50 Jahre, z. B. 40 Jahre</td></tr>
+          <tr><td>2</td><td>zwei Austausche</td><td>Lebensdauer bis etwa 25 Jahre</td></tr>
+        </tbody>
+      </table>
+      <p>
+        Im Tool wird B4 vereinfacht berechnet als:
+        <strong>B4 = Austauschzyklen × (A1-A3 + A4-A5 + C1 + C2 + C3/C4)</strong>.
+        Modul D wird separat ausgewiesen und mit der Anzahl der Materialvorkommen berücksichtigt.
+      </p>
+
+      <h3>6. Lebenszyklusmodule</h3>
+      <table>
+        <thead>
+          <tr><th>Modul</th><th>Bedeutung im Tool</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>A1-A3</td><td>Herstellung / Product stage.</td></tr>
+          <tr><td>A4-A5</td><td>Transport zur Baustelle und Einbau.</td></tr>
+          <tr><td>B1</td><td>Nutzungsphase, z. B. Rekarbonatisierung bei calciumhaltigen Baustoffen.</td></tr>
+          <tr><td>B2</td><td>Instandhaltung / Maintenance.</td></tr>
+          <tr><td>B3</td><td>Instandsetzung / Repair.</td></tr>
+          <tr><td>B4</td><td>Austausch / Replacement, berechnet aus den Austauschzyklen.</td></tr>
+          <tr><td>C1</td><td>Rückbau / Deconstruction.</td></tr>
+          <tr><td>C2</td><td>Transport im End-of-Life-Szenario.</td></tr>
+          <tr><td>C3/C4</td><td>Wiederverwertung oder Entsorgung. Im Tool kombiniert, weil für eine konkrete Schicht ein Szenario gewählt wird.</td></tr>
+          <tr><td>D</td><td>Nutzen und Lasten außerhalb der Systemgrenze. D wird separat ausgewiesen.</td></tr>
+        </tbody>
+      </table>
+
+      <h3>7. Materialdaten hinzufügen oder bearbeiten</h3>
+      <p>
+        Im Abschnitt <strong>Add or edit material</strong> können vorhandene Materialien angepasst oder neue Materialien angelegt werden.
+      </p>
+      <ol>
+        <li>Für ein neues Material <strong>New material</strong> anklicken.</li>
+        <li>Name, λ-Wert und Eingabebasis auswählen.</li>
+        <li>Modulwerte A1-A3 bis D eingeben.</li>
+        <li>Mit <strong>Save material</strong> speichern.</li>
+      </ol>
+      <div class="manual-note">
+        Wird <strong>kg CO₂e/m³ material</strong> gewählt, rechnet das Tool über die Schichtdicke auf kg CO₂e/m² um.
+        Wird <strong>kg CO₂e/m² wall area</strong> gewählt, werden die Werte direkt verwendet. Wird <strong>kg CO₂e/m linear product</strong> gewählt, werden die Werte mit den laufenden Metern je m² Wandfläche multipliziert.
+      </div>
+
+      <h3>8. Ergebnisse verstehen</h3>
+      <p>
+        Im Abschnitt <strong>Results for current construction</strong> werden U-Wert, A-C-Gesamtwert und Modul D separat angezeigt.
+        Das Diagramm zeigt die Beiträge der einzelnen Schichten je Modul. Die Farben stehen für die jeweiligen Layer.
+      </p>
+
+      <h3>9. Konstruktionen speichern und vergleichen</h3>
+      <ol>
+        <li>Der Konstruktion einen Namen geben.</li>
+        <li>Mit <strong>Save current construction</strong> lokal speichern.</li>
+        <li>Gespeicherte Konstruktionen können später geladen oder gelöscht werden.</li>
+        <li>Bis zu fünf Konstruktionen können für das Vergleichsdiagramm ausgewählt werden.</li>
+      </ol>
+      <p>Die Speicherung erfolgt lokal im Browser. Andere Nutzer sehen diese gespeicherten Konstruktionen nicht.</p>
+
+      <h3>10. Bericht, PDF und HTML-Export</h3>
+      <ul>
+        <li><strong>Generate construction report preview / PDF</strong> erzeugt einen Bericht zur aktuellen Konstruktion.</li>
+        <li><strong>Generate comparison report preview / PDF</strong> erzeugt einen Vergleichsbericht.</li>
+        <li>Im Bericht kann der Druckdialog geöffnet oder der Bericht als HTML-Datei heruntergeladen werden.</li>
+      </ul>
+      <p>Für die PDF-Ausgabe werden Microsoft Edge oder Google Chrome empfohlen. Einige Sicherheitsbrowser können die Druckfunktion blockieren.</p>
+
+      <h3>11. Typischer Arbeitsablauf</h3>
+      <ol>
+        <li>Materialdaten prüfen oder ergänzen.</li>
+        <li>Wandaufbau schichtweise eingeben.</li>
+        <li>Austauschzyklen je Schicht festlegen.</li>
+        <li>U-Wert und GWP-Ergebnisse prüfen.</li>
+        <li>Konstruktion speichern.</li>
+        <li>Weitere Varianten anlegen und vergleichen.</li>
+        <li>Bericht als PDF oder HTML sichern.</li>
+      </ol>
+
+      <h3>12. Short English summary</h3>
+      <p>
+        Add layers, define thickness and replacement cycles, check U-value and GWP modules, save constructions locally,
+        compare up to five variants, and generate a report as PDF or HTML. Module D is reported separately and is not included in the A-C total.
+      </p>
+    </div>
+  </div>
+</div>
+
 
 <script>
 const STORAGE_MATERIALS = "eaaca_materials_v13";
@@ -750,7 +999,9 @@ function format(v) {
 }
 
 function shortBasis(basis) {
-  return basis === "per_m2" ? "input kg/m²" : "input kg/m³";
+  if (basis === "per_m2") return "input kg/m²";
+  if (basis === "per_m") return "input kg/m";
+  return "input kg/m³";
 }
 
 function getMaterialById(id) {
@@ -818,7 +1069,7 @@ function addLayer() {
   if (!materialId) return alert("Please select a material.");
   if (!thicknessMm || thicknessMm <= 0) return alert("Please enter a valid thickness.");
 
-  layers.push({ materialId, thicknessMm, replacements: 0 });
+  layers.push({ materialId, thicknessMm, share: 100, linearAmount: 1, replacements: 0 });
   calculate();
 }
 
@@ -840,6 +1091,23 @@ function updateLayerThickness(index, value) {
   calculate();
 }
 
+function updateLayerShare(index, value) {
+  let s = parseFloat(value);
+  if (isNaN(s)) return;
+  if (s < 0) s = 0;
+  if (s > 100) s = 100;
+  layers[index].share = s;
+  calculate();
+}
+
+function updateLayerLinearAmount(index, value) {
+  let a = parseFloat(value);
+  if (isNaN(a)) return;
+  if (a < 0) a = 0;
+  layers[index].linearAmount = a;
+  calculate();
+}
+
 function updateLayerMaterial(index, materialId) {
   layers[index].materialId = materialId;
   calculate();
@@ -852,10 +1120,24 @@ function updateLayerReplacements(index, value) {
 
 function baseLayerGwp(layer, mat) {
   const d = layer.thicknessMm / 1000;
+  const shareFactor = (layer.share === undefined ? 100 : Number(layer.share)) / 100;
+  const linearAmount = layer.linearAmount === undefined ? 1 : Number(layer.linearAmount);
   const out = {};
+
   Object.keys(mat.gwp).forEach(mod => {
-    out[mod] = mat.basis === "per_m2" ? Number(mat.gwp[mod]) : d * Number(mat.gwp[mod]);
+    let valuePerFullArea;
+
+    if (mat.basis === "per_m2") {
+      valuePerFullArea = Number(mat.gwp[mod]);
+    } else if (mat.basis === "per_m") {
+      valuePerFullArea = Number(mat.gwp[mod]) * linearAmount;
+    } else {
+      valuePerFullArea = d * Number(mat.gwp[mod]);
+    }
+
+    out[mod] = valuePerFullArea * shareFactor;
   });
+
   return out;
 }
 
@@ -889,6 +1171,8 @@ function calcForLayers(layerSet) {
 
   layerSet.forEach(layer => {
     if (layer.replacements === undefined) layer.replacements = 0;
+    if (layer.share === undefined) layer.share = 100;
+    if (layer.linearAmount === undefined) layer.linearAmount = 1;
     const mat = getMaterialById(layer.materialId);
     if (!mat) return;
 
@@ -913,6 +1197,8 @@ function calculate() {
 
   layers.forEach((layer, index) => {
     if (layer.replacements === undefined) layer.replacements = 0;
+    if (layer.share === undefined) layer.share = 100;
+    if (layer.linearAmount === undefined) layer.linearAmount = 1;
     const mat = getMaterialById(layer.materialId);
     if (!mat) return;
 
@@ -923,6 +1209,8 @@ function calculate() {
     layerResults.push({
       layerName: mat.name,
       thicknessMm: layer.thicknessMm,
+      share: Number(layer.share === undefined ? 100 : layer.share),
+      linearAmount: Number(layer.linearAmount === undefined ? 1 : layer.linearAmount),
       replacements: Number(layer.replacements || 0),
       gwp: g
     });
@@ -936,6 +1224,8 @@ function calculate() {
     row.innerHTML = `
       <td><select onchange="updateLayerMaterial(${index}, this.value)">${opts}</select></td>
       <td><input type="number" value="${layer.thicknessMm}" min="1" oninput="updateLayerThickness(${index}, this.value)" /></td>
+      <td><input type="number" value="${layer.share === undefined ? 100 : layer.share}" min="0" max="100" step="1" oninput="updateLayerShare(${index}, this.value)" /></td>
+      <td><input type="number" value="${layer.linearAmount === undefined ? 1 : layer.linearAmount}" min="0" step="0.01" oninput="updateLayerLinearAmount(${index}, this.value)" /></td>
       <td>${format(mat.lambda)}</td>
       <td>${format(r)}</td>
       <td>
@@ -1075,7 +1365,7 @@ function drawLayerChart(layerResults, acTotal) {
   layerResults.forEach((layer, i) => {
     const div = document.createElement("div");
     div.className = "legend-item";
-    div.innerHTML = `<span class="legend-color" style="background:${layerColors[i % layerColors.length]}"></span>${i + 1}. ${layer.layerName} (${format(layer.thicknessMm)} mm, repl. ${layer.replacements})`;
+    div.innerHTML = `<span class="legend-color" style="background:${layerColors[i % layerColors.length]}"></span>${i + 1}. ${layer.layerName} (${format(layer.thicknessMm)} mm, share ${format(layer.share)}%, lin. ${format(layer.linearAmount)} m/m², repl. ${layer.replacements})`;
     legend.appendChild(div);
   });
 
@@ -1310,7 +1600,7 @@ function refreshComparisonTable() {
     const result = calcForLayers(constructionLayers);
     const layerNames = constructionLayers.map(l => {
       const m = getMaterialById(l.materialId);
-      return `${m ? m.name : "unknown"} ${format(l.thicknessMm)} mm, repl. ${l.replacements}`;
+      return `${m ? m.name : "unknown"} ${format(l.thicknessMm)} mm, share ${format(l.share === undefined ? 100 : l.share)}%, lin. ${format(l.linearAmount === undefined ? 1 : l.linearAmount)} m/m², repl. ${l.replacements}`;
     }).join(" / ");
 
     const checked = selection.includes(name) ? "checked" : "";
@@ -1347,6 +1637,8 @@ function drawComparisonChart() {
   const data = selection.map(name => {
     const l = clone(saved[name].layers || []).map(layer => {
       if (layer.replacements === undefined) layer.replacements = 0;
+    if (layer.share === undefined) layer.share = 100;
+    if (layer.linearAmount === undefined) layer.linearAmount = 1;
       return layer;
     });
     const r = calcForLayers(l);
@@ -1443,6 +1735,8 @@ function currentDateString() {
 function buildCurrentLayerRowsForReport() {
   return layers.map((layer, index) => {
     if (layer.replacements === undefined) layer.replacements = 0;
+    if (layer.share === undefined) layer.share = 100;
+    if (layer.linearAmount === undefined) layer.linearAmount = 1;
     const mat = getMaterialById(layer.materialId);
     if (!mat) return "";
     const d = layer.thicknessMm / 1000;
@@ -1453,6 +1747,8 @@ function buildCurrentLayerRowsForReport() {
       <tr>
         <td>${index + 1}. ${htmlEscape(mat.name)}</td>
         <td>${format(layer.thicknessMm)}</td>
+        <td>${format(layer.share)}</td>
+        <td>${format(layer.linearAmount)}</td>
         <td>${format(mat.lambda)}</td>
         <td>${format(r)}</td>
         <td>${layer.replacements}</td>
@@ -1644,6 +1940,8 @@ function printConstructionReport() {
         <tr>
           <th>Layer</th>
           <th>Thickness [mm]</th>
+          <th>Share [%]</th>
+          <th>Linear [m/m²]</th>
           <th>λ [W/(mK)]</th>
           <th>R [m²K/W]</th>
           <th>Repl.</th>
@@ -1675,8 +1973,8 @@ function printConstructionReport() {
     <div class="disclaimer">
       <strong>Methodology / Disclaimer:</strong>
       The calculation is provided in accordance with Directive (EU) 2024/1275 for transparent communication of life-cycle greenhouse gas indicators.
-      For datasets with input basis kg CO₂e/m³ material, module results are converted to kg CO₂e/m² wall area by multiplication with layer thickness in metres.
-      B4 is calculated as replacement cycles × (A1-A3 + A4-A5 + C1 + C2 + C3/C4). Module D is shown separately and multiplied by the total number of layer occurrences.
+      For datasets with input basis kg CO₂e/m³ material, module results are converted to kg CO₂e/m² wall area by multiplication with layer thickness in metres and the selected product share. For kg CO₂e/m datasets, values are multiplied by the selected linear amount [m/m²] and product share.
+      B4 is calculated as replacement cycles × (A1-A3 + A4-A5 + C1 + C2 + C3/C4). Module D is shown separately and multiplied by the total number of layer occurrences. Product share affects GWP results but does not fully model parallel thermal paths.
       This tool does not replace a verified EPD according to EN 15804 or a project-specific building LCA according to EN 15978.
     </div>
   `;
@@ -1709,7 +2007,7 @@ function printComparisonReport() {
     const r = calcForLayers(constructionLayers);
     const layerText = constructionLayers.map(l => {
       const m = getMaterialById(l.materialId);
-      return `${m ? m.name : "unknown"} ${format(l.thicknessMm)} mm, repl. ${l.replacements}`;
+      return `${m ? m.name : "unknown"} ${format(l.thicknessMm)} mm, share ${format(l.share === undefined ? 100 : l.share)}%, lin. ${format(l.linearAmount === undefined ? 1 : l.linearAmount)} m/m², repl. ${l.replacements}`;
     }).join(" / ");
 
     return `
@@ -1773,6 +2071,34 @@ function printComparisonReport() {
 
   doPrintReport(html);
 }
+
+
+function openManual() {
+  const manual = document.getElementById("manualOverlay");
+  if (manual) {
+    manual.classList.add("open");
+  }
+}
+
+function closeManual() {
+  const manual = document.getElementById("manualOverlay");
+  if (manual) {
+    manual.classList.remove("open");
+  }
+}
+
+document.addEventListener("keydown", function(event) {
+  if (event.key === "Escape") {
+    closeManual();
+  }
+});
+
+document.addEventListener("click", function(event) {
+  const manual = document.getElementById("manualOverlay");
+  if (manual && event.target === manual) {
+    closeManual();
+  }
+});
 
 loadInitialData();
 </script>
