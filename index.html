@@ -183,6 +183,21 @@
     .success { background: var(--green); }
     .smallbtn { padding: 6px 9px; margin: 0; }
 
+    .applybtn {
+      background: var(--blue);
+      padding: 6px 10px;
+      margin: 0;
+      white-space: nowrap;
+    }
+
+    .refreshbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin: 14px 0 6px;
+    }
+
     table {
       width: 100%;
       border-collapse: collapse;
@@ -596,7 +611,7 @@
   <section>
     <h2>Material database status</h2>
     <p class="note" id="materialDatabaseStatus">Loading material database...</p>
-    <p class="note">Official / centrally maintained materials are loaded from <strong>materials.json</strong>. User-defined edits are still stored locally in this browser.</p>
+    <p class="note">Official / centrally maintained materials are loaded from <strong>materials.json</strong>. The material selector displays the English <strong>name</strong> field only; German originals may remain in hidden reference fields such as <strong>name_de</strong>. Decimal inputs accept both comma and point, e.g. 12,5 or 12.5 mm. User-defined edits are stored locally in this browser.</p>
   </section>
 
   <section>
@@ -613,7 +628,7 @@
       </div>
       <div>
         <label for="customSurfaceResistance">Custom Rsi + Rse [m²K/W]</label>
-        <input id="customSurfaceResistance" type="number" value="0.17" step="0.01" min="0" oninput="calculate()" />
+        <input id="customSurfaceResistance" type="text" inputmode="decimal" value="0.17" step="0.01" min="0" oninput="calculate()" />
       </div>
       <div>
         <label>&nbsp;</label>
@@ -630,7 +645,7 @@
 
       <div>
         <label for="thickness">Thickness [mm]</label>
-        <input id="thickness" type="number" value="300" min="1" />
+        <input id="thickness" type="text" inputmode="decimal" value="300" min="1" />
       </div>
 
       <div>
@@ -661,11 +676,17 @@
         <th>C2</th>
         <th>C3/C4</th>
         <th>D</th>
+        <th>Apply changes</th>
         <th></th>
       </tr>
       </thead>
       <tbody></tbody>
     </table>
+
+    <div class="refreshbar">
+      <button onclick="applyAllLayerEdits()">Refresh / recalculate construction</button>
+      <span class="note">Tip: values in the table are edited first and recalculated only after clicking Apply in the row or Refresh / recalculate construction.</span>
+    </div>
 
     <p class="note">
       Module values in the layer table are shown in kg CO₂e/m² wall area. Product share [%] multiplies the environmental module values and can be used for mixed systems such as timber frame walls, e.g. timber studs 15% and insulation 85%. Linear amount [m/m²] is used for datasets entered as kg CO₂e/m, e.g. CW profiles, studs or rails.
@@ -776,7 +797,7 @@
 
       <div>
         <label for="matLambda">λ [W/(mK)]</label>
-        <input id="matLambda" type="number" step="0.001" value="0.10" />
+        <input id="matLambda" type="text" inputmode="decimal" step="0.001" value="0.10" />
       </div>
 
       <div>
@@ -790,15 +811,15 @@
     </div>
 
     <div class="grid-5">
-      <div><label for="matA1A3">A1-A3</label><input id="matA1A3" type="number" step="0.01" value="0" /></div>
-      <div><label for="matA4A5">A4-A5</label><input id="matA4A5" type="number" step="0.01" value="0" /></div>
-      <div><label for="matB1">B1</label><input id="matB1" type="number" step="0.01" value="0" /></div>
-      <div><label for="matB2">B2 Maintenance</label><input id="matB2" type="number" step="0.01" value="0" /></div>
-      <div><label for="matB3">B3 Repair</label><input id="matB3" type="number" step="0.01" value="0" /></div>
-      <div><label for="matC1">C1 Deconstruction</label><input id="matC1" type="number" step="0.01" value="0" /></div>
-      <div><label for="matC2">C2 Transport</label><input id="matC2" type="number" step="0.01" value="0" /></div>
-      <div><label for="matC3C4">C3/C4 Recovery or disposal</label><input id="matC3C4" type="number" step="0.01" value="0" /></div>
-      <div><label for="matD">D</label><input id="matD" type="number" step="0.01" value="0" /></div>
+      <div><label for="matA1A3">A1-A3</label><input id="matA1A3" type="text" inputmode="decimal" step="0.01" value="0" /></div>
+      <div><label for="matA4A5">A4-A5</label><input id="matA4A5" type="text" inputmode="decimal" step="0.01" value="0" /></div>
+      <div><label for="matB1">B1</label><input id="matB1" type="text" inputmode="decimal" step="0.01" value="0" /></div>
+      <div><label for="matB2">B2 Maintenance</label><input id="matB2" type="text" inputmode="decimal" step="0.01" value="0" /></div>
+      <div><label for="matB3">B3 Repair</label><input id="matB3" type="text" inputmode="decimal" step="0.01" value="0" /></div>
+      <div><label for="matC1">C1 Deconstruction</label><input id="matC1" type="text" inputmode="decimal" step="0.01" value="0" /></div>
+      <div><label for="matC2">C2 Transport</label><input id="matC2" type="text" inputmode="decimal" step="0.01" value="0" /></div>
+      <div><label for="matC3C4">C3/C4 Recovery or disposal</label><input id="matC3C4" type="text" inputmode="decimal" step="0.01" value="0" /></div>
+      <div><label for="matD">D</label><input id="matD" type="text" inputmode="decimal" step="0.01" value="0" /></div>
     </div>
 
     <button class="success" onclick="saveMaterial()">Save material</button>
@@ -876,7 +897,7 @@
         <li>Weitere Schichten in der Reihenfolge des Wandaufbaus ergänzen.</li>
       </ol>
       <p>
-        Die Schichtdicke kann später direkt in der Tabelle geändert werden. Der U-Wert und die GWP-Ergebnisse werden automatisch aktualisiert.
+        Die Schichtdicke kann später direkt in der Tabelle geändert werden. Der U-Wert und die GWP-Ergebnisse werden automatisch aktualisiert. Dezimalzahlen können mit Komma oder Punkt eingegeben werden, z. B. 12,5 mm oder 12.5 mm. Änderungen in der Schichttabelle werden bewusst erst nach Klick auf Apply oder Refresh / recalculate construction übernommen.
       </p>
 
       <h3>3. Bedeutung der wichtigsten Spalten</h3>
@@ -1066,6 +1087,22 @@ let materials = [];
 let layers = [];
 let currentMaterialId = null;
 
+
+function parseUserNumber(value, defaultValue = 0) {
+  if (value === null || value === undefined) return defaultValue;
+  if (typeof value === "number") return isFinite(value) ? value : defaultValue;
+
+  let s = String(value).trim();
+  if (s === "") return defaultValue;
+
+  // Accept German decimal comma and English decimal point.
+  // Remove normal spaces and non-breaking spaces, then convert decimal comma to point.
+  s = s.replace(/\s/g, "").replace(/\u00A0/g, "").replace(",", ".");
+
+  const n = Number(s);
+  return isFinite(n) ? n : defaultValue;
+}
+
 function clone(obj) { return JSON.parse(JSON.stringify(obj)); }
 
 function format(v) {
@@ -1117,7 +1154,7 @@ async function loadInitialData() {
     materials = externalMaterials.map(normaliseMaterial);
 
     if (status) {
-      status.textContent = "Loaded " + materials.length + " materials from external materials.json.";
+      status.textContent = "Loaded " + materials.length + " English materials from external materials.json. Editing mode v21: row changes require Apply or Refresh.";
     }
   } catch (error) {
     console.warn("Using embedded fallback materials:", error);
@@ -1173,7 +1210,7 @@ function refreshMaterialSelects() {
 
 function addLayer() {
   const materialId = document.getElementById("materialSelect").value;
-  const thicknessMm = parseFloat(document.getElementById("thickness").value);
+  const thicknessMm = parseUserNumber(document.getElementById("thickness").value, NaN);
 
   if (!materialId) return alert("Please select a material.");
   if (!thicknessMm || thicknessMm <= 0) return alert("Please enter a valid thickness.");
@@ -1196,14 +1233,14 @@ function removeLayer(index) {
 }
 
 function updateLayerThickness(index, value) {
-  const t = parseFloat(value);
+  const t = parseUserNumber(value, NaN);
   if (!t || t <= 0) return;
   layers[index].thicknessMm = t;
   calculate();
 }
 
 function updateLayerShare(index, value) {
-  let s = parseFloat(value);
+  let s = parseUserNumber(value, NaN);
   if (isNaN(s)) return;
   if (s < 0) s = 0;
   if (s > 100) s = 100;
@@ -1212,7 +1249,7 @@ function updateLayerShare(index, value) {
 }
 
 function updateLayerLinearAmount(index, value) {
-  let a = parseFloat(value);
+  let a = parseUserNumber(value, NaN);
   if (isNaN(a)) return;
   if (a < 0) a = 0;
   layers[index].linearAmount = a;
@@ -1281,7 +1318,7 @@ function getSurfaceResistance() {
   const boundary = document.getElementById("boundarySelect") ? document.getElementById("boundarySelect").value : "external";
   if (boundary === "internal") return 0.26;
   if (boundary === "custom") {
-    const custom = parseFloat(document.getElementById("customSurfaceResistance").value);
+    const custom = parseUserNumber(document.getElementById("customSurfaceResistance").value, NaN);
     return isFinite(custom) && custom >= 0 ? custom : 0.17;
   }
   return 0.17;
@@ -1294,6 +1331,96 @@ function setAllLayersForUValue(include) {
 
 function updateLayerIncludeInU(index, value) {
   layers[index].includeInU = value === "yes";
+  calculate();
+}
+
+function applyLayerEdit(index) {
+  const matEl = document.getElementById("layerMat_" + index);
+  const thicknessEl = document.getElementById("layerThickness_" + index);
+  const shareEl = document.getElementById("layerShare_" + index);
+  const linearEl = document.getElementById("layerLinear_" + index);
+  const includeEl = document.getElementById("layerIncludeU_" + index);
+  const replEl = document.getElementById("layerRepl_" + index);
+
+  if (!layers[index]) return;
+
+  if (matEl) layers[index].materialId = matEl.value;
+
+  if (thicknessEl) {
+    const t = parseUserNumber(thicknessEl.value, NaN);
+    if (!isFinite(t) || t <= 0) {
+      alert("Please enter a valid thickness.");
+      return;
+    }
+    layers[index].thicknessMm = t;
+  }
+
+  if (shareEl) {
+    let s = parseUserNumber(shareEl.value, NaN);
+    if (!isFinite(s)) {
+      alert("Please enter a valid product share.");
+      return;
+    }
+    if (s < 0) s = 0;
+    if (s > 100) s = 100;
+    layers[index].share = s;
+  }
+
+  if (linearEl) {
+    let a = parseUserNumber(linearEl.value, NaN);
+    if (!isFinite(a) || a < 0) {
+      alert("Please enter a valid linear amount.");
+      return;
+    }
+    layers[index].linearAmount = a;
+  }
+
+  if (includeEl) layers[index].includeInU = includeEl.value === "yes";
+  if (replEl) layers[index].replacements = Number(replEl.value) || 0;
+
+  calculate();
+}
+
+function applyAllLayerEdits() {
+  for (let i = 0; i < layers.length; i++) {
+    const matEl = document.getElementById("layerMat_" + i);
+    if (!matEl) continue;
+
+    const thicknessEl = document.getElementById("layerThickness_" + i);
+    const shareEl = document.getElementById("layerShare_" + i);
+    const linearEl = document.getElementById("layerLinear_" + i);
+    const includeEl = document.getElementById("layerIncludeU_" + i);
+    const replEl = document.getElementById("layerRepl_" + i);
+
+    layers[i].materialId = matEl.value;
+
+    const t = parseUserNumber(thicknessEl.value, NaN);
+    if (!isFinite(t) || t <= 0) {
+      alert("Please enter a valid thickness in row " + (i + 1) + ".");
+      return;
+    }
+    layers[i].thicknessMm = t;
+
+    let s = parseUserNumber(shareEl.value, NaN);
+    if (!isFinite(s)) {
+      alert("Please enter a valid product share in row " + (i + 1) + ".");
+      return;
+    }
+    if (s < 0) s = 0;
+    if (s > 100) s = 100;
+    layers[i].share = s;
+
+    let a = parseUserNumber(linearEl.value, NaN);
+    if (!isFinite(a) || a < 0) {
+      alert("Please enter a valid linear amount in row " + (i + 1) + ".");
+      return;
+    }
+    layers[i].linearAmount = a;
+
+    layers[i].includeInU = includeEl.value === "yes";
+    layers[i].replacements = Number(replEl.value) || 0;
+  }
+
   calculate();
 }
 
@@ -1365,20 +1492,20 @@ function calculate() {
 
     const row = document.createElement("tr");
     row.innerHTML = `
-      <td><select onchange="updateLayerMaterial(${index}, this.value)">${opts}</select></td>
-      <td><input type="number" value="${layer.thicknessMm}" min="1" oninput="updateLayerThickness(${index}, this.value)" /></td>
-      <td><input type="number" value="${layer.share === undefined ? 100 : layer.share}" min="0" max="100" step="1" oninput="updateLayerShare(${index}, this.value)" /></td>
-      <td><input type="number" value="${layer.linearAmount === undefined ? 1 : layer.linearAmount}" min="0" step="0.01" oninput="updateLayerLinearAmount(${index}, this.value)" /></td>
+      <td><select id="layerMat_${index}">${opts}</select></td>
+      <td><input id="layerThickness_${index}" type="text" inputmode="decimal" value="${layer.thicknessMm}" /></td>
+      <td><input id="layerShare_${index}" type="text" inputmode="decimal" value="${layer.share === undefined ? 100 : layer.share}" /></td>
+      <td><input id="layerLinear_${index}" type="text" inputmode="decimal" value="${layer.linearAmount === undefined ? 1 : layer.linearAmount}" /></td>
       <td>${format(mat.lambda)}</td>
       <td>${layer.includeInU === false ? "excluded" : format(r)}</td>
       <td>
-        <select onchange="updateLayerIncludeInU(${index}, this.value)">
+        <select id="layerIncludeU_${index}">
           <option value="yes" ${layer.includeInU !== false ? "selected" : ""}>Yes</option>
           <option value="no" ${layer.includeInU === false ? "selected" : ""}>No</option>
         </select>
       </td>
       <td>
-        <select onchange="updateLayerReplacements(${index}, this.value)">
+        <select id="layerRepl_${index}">
           <option value="0" ${Number(layer.replacements) === 0 ? "selected" : ""}>0</option>
           <option value="1" ${Number(layer.replacements) === 1 ? "selected" : ""}>1</option>
           <option value="2" ${Number(layer.replacements) === 2 ? "selected" : ""}>2</option>
@@ -1395,6 +1522,7 @@ function calculate() {
       <td>${format(g.C2)}</td>
       <td>${format(g.C3_C4)}</td>
       <td>${format(g.D)}</td>
+      <td><button class="applybtn smallbtn" onclick="applyLayerEdit(${index})">Apply</button></td>
       <td><button class="danger smallbtn" onclick="removeLayer(${index})">X</button></td>
     `;
 
@@ -1563,7 +1691,7 @@ function newMaterialForm() {
 
 function saveMaterial() {
   const name = document.getElementById("matName").value.trim();
-  const lambda = parseFloat(document.getElementById("matLambda").value);
+  const lambda = parseUserNumber(document.getElementById("matLambda").value, NaN);
   const basis = document.getElementById("matBasis").value;
 
   if (!name) return alert("Please enter a material name.");
@@ -1575,15 +1703,15 @@ function saveMaterial() {
     lambda,
     basis,
     gwp: {
-      A1_A3: parseFloat(document.getElementById("matA1A3").value) || 0,
-      A4_A5: parseFloat(document.getElementById("matA4A5").value) || 0,
-      B1: parseFloat(document.getElementById("matB1").value) || 0,
-      B2: parseFloat(document.getElementById("matB2").value) || 0,
-      B3: parseFloat(document.getElementById("matB3").value) || 0,
-      C1: parseFloat(document.getElementById("matC1").value) || 0,
-      C2: parseFloat(document.getElementById("matC2").value) || 0,
-      C3_C4: parseFloat(document.getElementById("matC3C4").value) || 0,
-      D: parseFloat(document.getElementById("matD").value) || 0
+      A1_A3: parseUserNumber(document.getElementById("matA1A3").value, 0),
+      A4_A5: parseUserNumber(document.getElementById("matA4A5").value, 0),
+      B1: parseUserNumber(document.getElementById("matB1").value, 0),
+      B2: parseUserNumber(document.getElementById("matB2").value, 0),
+      B3: parseUserNumber(document.getElementById("matB3").value, 0),
+      C1: parseUserNumber(document.getElementById("matC1").value, 0),
+      C2: parseUserNumber(document.getElementById("matC2").value, 0),
+      C3_C4: parseUserNumber(document.getElementById("matC3C4").value, 0),
+      D: parseUserNumber(document.getElementById("matD").value, 0)
     }
   };
 
@@ -2268,6 +2396,4 @@ loadInitialData();
 </script>
 </body>
 </html>
-
-
 
