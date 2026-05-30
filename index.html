@@ -274,6 +274,37 @@
       margin-top: 16px;
     }
 
+    .share-overview {
+      margin-top: 20px;
+      padding-top: 8px;
+    }
+
+    .share-overview h3 {
+      margin-top: 8px;
+    }
+
+    .share-bar {
+      height: 8px;
+      background: #e5edf3;
+      border-radius: 999px;
+      overflow: hidden;
+      min-width: 120px;
+    }
+
+    .share-fill {
+      height: 100%;
+      border-radius: 999px;
+    }
+
+    .share-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+
     .card {
       background: linear-gradient(180deg, #ffffff, var(--soft));
       padding: 18px;
@@ -703,6 +734,24 @@
       <div class="card">U-value [W/m²K]<strong id="uValue">–</strong></div>
       <div class="card">GWP A-C incl. B modules [kg CO₂e/m²]<strong id="gwpAC">–</strong></div>
       <div class="card">Module D separately [kg CO₂e/m²]<strong id="gwpD">–</strong></div>
+    </div>
+
+    <div class="share-overview">
+      <h3>Construction share overview</h3>
+      <p class="note">The table shows the construction-specific product share and the calculated net contribution of each layer to the A-C result. Module D is reported separately and is not included in the contribution share.</p>
+      <table>
+        <thead>
+          <tr>
+            <th>Layer</th>
+            <th>Product share [%]</th>
+            <th>Thickness [mm]</th>
+            <th>A-C contribution [kg CO₂e/m²]</th>
+            <th>A-C contribution share [%]</th>
+            <th>Visual share</th>
+          </tr>
+        </thead>
+        <tbody id="constructionShareOverview"></tbody>
+      </table>
     </div>
 
     <p class="note" id="uValueNote"></p>
@@ -1448,6 +1497,43 @@ function calcForLayers(layerSet) {
   return { u, ac, d: sums.D, sums };
 }
 
+
+function buildConstructionShareRows(layerResults, acTotal) {
+  const tbody = document.getElementById("constructionShareOverview");
+  if (!tbody) return;
+
+  if (!layerResults.length) {
+    tbody.innerHTML = `<tr><td colspan="6">No layers in current construction.</td></tr>`;
+    return;
+  }
+
+  const denominator = Math.abs(acTotal) > 0.000001
+    ? acTotal
+    : layerResults.reduce((sum, layer) => sum + Math.abs(calcAC(layer.gwp)), 0);
+
+  tbody.innerHTML = layerResults.map((layer, index) => {
+    const layerAC = calcAC(layer.gwp);
+    const contributionShare = Math.abs(denominator) > 0.000001 ? (layerAC / denominator) * 100 : 0;
+    const barWidth = Math.max(0, Math.min(100, Math.abs(contributionShare)));
+    const color = layerColors[index % layerColors.length];
+
+    return `
+      <tr>
+        <td><span class="share-dot" style="background:${color}"></span>${index + 1}. ${htmlEscape(layer.layerName)}</td>
+        <td>${format(layer.share)}</td>
+        <td>${format(layer.thicknessMm)}</td>
+        <td>${format(layerAC)}</td>
+        <td>${format(contributionShare)}</td>
+        <td>
+          <div class="share-bar" title="${format(contributionShare)}%">
+            <div class="share-fill" style="width:${barWidth}%; background:${color}"></div>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join("");
+}
+
 function calculate() {
   const tbody = document.querySelector("#layerTable tbody");
   tbody.innerHTML = "";
@@ -1534,6 +1620,7 @@ function calculate() {
   }
 
   document.getElementById("moduleResults").innerHTML = moduleRowsHtml(result.sums, result.ac);
+  buildConstructionShareRows(layerResults, result.ac);
 
   drawLayerChart(layerResults, result.ac);
   refreshComparisonTable();
@@ -2052,6 +2139,34 @@ function buildCurrentLayerRowsForReport() {
   }).join("");
 }
 
+
+function buildCurrentShareRowsForReport(acTotal) {
+  if (!layers.length) return `<tr><td colspan="5">No layers in current construction.</td></tr>`;
+
+  return layers.map((layer, index) => {
+    if (layer.replacements === undefined) layer.replacements = 0;
+    if (layer.share === undefined) layer.share = 100;
+    if (layer.linearAmount === undefined) layer.linearAmount = 1;
+
+    const mat = getMaterialById(layer.materialId);
+    if (!mat) return "";
+
+    const g = calculateLayerGwp(layer, mat);
+    const layerAC = calcAC(g);
+    const contributionShare = Math.abs(acTotal) > 0.000001 ? (layerAC / acTotal) * 100 : 0;
+
+    return `
+      <tr>
+        <td>${index + 1}. ${htmlEscape(mat.name)}</td>
+        <td>${format(layer.share)}</td>
+        <td>${format(layer.thicknessMm)}</td>
+        <td>${format(layerAC)}</td>
+        <td>${format(contributionShare)}</td>
+      </tr>
+    `;
+  }).join("");
+}
+
 function doPrintReport(html) {
   let report = document.getElementById("printReport");
 
@@ -2218,6 +2333,20 @@ function printConstructionReport() {
       <div class="report-box">Module D separately [kg CO₂e/m²]<strong>${format(result.d)}</strong></div>
     </div>
     <p class="report-meta">U-value surface resistance: Rsi + Rse = ${format(getSurfaceResistance())} m²K/W. Layers marked “No” are excluded from U-value calculation.</p>
+
+    <h2>Construction share overview</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Layer</th>
+          <th>Product share [%]</th>
+          <th>Thickness [mm]</th>
+          <th>A-C contribution [kg CO₂e/m²]</th>
+          <th>A-C contribution share [%]</th>
+        </tr>
+      </thead>
+      <tbody>${buildCurrentShareRowsForReport(result.ac)}</tbody>
+    </table>
 
     <h2>Layer table</h2>
     <table>
