@@ -305,6 +305,61 @@
       vertical-align: middle;
     }
 
+
+    .module-share-panel {
+      margin-top: 20px;
+      padding: 16px 18px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: linear-gradient(180deg, #ffffff, #f7fbfd);
+    }
+
+    .module-share-panel h3 {
+      margin-top: 0;
+      margin-bottom: 8px;
+    }
+
+    .module-share-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .module-share-row {
+      display: grid;
+      grid-template-columns: 230px 1fr 92px;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .module-share-label {
+      font-size: 13px;
+      font-weight: bold;
+      color: #22313f;
+    }
+
+    .module-share-bar {
+      min-height: 16px;
+      border-radius: 999px;
+      overflow: hidden;
+      display: flex;
+      background: #e5edf3;
+      border: 1px solid #d7e0e6;
+    }
+
+    .module-share-segment {
+      height: 16px;
+      min-width: 0;
+    }
+
+    .module-share-total {
+      text-align: right;
+      font-weight: bold;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
     .card {
       background: linear-gradient(180deg, #ffffff, var(--soft));
       padding: 18px;
@@ -591,6 +646,15 @@
         grid-template-columns: 1fr;
       }
 
+      .module-share-row {
+        grid-template-columns: 1fr;
+        gap: 6px;
+      }
+
+      .module-share-total {
+        text-align: left;
+      }
+
       table { font-size: 12px; }
 
       .site-nav, .eaaca-footer {
@@ -752,6 +816,13 @@
         </thead>
         <tbody id="constructionShareOverview"></tbody>
       </table>
+    </div>
+
+    <div class="module-share-panel">
+      <h3>Layer share by module and total</h3>
+      <p class="note">Each bar shows how strongly the layers contribute to the module result and to the A-C total. The value at the right is the net module result in kg CO₂e/m² wall. For readability, segment widths are based on the absolute layer contributions within each row, so negative values such as recarbonation credits or module D credits remain visible.</p>
+      <div id="moduleShareDiagram" class="module-share-list"></div>
+      <div class="legend" id="moduleShareLegend"></div>
     </div>
 
     <p class="note" id="uValueNote"></p>
@@ -1121,6 +1192,21 @@ const chartModules = [
   { key:"C3_C4", label:"C3/C4" },
   { key:"D", label:"D" },
   { key:"AC", label:"A-C total" }
+];
+
+
+const moduleShareRows = [
+  { key:"AC", label:"A-C total" },
+  { key:"A1_A3", label:"A1-A3 Product stage" },
+  { key:"A4_A5", label:"A4-A5 Construction" },
+  { key:"B1", label:"B1 Use stage / recarbonation" },
+  { key:"B2", label:"B2 Maintenance" },
+  { key:"B3", label:"B3 Repair" },
+  { key:"B4", label:"B4 Replacement" },
+  { key:"C1", label:"C1 Deconstruction" },
+  { key:"C2", label:"C2 Transport" },
+  { key:"C3_C4", label:"C3/C4 Recovery or disposal" },
+  { key:"D", label:"D separately" }
 ];
 
 const defaultMaterials = [
@@ -1498,6 +1584,123 @@ function calcForLayers(layerSet) {
 }
 
 
+function getLayerModuleValue(layerResult, moduleKey) {
+  if (moduleKey === "AC") return calcAC(layerResult.gwp);
+  return Number(layerResult.gwp[moduleKey] || 0);
+}
+
+function buildLayerResultsFromLayerSet(layerSet) {
+  const out = [];
+
+  layerSet.forEach(layer => {
+    if (layer.replacements === undefined) layer.replacements = 0;
+    if (layer.share === undefined) layer.share = 100;
+    if (layer.linearAmount === undefined) layer.linearAmount = 1;
+    if (layer.includeInU === undefined) {
+      const mForU = getMaterialById(layer.materialId);
+      layer.includeInU = !(mForU && mForU.basis === "per_m");
+    }
+
+    const mat = getMaterialById(layer.materialId);
+    if (!mat) return;
+
+    out.push({
+      layerName: mat.name,
+      thicknessMm: layer.thicknessMm,
+      share: Number(layer.share === undefined ? 100 : layer.share),
+      linearAmount: Number(layer.linearAmount === undefined ? 1 : layer.linearAmount),
+      includeInU: layer.includeInU !== false,
+      replacements: Number(layer.replacements || 0),
+      gwp: calculateLayerGwp(layer, mat)
+    });
+  });
+
+  return out;
+}
+
+function buildModuleShareDiagram(layerResults) {
+  const container = document.getElementById("moduleShareDiagram");
+  const legend = document.getElementById("moduleShareLegend");
+  if (!container) return;
+
+  if (!layerResults.length) {
+    container.innerHTML = `<div class="note">No layers in current construction.</div>`;
+    if (legend) legend.innerHTML = "";
+    return;
+  }
+
+  container.innerHTML = moduleShareRows.map(row => {
+    const values = layerResults.map(layer => getLayerModuleValue(layer, row.key));
+    const total = values.reduce((sum, value) => sum + value, 0);
+    const absTotal = values.reduce((sum, value) => sum + Math.abs(value), 0);
+
+    const segments = layerResults.map((layer, index) => {
+      const value = values[index];
+      if (Math.abs(value) < 1e-9 || absTotal < 1e-9) return "";
+      const width = Math.max((Math.abs(value) / absTotal) * 100, 0.8);
+      const title = `${layer.layerName}: ${format(value)} kg CO₂e/m² (${format((Math.abs(value) / absTotal) * 100)}% of row)`;
+      return `<div class="module-share-segment" style="width:${width}%; background:${layerColors[index % layerColors.length]}" title="${htmlEscape(title)}"></div>`;
+    }).join("");
+
+    return `
+      <div class="module-share-row">
+        <div class="module-share-label">${row.label}</div>
+        <div class="module-share-bar">${segments}</div>
+        <div class="module-share-total">${format(total)}</div>
+      </div>
+    `;
+  }).join("");
+
+  if (legend) {
+    legend.innerHTML = layerResults.map((layer, index) => `
+      <div class="legend-item">
+        <span class="legend-color" style="background:${layerColors[index % layerColors.length]}"></span>
+        ${index + 1}. ${htmlEscape(layer.layerName)}
+      </div>
+    `).join("");
+  }
+}
+
+function buildModuleShareDiagramHtml(layerResults) {
+  if (!layerResults.length) return `<p>No layers in current construction.</p>`;
+
+  const rowsHtml = moduleShareRows.map(row => {
+    const values = layerResults.map(layer => getLayerModuleValue(layer, row.key));
+    const total = values.reduce((sum, value) => sum + value, 0);
+    const absTotal = values.reduce((sum, value) => sum + Math.abs(value), 0);
+
+    const segments = layerResults.map((layer, index) => {
+      const value = values[index];
+      if (Math.abs(value) < 1e-9 || absTotal < 1e-9) return "";
+      const width = Math.max((Math.abs(value) / absTotal) * 100, 0.8);
+      return `<div style="width:${width}%; height:16px; background:${layerColors[index % layerColors.length]};"></div>`;
+    }).join("");
+
+    return `
+      <div style="display:grid; grid-template-columns: 220px 1fr 90px; gap: 10px; align-items:center; margin: 0 0 8px 0;">
+        <div style="font-weight:bold; color:#22313f; font-size:10pt;">${row.label}</div>
+        <div style="height:16px; display:flex; overflow:hidden; border-radius:999px; border:0.2mm solid #d7e0e6; background:#e5edf3;">${segments}</div>
+        <div style="text-align:right; font-weight:bold; font-size:10pt; white-space:nowrap;">${format(total)}</div>
+      </div>
+    `;
+  }).join("");
+
+  const legendHtml = layerResults.map((layer, index) => `
+    <div style="display:inline-flex; align-items:center; gap:6px; margin-right:16px; margin-bottom:6px; font-size:9.5pt;">
+      <span style="width:12px; height:12px; display:inline-block; border-radius:2px; background:${layerColors[index % layerColors.length]};"></span>
+      ${index + 1}. ${htmlEscape(layer.layerName)}
+    </div>
+  `).join("");
+
+  return `
+    <div style="border:0.2mm solid #d7e0e6; padding:4mm; background:#fafcfd; margin:3mm 0 5mm 0;">
+      <div style="font-size:9pt; color:#4b5563; margin-bottom:3mm;">Each bar shows the layer share within the respective module and for the A-C total. Segment widths are based on absolute layer contributions. The value at the right is the net module result in kg CO₂e/m² wall.</div>
+      ${rowsHtml}
+      <div style="margin-top:3mm;">${legendHtml}</div>
+    </div>
+  `;
+}
+
 function buildConstructionShareRows(layerResults, acTotal) {
   const tbody = document.getElementById("constructionShareOverview");
   if (!tbody) return;
@@ -1538,7 +1741,7 @@ function calculate() {
   const tbody = document.querySelector("#layerTable tbody");
   tbody.innerHTML = "";
 
-  let layerResults = [];
+  const layerResults = buildLayerResultsFromLayerSet(layers);
 
   layers.forEach((layer, index) => {
     if (layer.replacements === undefined) layer.replacements = 0;
@@ -1554,16 +1757,6 @@ function calculate() {
     const d = layer.thicknessMm / 1000;
     const r = layer.includeInU === false ? 0 : d / Number(mat.lambda);
     const g = calculateLayerGwp(layer, mat);
-
-    layerResults.push({
-      layerName: mat.name,
-      thicknessMm: layer.thicknessMm,
-      share: Number(layer.share === undefined ? 100 : layer.share),
-      linearAmount: Number(layer.linearAmount === undefined ? 1 : layer.linearAmount),
-      includeInU: layer.includeInU !== false,
-      replacements: Number(layer.replacements || 0),
-      gwp: g
-    });
 
     let opts = "";
     materials.forEach(m => {
@@ -1621,6 +1814,7 @@ function calculate() {
 
   document.getElementById("moduleResults").innerHTML = moduleRowsHtml(result.sums, result.ac);
   buildConstructionShareRows(layerResults, result.ac);
+  buildModuleShareDiagram(layerResults);
 
   drawLayerChart(layerResults, result.ac);
   refreshComparisonTable();
@@ -2319,6 +2513,7 @@ function printConstructionReport() {
 
   const name = document.getElementById("constructionName").value.trim() || "Current construction";
   const result = calcForLayers(layers);
+  const layerResults = buildLayerResultsFromLayerSet(layers);
   const chartImage = document.getElementById("resultChart").toDataURL("image/png");
 
   const html = `
@@ -2347,6 +2542,9 @@ function printConstructionReport() {
       </thead>
       <tbody>${buildCurrentShareRowsForReport(result.ac)}</tbody>
     </table>
+
+    <h2>Layer share by module and total</h2>
+    ${buildModuleShareDiagramHtml(layerResults)}
 
     <h2>Layer table</h2>
     <table>
@@ -2519,5 +2717,3 @@ loadInitialData();
 </script>
 </body>
 </html>
-
-
