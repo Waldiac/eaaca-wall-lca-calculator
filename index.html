@@ -847,7 +847,9 @@
   <section>
     <h2>Material database status</h2>
     <p class="note" id="materialDatabaseStatus">Internal material database ready.</p>
-    <p class="note">This version uses an embedded, user-defined internal material database. Materials are entered and maintained directly in the tool and stored locally in this browser. No external <strong>materials.json</strong> file is required. Decimal inputs accept both comma and point, e.g. 12,5 or 12.5 mm.</p>
+    <p class="note">This version uses an embedded, user-defined internal material database. Materials are entered and maintained directly in the tool and stored locally in this browser. No external <strong>materials.json</strong> file is loaded or required. Decimal inputs accept both comma and point, e.g. 12,5 or 12.5 mm.</p>
+    <button class="secondary" onclick="resetInternalMaterialDatabase()">Reset internal starter database</button>
+    <span class="note">Use this if the browser still shows materials from an earlier external database version.</span>
   </section>
 
   <section>
@@ -1327,7 +1329,7 @@
 
 
 <script>
-const STORAGE_MATERIALS = "eaaca_materials_internal_v22";
+const STORAGE_MATERIALS = "eaaca_materials_internal_v28_clean";
 const STORAGE_CONSTRUCTIONS = "eaaca_constructions_v18";
 const STORAGE_COMPARE = "eaaca_compare_selection_v18";
 
@@ -1464,6 +1466,28 @@ function loadInitialData() {
 
 function saveMaterialsToStorage() {
   localStorage.setItem(STORAGE_MATERIALS, JSON.stringify(materials));
+}
+
+function resetInternalMaterialDatabase() {
+  if (!confirm("Reset the internal material database to the embedded starter materials? User-defined material edits stored in this browser will be removed.")) return;
+
+  // Remove material databases from earlier prototype versions so that no old external materials.json content reappears from localStorage.
+  Object.keys(localStorage).forEach(key => {
+    if (key.startsWith("eaaca_materials")) {
+      localStorage.removeItem(key);
+    }
+  });
+
+  materials = clone(defaultMaterials).map(normaliseMaterial);
+  currentMaterialId = null;
+  saveMaterialsToStorage();
+  refreshMaterialSelects();
+  calculate();
+
+  const status = document.getElementById("materialDatabaseStatus");
+  if (status) {
+    status.textContent = "Internal starter database restored. No external materials.json file is used.";
+  }
 }
 
 function refreshMaterialSelects() {
@@ -2996,6 +3020,5 @@ loadInitialData();
 </body>
 </html>
 
-</html>
 
 
