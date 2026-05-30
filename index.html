@@ -198,7 +198,34 @@
     }
 
     th:first-child, td:first-child { text-align: left; }
-    th { background: var(--soft); }
+    th {
+      background: var(--soft);
+      white-space: normal;
+      line-height: 1.15;
+      word-break: normal;
+      hyphens: auto;
+      vertical-align: bottom;
+    }
+
+    #layerTable th,
+    #layerTable td {
+      font-size: 12px;
+    }
+
+    #layerTable th:nth-child(3),
+    #layerTable td:nth-child(3),
+    #layerTable th:nth-child(4),
+    #layerTable td:nth-child(4),
+    #layerTable th:nth-child(5),
+    #layerTable td:nth-child(5),
+    #layerTable th:nth-child(6),
+    #layerTable td:nth-child(6),
+    #layerTable th:nth-child(7),
+    #layerTable td:nth-child(7),
+    #layerTable th:nth-child(8),
+    #layerTable td:nth-child(8) {
+      min-width: 70px;
+    }
 
     td input, td select {
       margin: 0;
@@ -567,7 +594,33 @@
 <main>
 
   <section>
+    <h2>Material database status</h2>
+    <p class="note" id="materialDatabaseStatus">Loading material database...</p>
+    <p class="note">Official / centrally maintained materials are loaded from <strong>materials.json</strong>. User-defined edits are still stored locally in this browser.</p>
+  </section>
+
+  <section>
     <h2>1. Wall build-up</h2>
+
+    <div class="grid-3">
+      <div>
+        <label for="boundarySelect">U-value boundary condition</label>
+        <select id="boundarySelect" onchange="calculate()">
+          <option value="external" selected>External wall: Rsi 0.13 + Rse 0.04 = 0.17 m²K/W</option>
+          <option value="internal">Internal / adjacent space: Rsi 0.13 + Rsi 0.13 = 0.26 m²K/W</option>
+          <option value="custom">Custom surface resistance</option>
+        </select>
+      </div>
+      <div>
+        <label for="customSurfaceResistance">Custom Rsi + Rse [m²K/W]</label>
+        <input id="customSurfaceResistance" type="number" value="0.17" step="0.01" min="0" oninput="calculate()" />
+      </div>
+      <div>
+        <label>&nbsp;</label>
+        <button class="secondary" onclick="setAllLayersForUValue(true)">All U-value ON</button>
+        <button class="secondary" onclick="setAllLayersForUValue(false)">All U-value OFF</button>
+      </div>
+    </div>
 
     <div class="grid-3">
       <div>
@@ -595,6 +648,7 @@
         <th>Linear amount [m/m²]</th>
         <th>λ [W/(mK)]</th>
         <th>R [m²K/W]</th>
+        <th>Use for U-value</th>
         <th>Replacement cycles</th>
         <th>GWP basis</th>
         <th>A1-A3</th>
@@ -617,7 +671,7 @@
       Module values in the layer table are shown in kg CO₂e/m² wall area. Product share [%] multiplies the environmental module values and can be used for mixed systems such as timber frame walls, e.g. timber studs 15% and insulation 85%. Linear amount [m/m²] is used for datasets entered as kg CO₂e/m, e.g. CW profiles, studs or rails.
       “Replacement cycles” defines additional replacements within the reference period:
       0 = no replacement, 1 = one replacement, 2 = two replacements. For example, a layer with one replacement is counted twice in the life-cycle calculation: once as the initial layer and once as replacement in module B4.
-      Note: in this prototype, product share affects GWP only. The U-value calculation remains a simplified layer-by-layer calculation and does not fully model parallel thermal paths.
+      Note: in this prototype, product share affects GWP only. The U-value calculation remains a simplified layer-by-layer calculation and does not fully model parallel thermal paths. Linear products such as CW/UW profiles can be switched off for the U-value calculation using “Use for U-value = No”.
     </p>
   </section>
 
@@ -629,6 +683,8 @@
       <div class="card">GWP A-C incl. B modules [kg CO₂e/m²]<strong id="gwpAC">–</strong></div>
       <div class="card">Module D separately [kg CO₂e/m²]<strong id="gwpD">–</strong></div>
     </div>
+
+    <p class="note" id="uValueNote"></p>
 
     <table>
       <thead>
@@ -770,7 +826,7 @@
     </p>
 
     <p class="note">
-      U-value calculation uses: U = 1 / (Rsi + Σ d/λ + Rse). For this prototype, Rsi = 0.13 m²K/W and Rse = 0.04 m²K/W are used for external walls.
+      U-value calculation uses: U = 1 / (surface resistance + Σ d/λ). For external walls, the default is Rsi + Rse = 0.13 + 0.04 = 0.17 m²K/W. For internal or adjacent-space situations, the selectable default is 0.13 + 0.13 = 0.26 m²K/W. Layers such as CW/UW profiles may be excluded from the simplified U-value calculation while remaining included in GWP.
       This tool does not replace a verified EPD according to EN 15804 or a project-specific building LCA according to EN 15978.
     </p>
   </section>
@@ -834,13 +890,31 @@
           <tr><td>R [m²K/W]</td><td>Wärmedurchlasswiderstand der Schicht, berechnet aus d/λ.</td></tr>
           <tr><td>Product share [%]</td><td>Flächenanteil des Produktes am Gesamtaufbau. 100% bedeutet vollflächig, 15% kann z. B. für Holzständer stehen.</td></tr>
           <tr><td>Linear amount [m/m²]</td><td>Laufmeter eines linearen Produktes je m² Wandfläche. Wird für kg CO₂e/m-Datensätze verwendet, z. B. CW-Profile.</td></tr>
+          <tr><td>Use for U-value</td><td>Legt fest, ob die Schicht in der vereinfachten U-Wert-Berechnung berücksichtigt wird. CW-/UW-Profile können meist auf No gesetzt werden.</td></tr>
           <tr><td>Replacement cycles</td><td>Anzahl zusätzlicher Austausche innerhalb des Betrachtungszeitraums.</td></tr>
           <tr><td>GWP basis</td><td>Zeigt, ob der Datensatz als kg CO₂e/m³ Material oder direkt als kg CO₂e/m² Wandfläche eingegeben wurde.</td></tr>
           <tr><td>A1-A3 bis D</td><td>Ergebnisse je Modul in kg CO₂e/m² Wandfläche.</td></tr>
         </tbody>
       </table>
 
-      <h3>4. Produktanteile / Product share</h3>
+      <h3>4. U-Wert-Randbedingungen und Profile</h3>
+      <p>
+        Oben im Abschnitt <strong>Wall build-up</strong> kann die Randbedingung für den U-Wert gewählt werden:
+      </p>
+      <table>
+        <thead><tr><th>Auswahl</th><th>Ansatz</th><th>Anwendung</th></tr></thead>
+        <tbody>
+          <tr><td>External wall</td><td>Rsi 0.13 + Rse 0.04 = 0.17 m²K/W</td><td>Außenwand gegen Außenluft.</td></tr>
+          <tr><td>Internal / adjacent space</td><td>Rsi 0.13 + Rsi 0.13 = 0.26 m²K/W</td><td>Innenbauteile oder Bauteile zu Bereichen mit ähnlichen Randbedingungen.</td></tr>
+          <tr><td>Custom</td><td>frei einstellbarer Oberflächenwiderstand</td><td>Sonderfälle.</td></tr>
+        </tbody>
+      </table>
+      <p>
+        Lineare Profile wie CW-/UW-Profile können über <strong>Use for U-value = No</strong> aus der U-Wert-Berechnung herausgenommen werden.
+        Sie bleiben dann in der GWP-Berechnung enthalten.
+      </p>
+
+      <h3>5. Produktanteile / Product share</h3>
       <p>
         Mit <strong>Product share [%]</strong> können Produkte angesetzt werden, die nur einen Anteil der Fläche einnehmen.
         Das ist besonders hilfreich für Holzrahmen- oder Ständerwände.
@@ -858,7 +932,7 @@
         Für eine genauere thermische Bewertung sollte eine äquivalente Wärmeleitfähigkeit der gemischten Schicht verwendet werden.
       </div>
 
-      <h3>5. Austauschzyklen / Replacement cycles</h3>
+      <h3>6. Austauschzyklen / Replacement cycles</h3>
       <p>Für jede Schicht kann ein Austauschzyklus gewählt werden:</p>
       <table>
         <thead>
@@ -876,7 +950,7 @@
         Modul D wird separat ausgewiesen und mit der Anzahl der Materialvorkommen berücksichtigt.
       </p>
 
-      <h3>6. Lebenszyklusmodule</h3>
+      <h3>7. Lebenszyklusmodule</h3>
       <table>
         <thead>
           <tr><th>Modul</th><th>Bedeutung im Tool</th></tr>
@@ -895,7 +969,7 @@
         </tbody>
       </table>
 
-      <h3>7. Materialdaten hinzufügen oder bearbeiten</h3>
+      <h3>8. Materialdaten hinzufügen oder bearbeiten</h3>
       <p>
         Im Abschnitt <strong>Add or edit material</strong> können vorhandene Materialien angepasst oder neue Materialien angelegt werden.
       </p>
@@ -910,22 +984,22 @@
         Wird <strong>kg CO₂e/m² wall area</strong> gewählt, werden die Werte direkt verwendet. Wird <strong>kg CO₂e/m linear product</strong> gewählt, werden die Werte mit den laufenden Metern je m² Wandfläche multipliziert.
       </div>
 
-      <h3>8. Ergebnisse verstehen</h3>
+      <h3>9. Ergebnisse verstehen</h3>
       <p>
         Im Abschnitt <strong>Results for current construction</strong> werden U-Wert, A-C-Gesamtwert und Modul D separat angezeigt.
         Das Diagramm zeigt die Beiträge der einzelnen Schichten je Modul. Die Farben stehen für die jeweiligen Layer.
       </p>
 
-      <h3>9. Konstruktionen speichern und vergleichen</h3>
+      <h3>10. Konstruktionen speichern und vergleichen</h3>
       <ol>
         <li>Der Konstruktion einen Namen geben.</li>
         <li>Mit <strong>Save current construction</strong> lokal speichern.</li>
         <li>Gespeicherte Konstruktionen können später geladen oder gelöscht werden.</li>
         <li>Bis zu fünf Konstruktionen können für das Vergleichsdiagramm ausgewählt werden.</li>
       </ol>
-      <p>Die Speicherung erfolgt lokal im Browser. Andere Nutzer sehen diese gespeicherten Konstruktionen nicht.</p>
+      <p>Die Speicherung erfolgt lokal im Browser. Andere Nutzer sehen diese gespeicherten Konstruktionen nicht. Die zentrale Materialdatenbank wird aus der Datei materials.json geladen, wenn diese im gleichen Verzeichnis wie index.html liegt.</p>
 
-      <h3>10. Bericht, PDF und HTML-Export</h3>
+      <h3>11. Bericht, PDF und HTML-Export</h3>
       <ul>
         <li><strong>Generate construction report preview / PDF</strong> erzeugt einen Bericht zur aktuellen Konstruktion.</li>
         <li><strong>Generate comparison report preview / PDF</strong> erzeugt einen Vergleichsbericht.</li>
@@ -933,7 +1007,7 @@
       </ul>
       <p>Für die PDF-Ausgabe werden Microsoft Edge oder Google Chrome empfohlen. Einige Sicherheitsbrowser können die Druckfunktion blockieren.</p>
 
-      <h3>11. Typischer Arbeitsablauf</h3>
+      <h3>12. Typischer Arbeitsablauf</h3>
       <ol>
         <li>Materialdaten prüfen oder ergänzen.</li>
         <li>Wandaufbau schichtweise eingeben.</li>
@@ -944,7 +1018,7 @@
         <li>Bericht als PDF oder HTML sichern.</li>
       </ol>
 
-      <h3>12. Short English summary</h3>
+      <h3>13. Short English summary</h3>
       <p>
         Add layers, define thickness and replacement cycles, check U-value and GWP modules, save constructions locally,
         compare up to five variants, and generate a report as PDF or HTML. Module D is reported separately and is not included in the A-C total.
@@ -955,9 +1029,9 @@
 
 
 <script>
-const STORAGE_MATERIALS = "eaaca_materials_v13";
-const STORAGE_CONSTRUCTIONS = "eaaca_constructions_v13";
-const STORAGE_COMPARE = "eaaca_compare_selection_v13";
+const STORAGE_MATERIALS = "eaaca_materials_v18";
+const STORAGE_CONSTRUCTIONS = "eaaca_constructions_v18";
+const STORAGE_COMPARE = "eaaca_compare_selection_v18";
 
 const layerColors = ["#006fb6", "#6aa84f", "#f2b705", "#7b4fa3", "#c56b2c", "#2c7f8f", "#607d8b", "#a33"];
 
@@ -1024,9 +1098,44 @@ function normaliseMaterial(mat) {
   return mat;
 }
 
-function loadInitialData() {
-  const stored = localStorage.getItem(STORAGE_MATERIALS);
-  materials = stored ? JSON.parse(stored).map(normaliseMaterial) : clone(defaultMaterials).map(normaliseMaterial);
+async function loadInitialData() {
+  const status = document.getElementById("materialDatabaseStatus");
+
+  try {
+    const response = await fetch("materials.json", { cache: "no-store" });
+
+    if (!response.ok) {
+      throw new Error("materials.json not found or not accessible");
+    }
+
+    const externalMaterials = await response.json();
+
+    if (!Array.isArray(externalMaterials) || externalMaterials.length === 0) {
+      throw new Error("materials.json is empty or invalid");
+    }
+
+    materials = externalMaterials.map(normaliseMaterial);
+
+    if (status) {
+      status.textContent = "Loaded " + materials.length + " materials from external materials.json.";
+    }
+  } catch (error) {
+    console.warn("Using embedded fallback materials:", error);
+    const stored = localStorage.getItem(STORAGE_MATERIALS);
+
+    if (stored) {
+      materials = JSON.parse(stored).map(normaliseMaterial);
+      if (status) {
+        status.textContent = "materials.json could not be loaded. Using locally stored material database.";
+      }
+    } else {
+      materials = clone(defaultMaterials).map(normaliseMaterial);
+      if (status) {
+        status.textContent = "materials.json could not be loaded. Using embedded fallback materials.";
+      }
+    }
+  }
+
   saveMaterialsToStorage();
   refreshMaterialSelects();
   refreshSavedConstructions();
@@ -1069,7 +1178,9 @@ function addLayer() {
   if (!materialId) return alert("Please select a material.");
   if (!thicknessMm || thicknessMm <= 0) return alert("Please enter a valid thickness.");
 
-  layers.push({ materialId, thicknessMm, share: 100, linearAmount: 1, replacements: 0 });
+  const mat = getMaterialById(materialId);
+  const includeInU = mat && mat.basis === "per_m" ? false : true;
+  layers.push({ materialId, thicknessMm, share: 100, linearAmount: 1, includeInU, replacements: 0 });
   calculate();
 }
 
@@ -1165,6 +1276,27 @@ function calcAC(sums) {
   return sums.A1_A3 + sums.A4_A5 + sums.B1 + sums.B2 + sums.B3 + sums.B4 + sums.C1 + sums.C2 + sums.C3_C4;
 }
 
+
+function getSurfaceResistance() {
+  const boundary = document.getElementById("boundarySelect") ? document.getElementById("boundarySelect").value : "external";
+  if (boundary === "internal") return 0.26;
+  if (boundary === "custom") {
+    const custom = parseFloat(document.getElementById("customSurfaceResistance").value);
+    return isFinite(custom) && custom >= 0 ? custom : 0.17;
+  }
+  return 0.17;
+}
+
+function setAllLayersForUValue(include) {
+  layers.forEach(layer => layer.includeInU = include);
+  calculate();
+}
+
+function updateLayerIncludeInU(index, value) {
+  layers[index].includeInU = value === "yes";
+  calculate();
+}
+
 function calcForLayers(layerSet) {
   let rLayers = 0;
   let sums = { A1_A3:0, A4_A5:0, B1:0, B2:0, B3:0, B4:0, C1:0, C2:0, C3_C4:0, D:0 };
@@ -1173,17 +1305,23 @@ function calcForLayers(layerSet) {
     if (layer.replacements === undefined) layer.replacements = 0;
     if (layer.share === undefined) layer.share = 100;
     if (layer.linearAmount === undefined) layer.linearAmount = 1;
+    if (layer.includeInU === undefined) {
+      const mForU = getMaterialById(layer.materialId);
+      layer.includeInU = !(mForU && mForU.basis === "per_m");
+    }
     const mat = getMaterialById(layer.materialId);
     if (!mat) return;
 
     const d = layer.thicknessMm / 1000;
-    rLayers += d / Number(mat.lambda);
+    if (layer.includeInU !== false) {
+      rLayers += d / Number(mat.lambda);
+    }
 
     const g = calculateLayerGwp(layer, mat);
     Object.keys(sums).forEach(k => sums[k] += Number(g[k] || 0));
   });
 
-  const u = layerSet.length ? 1 / (0.13 + rLayers + 0.04) : null;
+  const u = layerSet.length ? 1 / (getSurfaceResistance() + rLayers) : null;
   const ac = calcAC(sums);
 
   return { u, ac, d: sums.D, sums };
@@ -1199,11 +1337,15 @@ function calculate() {
     if (layer.replacements === undefined) layer.replacements = 0;
     if (layer.share === undefined) layer.share = 100;
     if (layer.linearAmount === undefined) layer.linearAmount = 1;
+    if (layer.includeInU === undefined) {
+      const mForU = getMaterialById(layer.materialId);
+      layer.includeInU = !(mForU && mForU.basis === "per_m");
+    }
     const mat = getMaterialById(layer.materialId);
     if (!mat) return;
 
     const d = layer.thicknessMm / 1000;
-    const r = d / Number(mat.lambda);
+    const r = layer.includeInU === false ? 0 : d / Number(mat.lambda);
     const g = calculateLayerGwp(layer, mat);
 
     layerResults.push({
@@ -1211,6 +1353,7 @@ function calculate() {
       thicknessMm: layer.thicknessMm,
       share: Number(layer.share === undefined ? 100 : layer.share),
       linearAmount: Number(layer.linearAmount === undefined ? 1 : layer.linearAmount),
+      includeInU: layer.includeInU !== false,
       replacements: Number(layer.replacements || 0),
       gwp: g
     });
@@ -1227,7 +1370,13 @@ function calculate() {
       <td><input type="number" value="${layer.share === undefined ? 100 : layer.share}" min="0" max="100" step="1" oninput="updateLayerShare(${index}, this.value)" /></td>
       <td><input type="number" value="${layer.linearAmount === undefined ? 1 : layer.linearAmount}" min="0" step="0.01" oninput="updateLayerLinearAmount(${index}, this.value)" /></td>
       <td>${format(mat.lambda)}</td>
-      <td>${format(r)}</td>
+      <td>${layer.includeInU === false ? "excluded" : format(r)}</td>
+      <td>
+        <select onchange="updateLayerIncludeInU(${index}, this.value)">
+          <option value="yes" ${layer.includeInU !== false ? "selected" : ""}>Yes</option>
+          <option value="no" ${layer.includeInU === false ? "selected" : ""}>No</option>
+        </select>
+      </td>
       <td>
         <select onchange="updateLayerReplacements(${index}, this.value)">
           <option value="0" ${Number(layer.replacements) === 0 ? "selected" : ""}>0</option>
@@ -1257,6 +1406,10 @@ function calculate() {
   document.getElementById("uValue").textContent = result.u ? format(result.u) : "–";
   document.getElementById("gwpAC").textContent = layers.length ? format(result.ac) : "–";
   document.getElementById("gwpD").textContent = layers.length ? format(result.d) : "–";
+  const uNote = document.getElementById("uValueNote");
+  if (uNote) {
+    uNote.textContent = "U-value surface resistance used: Rsi + Rse = " + format(getSurfaceResistance()) + " m²K/W. Layers marked 'Use for U-value = No' are excluded from the U-value calculation.";
+  }
 
   document.getElementById("moduleResults").innerHTML = moduleRowsHtml(result.sums, result.ac);
 
@@ -1639,6 +1792,10 @@ function drawComparisonChart() {
       if (layer.replacements === undefined) layer.replacements = 0;
     if (layer.share === undefined) layer.share = 100;
     if (layer.linearAmount === undefined) layer.linearAmount = 1;
+    if (layer.includeInU === undefined) {
+      const mForU = getMaterialById(layer.materialId);
+      layer.includeInU = !(mForU && mForU.basis === "per_m");
+    }
       return layer;
     });
     const r = calcForLayers(l);
@@ -1737,10 +1894,14 @@ function buildCurrentLayerRowsForReport() {
     if (layer.replacements === undefined) layer.replacements = 0;
     if (layer.share === undefined) layer.share = 100;
     if (layer.linearAmount === undefined) layer.linearAmount = 1;
+    if (layer.includeInU === undefined) {
+      const mForU = getMaterialById(layer.materialId);
+      layer.includeInU = !(mForU && mForU.basis === "per_m");
+    }
     const mat = getMaterialById(layer.materialId);
     if (!mat) return "";
     const d = layer.thicknessMm / 1000;
-    const r = d / Number(mat.lambda);
+    const r = layer.includeInU === false ? 0 : d / Number(mat.lambda);
     const g = calculateLayerGwp(layer, mat);
 
     return `
@@ -1750,7 +1911,8 @@ function buildCurrentLayerRowsForReport() {
         <td>${format(layer.share)}</td>
         <td>${format(layer.linearAmount)}</td>
         <td>${format(mat.lambda)}</td>
-        <td>${format(r)}</td>
+        <td>${layer.includeInU === false ? "excluded" : format(r)}</td>
+        <td>${layer.includeInU === false ? "No" : "Yes"}</td>
         <td>${layer.replacements}</td>
         <td>${shortBasis(mat.basis)}</td>
         <td>${format(g.A1_A3)}</td>
@@ -1933,6 +2095,7 @@ function printConstructionReport() {
       <div class="report-box">GWP A-C incl. B modules [kg CO₂e/m²]<strong>${format(result.ac)}</strong></div>
       <div class="report-box">Module D separately [kg CO₂e/m²]<strong>${format(result.d)}</strong></div>
     </div>
+    <p class="report-meta">U-value surface resistance: Rsi + Rse = ${format(getSurfaceResistance())} m²K/W. Layers marked “No” are excluded from U-value calculation.</p>
 
     <h2>Layer table</h2>
     <table>
@@ -1944,6 +2107,7 @@ function printConstructionReport() {
           <th>Linear [m/m²]</th>
           <th>λ [W/(mK)]</th>
           <th>R [m²K/W]</th>
+          <th>Use for U</th>
           <th>Repl.</th>
           <th>GWP basis</th>
           <th>A1-A3</th>
