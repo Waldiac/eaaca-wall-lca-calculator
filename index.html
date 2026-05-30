@@ -1346,7 +1346,7 @@ function addLayer() {
 
   const mat = getMaterialById(materialId);
   const includeInU = mat && mat.basis === "per_m" ? false : true;
-  layers.push({ materialId, thicknessMm, share: 100, linearAmount: 1, includeInU, replacements: 0 });
+  layers.push({ materialId, thicknessMm, lambda: mat ? Number(mat.lambda) : 0, share: 100, linearAmount: 1, includeInU, replacements: 0 });
   calculate();
 }
 
@@ -1393,6 +1393,21 @@ function updateLayerMaterial(index, materialId) {
 function updateLayerReplacements(index, value) {
   layers[index].replacements = Number(value) || 0;
   calculate();
+}
+
+function getLayerLambda(layer, mat) {
+  const layerLambda = parseUserNumber(layer.lambda, NaN);
+  if (isFinite(layerLambda) && layerLambda > 0) return layerLambda;
+  const materialLambda = parseUserNumber(mat && mat.lambda, NaN);
+  return isFinite(materialLambda) && materialLambda > 0 ? materialLambda : 0;
+}
+
+function syncLayerLambdaFromMaterial(index) {
+  const matEl = document.getElementById("layerMat_" + index);
+  const lambdaEl = document.getElementById("layerLambda_" + index);
+  if (!matEl || !lambdaEl) return;
+  const mat = getMaterialById(matEl.value);
+  if (mat) lambdaEl.value = mat.lambda;
 }
 
 function baseLayerGwp(layer, mat) {
@@ -1467,6 +1482,7 @@ function applyLayerEdit(index) {
   const matEl = document.getElementById("layerMat_" + index);
   const thicknessEl = document.getElementById("layerThickness_" + index);
   const shareEl = document.getElementById("layerShare_" + index);
+  const lambdaEl = document.getElementById("layerLambda_" + index);
   const linearEl = document.getElementById("layerLinear_" + index);
   const includeEl = document.getElementById("layerIncludeU_" + index);
   const replEl = document.getElementById("layerRepl_" + index);
@@ -1495,6 +1511,15 @@ function applyLayerEdit(index) {
     layers[index].share = s;
   }
 
+  if (lambdaEl) {
+    const lambda = parseUserNumber(lambdaEl.value, NaN);
+    if (!isFinite(lambda) || lambda <= 0) {
+      alert("Please enter a valid lambda value.");
+      return;
+    }
+    layers[index].lambda = lambda;
+  }
+
   if (linearEl) {
     let a = parseUserNumber(linearEl.value, NaN);
     if (!isFinite(a) || a < 0) {
@@ -1517,6 +1542,7 @@ function applyAllLayerEdits() {
 
     const thicknessEl = document.getElementById("layerThickness_" + i);
     const shareEl = document.getElementById("layerShare_" + i);
+    const lambdaEl = document.getElementById("layerLambda_" + i);
     const linearEl = document.getElementById("layerLinear_" + i);
     const includeEl = document.getElementById("layerIncludeU_" + i);
     const replEl = document.getElementById("layerRepl_" + i);
@@ -1538,6 +1564,13 @@ function applyAllLayerEdits() {
     if (s < 0) s = 0;
     if (s > 100) s = 100;
     layers[i].share = s;
+
+    const lambda = parseUserNumber(lambdaEl.value, NaN);
+    if (!isFinite(lambda) || lambda <= 0) {
+      alert("Please enter a valid lambda value in row " + (i + 1) + ".");
+      return;
+    }
+    layers[i].lambda = lambda;
 
     let a = parseUserNumber(linearEl.value, NaN);
     if (!isFinite(a) || a < 0) {
@@ -1569,8 +1602,9 @@ function calcForLayers(layerSet) {
     if (!mat) return;
 
     const d = layer.thicknessMm / 1000;
-    if (layer.includeInU !== false) {
-      rLayers += d / Number(mat.lambda);
+    const lambda = getLayerLambda(layer, mat);
+    if (layer.includeInU !== false && lambda > 0) {
+      rLayers += d / lambda;
     }
 
     const g = calculateLayerGwp(layer, mat);
@@ -1607,6 +1641,7 @@ function buildLayerResultsFromLayerSet(layerSet) {
     out.push({
       layerName: mat.name,
       thicknessMm: layer.thicknessMm,
+      lambda: getLayerLambda(layer, mat),
       share: Number(layer.share === undefined ? 100 : layer.share),
       linearAmount: Number(layer.linearAmount === undefined ? 1 : layer.linearAmount),
       includeInU: layer.includeInU !== false,
@@ -1755,7 +1790,8 @@ function calculate() {
     if (!mat) return;
 
     const d = layer.thicknessMm / 1000;
-    const r = layer.includeInU === false ? 0 : d / Number(mat.lambda);
+    const lambda = getLayerLambda(layer, mat);
+    const r = layer.includeInU === false || lambda <= 0 ? 0 : d / lambda;
     const g = calculateLayerGwp(layer, mat);
 
     let opts = "";
@@ -1765,11 +1801,11 @@ function calculate() {
 
     const row = document.createElement("tr");
     row.innerHTML = `
-      <td><select id="layerMat_${index}">${opts}</select></td>
+      <td><select id="layerMat_${index}" onchange="syncLayerLambdaFromMaterial(${index})">${opts}</select></td>
       <td><input id="layerThickness_${index}" type="text" inputmode="decimal" value="${layer.thicknessMm}" /></td>
       <td><input id="layerShare_${index}" type="text" inputmode="decimal" value="${layer.share === undefined ? 100 : layer.share}" /></td>
       <td><input id="layerLinear_${index}" type="text" inputmode="decimal" value="${layer.linearAmount === undefined ? 1 : layer.linearAmount}" /></td>
-      <td>${format(mat.lambda)}</td>
+      <td><input id="layerLambda_${index}" type="text" inputmode="decimal" value="${lambda}" /></td>
       <td>${layer.includeInU === false ? "excluded" : format(r)}</td>
       <td>
         <select id="layerIncludeU_${index}">
@@ -2304,7 +2340,8 @@ function buildCurrentLayerRowsForReport() {
     const mat = getMaterialById(layer.materialId);
     if (!mat) return "";
     const d = layer.thicknessMm / 1000;
-    const r = layer.includeInU === false ? 0 : d / Number(mat.lambda);
+    const lambda = getLayerLambda(layer, mat);
+    const r = layer.includeInU === false || lambda <= 0 ? 0 : d / lambda;
     const g = calculateLayerGwp(layer, mat);
 
     return `
@@ -2313,7 +2350,7 @@ function buildCurrentLayerRowsForReport() {
         <td>${format(layer.thicknessMm)}</td>
         <td>${format(layer.share)}</td>
         <td>${format(layer.linearAmount)}</td>
-        <td>${format(mat.lambda)}</td>
+        <td>${format(lambda)}</td>
         <td>${layer.includeInU === false ? "excluded" : format(r)}</td>
         <td>${layer.includeInU === false ? "No" : "Yes"}</td>
         <td>${layer.replacements}</td>
@@ -2717,3 +2754,4 @@ loadInitialData();
 </script>
 </body>
 </html>
+
