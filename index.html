@@ -227,8 +227,44 @@
       font-size: 12px;
     }
 
-    #layerTable th:nth-child(3),
-    #layerTable td:nth-child(3),
+    #layerTable {
+      min-width: 1500px;
+    }
+
+    #layerTable th:nth-child(1),
+    #layerTable td:nth-child(1) {
+      width: 92px;
+      min-width: 92px;
+      position: sticky;
+      left: 0;
+      z-index: 3;
+      background: #ffffff;
+      box-shadow: 2px 0 0 var(--line);
+      text-align: center;
+    }
+
+    #layerTable th:nth-child(1) {
+      background: var(--soft);
+      z-index: 4;
+    }
+
+    #layerTable th:nth-child(2),
+    #layerTable td:nth-child(2) {
+      width: 280px;
+      min-width: 280px;
+      position: sticky;
+      left: 92px;
+      z-index: 3;
+      background: #ffffff;
+      box-shadow: 2px 0 0 var(--line);
+      text-align: left;
+    }
+
+    #layerTable th:nth-child(2) {
+      background: var(--soft);
+      z-index: 4;
+    }
+
     #layerTable th:nth-child(4),
     #layerTable td:nth-child(4),
     #layerTable th:nth-child(5),
@@ -238,8 +274,79 @@
     #layerTable th:nth-child(7),
     #layerTable td:nth-child(7),
     #layerTable th:nth-child(8),
-    #layerTable td:nth-child(8) {
+    #layerTable td:nth-child(8),
+    #layerTable th:nth-child(9),
+    #layerTable td:nth-child(9) {
       min-width: 70px;
+    }
+
+    .layer-table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      margin-top: 16px;
+      background: white;
+    }
+
+    .layer-table-wrap table {
+      margin-top: 0;
+    }
+
+    .layer-cell {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .layer-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: #eef6fa;
+      color: var(--blue);
+      font-weight: 800;
+      letter-spacing: .02em;
+      white-space: nowrap;
+    }
+
+    .layer-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .layer-actions {
+      display: flex;
+      gap: 3px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .layer-actions button {
+      padding: 4px 6px;
+      min-width: 26px;
+      font-size: 11px;
+      margin: 0;
+      line-height: 1;
+    }
+
+    .copybtn { background: var(--aqua); }
+    .material-cell select {
+      min-width: 260px;
+      font-weight: 600;
+    }
+
+    .material-hint {
+      font-size: 11px;
+      color: var(--grey);
+      margin-top: 4px;
+      line-height: 1.25;
+      word-break: break-word;
     }
 
     td input, td select {
@@ -749,38 +856,41 @@
       </div>
     </div>
 
-    <table id="layerTable">
-      <thead>
-      <tr>
-        <th>Layer</th>
-        <th>Thickness [mm]</th>
-        <th>Product share [%]</th>
-        <th>Linear amount [m/m²]</th>
-        <th>λ [W/(mK)]</th>
-        <th>R [m²K/W]</th>
-        <th>Use for U-value</th>
-        <th>Replacement cycles</th>
-        <th>GWP basis</th>
-        <th>A1-A3</th>
-        <th>A4-A5</th>
-        <th>B1</th>
-        <th>B2</th>
-        <th>B3</th>
-        <th>B4 repl.</th>
-        <th>C1</th>
-        <th>C2</th>
-        <th>C3/C4</th>
-        <th>D</th>
-        <th>Apply changes</th>
-        <th></th>
-      </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
+    <div class="layer-table-wrap">
+      <table id="layerTable">
+        <thead>
+        <tr>
+          <th>Layer</th>
+          <th>Material</th>
+          <th>Thickness [mm]</th>
+          <th>Product share [%]</th>
+          <th>Linear amount [m/m²]</th>
+          <th>λ [W/(mK)]</th>
+          <th>R [m²K/W]</th>
+          <th>Use for U-value</th>
+          <th>Replacement cycles</th>
+          <th>GWP basis</th>
+          <th>A1-A3</th>
+          <th>A4-A5</th>
+          <th>B1</th>
+          <th>B2</th>
+          <th>B3</th>
+          <th>B4 repl.</th>
+          <th>C1</th>
+          <th>C2</th>
+          <th>C3/C4</th>
+          <th>D</th>
+          <th>Apply changes</th>
+          <th></th>
+        </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
 
     <div class="refreshbar">
       <button onclick="applyAllLayerEdits()">Refresh / recalculate construction</button>
-      <span class="note">Tip: values in the table are edited first and recalculated only after clicking Apply in the row or Refresh / recalculate construction.</span>
+      <span class="note">Tip: values in the table are edited first and recalculated after clicking Apply, Refresh / recalculate construction, or after moving/copying layers.</span>
     </div>
 
     <p class="note">
@@ -1478,6 +1588,77 @@ function updateLayerIncludeInU(index, value) {
   calculate();
 }
 
+function collectLayerEditsFromTable() {
+  for (let i = 0; i < layers.length; i++) {
+    const matEl = document.getElementById("layerMat_" + i);
+    if (!matEl) continue;
+
+    const thicknessEl = document.getElementById("layerThickness_" + i);
+    const shareEl = document.getElementById("layerShare_" + i);
+    const lambdaEl = document.getElementById("layerLambda_" + i);
+    const linearEl = document.getElementById("layerLinear_" + i);
+    const includeEl = document.getElementById("layerIncludeU_" + i);
+    const replEl = document.getElementById("layerRepl_" + i);
+
+    layers[i].materialId = matEl.value;
+
+    const t = parseUserNumber(thicknessEl.value, NaN);
+    if (!isFinite(t) || t <= 0) {
+      alert("Please enter a valid thickness in row " + (i + 1) + ".");
+      return false;
+    }
+    layers[i].thicknessMm = t;
+
+    let s = parseUserNumber(shareEl.value, NaN);
+    if (!isFinite(s)) {
+      alert("Please enter a valid product share in row " + (i + 1) + ".");
+      return false;
+    }
+    if (s < 0) s = 0;
+    if (s > 100) s = 100;
+    layers[i].share = s;
+
+    const lambda = parseUserNumber(lambdaEl.value, NaN);
+    if (!isFinite(lambda) || lambda <= 0) {
+      alert("Please enter a valid lambda value in row " + (i + 1) + ".");
+      return false;
+    }
+    layers[i].lambda = lambda;
+
+    let a = parseUserNumber(linearEl.value, NaN);
+    if (!isFinite(a) || a < 0) {
+      alert("Please enter a valid linear amount in row " + (i + 1) + ".");
+      return false;
+    }
+    layers[i].linearAmount = a;
+
+    layers[i].includeInU = includeEl.value === "yes";
+    layers[i].replacements = Number(replEl.value) || 0;
+  }
+
+  return true;
+}
+
+function moveLayer(index, direction) {
+  if (!collectLayerEditsFromTable()) return;
+
+  const targetIndex = index + direction;
+  if (targetIndex < 0 || targetIndex >= layers.length) return;
+
+  const temp = layers[index];
+  layers[index] = layers[targetIndex];
+  layers[targetIndex] = temp;
+  calculate();
+}
+
+function duplicateLayer(index) {
+  if (!collectLayerEditsFromTable()) return;
+  if (!layers[index]) return;
+
+  layers.splice(index + 1, 0, clone(layers[index]));
+  calculate();
+}
+
 function applyLayerEdit(index) {
   const matEl = document.getElementById("layerMat_" + index);
   const thicknessEl = document.getElementById("layerThickness_" + index);
@@ -1536,53 +1717,7 @@ function applyLayerEdit(index) {
 }
 
 function applyAllLayerEdits() {
-  for (let i = 0; i < layers.length; i++) {
-    const matEl = document.getElementById("layerMat_" + i);
-    if (!matEl) continue;
-
-    const thicknessEl = document.getElementById("layerThickness_" + i);
-    const shareEl = document.getElementById("layerShare_" + i);
-    const lambdaEl = document.getElementById("layerLambda_" + i);
-    const linearEl = document.getElementById("layerLinear_" + i);
-    const includeEl = document.getElementById("layerIncludeU_" + i);
-    const replEl = document.getElementById("layerRepl_" + i);
-
-    layers[i].materialId = matEl.value;
-
-    const t = parseUserNumber(thicknessEl.value, NaN);
-    if (!isFinite(t) || t <= 0) {
-      alert("Please enter a valid thickness in row " + (i + 1) + ".");
-      return;
-    }
-    layers[i].thicknessMm = t;
-
-    let s = parseUserNumber(shareEl.value, NaN);
-    if (!isFinite(s)) {
-      alert("Please enter a valid product share in row " + (i + 1) + ".");
-      return;
-    }
-    if (s < 0) s = 0;
-    if (s > 100) s = 100;
-    layers[i].share = s;
-
-    const lambda = parseUserNumber(lambdaEl.value, NaN);
-    if (!isFinite(lambda) || lambda <= 0) {
-      alert("Please enter a valid lambda value in row " + (i + 1) + ".");
-      return;
-    }
-    layers[i].lambda = lambda;
-
-    let a = parseUserNumber(linearEl.value, NaN);
-    if (!isFinite(a) || a < 0) {
-      alert("Please enter a valid linear amount in row " + (i + 1) + ".");
-      return;
-    }
-    layers[i].linearAmount = a;
-
-    layers[i].includeInU = includeEl.value === "yes";
-    layers[i].replacements = Number(replEl.value) || 0;
-  }
-
+  if (!collectLayerEditsFromTable()) return;
   calculate();
 }
 
@@ -1800,8 +1935,25 @@ function calculate() {
     });
 
     const row = document.createElement("tr");
+    const layerColor = layerColors[index % layerColors.length];
+    const moveUpDisabled = index === 0 ? "disabled" : "";
+    const moveDownDisabled = index === layers.length - 1 ? "disabled" : "";
+
     row.innerHTML = `
-      <td><select id="layerMat_${index}" onchange="syncLayerLambdaFromMaterial(${index})">${opts}</select></td>
+      <td>
+        <div class="layer-cell">
+          <div class="layer-badge"><span class="layer-dot" style="background:${layerColor}"></span>L${index + 1}</div>
+          <div class="layer-actions">
+            <button type="button" class="secondary" title="Move layer up" onclick="moveLayer(${index}, -1)" ${moveUpDisabled}>↑</button>
+            <button type="button" class="secondary" title="Move layer down" onclick="moveLayer(${index}, 1)" ${moveDownDisabled}>↓</button>
+            <button type="button" class="copybtn" title="Duplicate layer" onclick="duplicateLayer(${index})">Copy</button>
+          </div>
+        </div>
+      </td>
+      <td class="material-cell">
+        <select id="layerMat_${index}" onchange="syncLayerLambdaFromMaterial(${index})">${opts}</select>
+        <div class="material-hint">${htmlEscape(mat.name)}</div>
+      </td>
       <td><input id="layerThickness_${index}" type="text" inputmode="decimal" value="${layer.thicknessMm}" /></td>
       <td><input id="layerShare_${index}" type="text" inputmode="decimal" value="${layer.share === undefined ? 100 : layer.share}" /></td>
       <td><input id="layerLinear_${index}" type="text" inputmode="decimal" value="${layer.linearAmount === undefined ? 1 : layer.linearAmount}" /></td>
@@ -2754,4 +2906,5 @@ loadInitialData();
 </script>
 </body>
 </html>
+
 
