@@ -589,7 +589,7 @@
     <span>Products & Applications</span>
     <span>Downloads</span>
     <span>Contact</span>
-    <button class="manual-nav-button" onclick="openManual()">Manual / Handbuch</button>
+    <button class="manual-nav-button" onclick="openManual()">User manual</button>
   </div>
 </nav>
 
@@ -610,8 +610,8 @@
 
   <section>
     <h2>Material database status</h2>
-    <p class="note" id="materialDatabaseStatus">Loading material database...</p>
-    <p class="note">Official / centrally maintained materials are loaded from <strong>materials.json</strong>. The material selector displays the English <strong>name</strong> field only; German originals may remain in hidden reference fields such as <strong>name_de</strong>. Decimal inputs accept both comma and point, e.g. 12,5 or 12.5 mm. User-defined edits are stored locally in this browser.</p>
+    <p class="note" id="materialDatabaseStatus">Internal material database ready.</p>
+    <p class="note">This version uses an embedded, user-defined internal material database. Materials are entered and maintained directly in the tool and stored locally in this browser. No external <strong>materials.json</strong> file is required. Decimal inputs accept both comma and point, e.g. 12,5 or 12.5 mm.</p>
   </section>
 
   <section>
@@ -871,178 +871,181 @@
   <div class="manual-box">
     <div class="manual-header">
       <div>
-        <h2 id="manualTitle">User Manual / Kurzanleitung</h2>
+        <h2 id="manualTitle">User Manual</h2>
         <div class="note">EAACA Wall LCA & Thermal Performance Calculator</div>
       </div>
       <button class="manual-close" onclick="closeManual()">Close / Schließen</button>
     </div>
 
-    <div class="manual-content">
-      <h3>1. Zweck des Tools</h3>
+<div class="manual-content">
+      <h3>1. Purpose of the tool</h3>
       <p>
-        Das Tool berechnet orientierende Kennwerte für Wandaufbauten:
-        U-Wert, GWP je m² Wandfläche und Lebenszyklusmodule A1-A3, A4-A5, B1, B2, B3, B4, C1, C2, C3/C4 sowie D.
-        Es dient der technischen Kommunikation und dem Vergleich von Konstruktionen.
+        The EAACA Wall LCA Calculator is a browser-based tool for estimating the thermal performance and global warming potential (GWP) of wall constructions from user-entered material data. This version does not rely on an external material database. All relevant material values are entered and maintained directly by the user within the tool.
       </p>
       <div class="manual-note">
-        Das Tool ersetzt keine verifizierte EPD nach EN 15804 und keine projektspezifische Gebäudeökobilanz nach EN 15978.
-        Die Ergebnisse hängen von den gewählten Materialdaten, Szenarien und Austauschzyklen ab.
+        The calculator is intended for transparent comparisons of construction variants, plausibility checks and communication purposes. It is not a substitute for a verified environmental product declaration according to EN 15804, a complete building LCA according to EN 15978 or a formal regulatory assessment.
       </div>
 
-      <h3>2. Grundprinzip der Eingabe</h3>
+      <h3>2. Recommended workflow</h3>
       <ol>
-        <li>Im Abschnitt <strong>Wall build-up</strong> ein Material auswählen.</li>
-        <li>Die Schichtdicke in <strong>mm</strong> eingeben.</li>
-        <li>Mit <strong>Add layer</strong> die Schicht zum Aufbau hinzufügen.</li>
-        <li>Weitere Schichten in der Reihenfolge des Wandaufbaus ergänzen.</li>
+        <li>Open the calculator in the browser.</li>
+        <li>Enter or edit the required materials in the internal material database.</li>
+        <li>Create the wall construction by adding one layer per material.</li>
+        <li>Enter the thickness of each layer in millimetres.</li>
+        <li>Use <strong>Apply</strong> for a single row or <strong>Refresh / recalculate construction</strong> after editing several rows.</li>
+        <li>Review the U-value, the layer-by-layer GWP result and the total result.</li>
+        <li>Save constructions locally and compare up to five variants.</li>
+        <li>Generate a report preview and print or save it as PDF if required.</li>
       </ol>
-      <p>
-        Die Schichtdicke kann später direkt in der Tabelle geändert werden. Der U-Wert und die GWP-Ergebnisse werden automatisch aktualisiert. Dezimalzahlen können mit Komma oder Punkt eingegeben werden, z. B. 12,5 mm oder 12.5 mm. Änderungen in der Schichttabelle werden bewusst erst nach Klick auf Apply oder Refresh / recalculate construction übernommen.
-      </p>
 
-      <h3>3. Bedeutung der wichtigsten Spalten</h3>
+      <h3>3. Input units and conventions</h3>
       <table>
-        <thead>
-          <tr><th>Spalte</th><th>Bedeutung</th></tr>
-        </thead>
+        <thead><tr><th>Input</th><th>Typical unit</th><th>Explanation</th></tr></thead>
         <tbody>
-          <tr><td>Thickness [mm]</td><td>Schichtdicke der jeweiligen Lage.</td></tr>
-          <tr><td>λ [W/(mK)]</td><td>Wärmeleitfähigkeit des Materials.</td></tr>
-          <tr><td>R [m²K/W]</td><td>Wärmedurchlasswiderstand der Schicht, berechnet aus d/λ.</td></tr>
-          <tr><td>Product share [%]</td><td>Flächenanteil des Produktes am Gesamtaufbau. 100% bedeutet vollflächig, 15% kann z. B. für Holzständer stehen.</td></tr>
-          <tr><td>Linear amount [m/m²]</td><td>Laufmeter eines linearen Produktes je m² Wandfläche. Wird für kg CO₂e/m-Datensätze verwendet, z. B. CW-Profile.</td></tr>
-          <tr><td>Use for U-value</td><td>Legt fest, ob die Schicht in der vereinfachten U-Wert-Berechnung berücksichtigt wird. CW-/UW-Profile können meist auf No gesetzt werden.</td></tr>
-          <tr><td>Replacement cycles</td><td>Anzahl zusätzlicher Austausche innerhalb des Betrachtungszeitraums.</td></tr>
-          <tr><td>GWP basis</td><td>Zeigt, ob der Datensatz als kg CO₂e/m³ Material oder direkt als kg CO₂e/m² Wandfläche eingegeben wurde.</td></tr>
-          <tr><td>A1-A3 bis D</td><td>Ergebnisse je Modul in kg CO₂e/m² Wandfläche.</td></tr>
+          <tr><td>Layer thickness</td><td>mm</td><td>Thickness of the material layer in the wall build-up. Decimal values may be entered with a comma or a point, e.g. 12,5 or 12.5 mm.</td></tr>
+          <tr><td>Thermal conductivity λ</td><td>W/(mK)</td><td>Used for the simplified U-value calculation where the layer is activated for U-value.</td></tr>
+          <tr><td>GWP values</td><td>kg CO₂e per declared basis</td><td>Module values can be entered per m³ material, per m² wall area or per metre of linear product.</td></tr>
+          <tr><td>Product share</td><td>%</td><td>Share of the product in the wall area. 100% means full-area use; lower values may be used for partial components such as studs.</td></tr>
+          <tr><td>Linear amount</td><td>m/m²</td><td>Length of a linear product per square metre of wall area, e.g. for CW/UW profiles or rails.</td></tr>
         </tbody>
       </table>
 
-      <h3>4. U-Wert-Randbedingungen und Profile</h3>
+      <h3>4. Internal material database</h3>
       <p>
-        Oben im Abschnitt <strong>Wall build-up</strong> kann die Randbedingung für den U-Wert gewählt werden:
+        In this version, the material database is managed directly in the tool. The user enters the material name, thermal conductivity, GWP input basis and life-cycle module values manually. The data remains transparent and can be checked line by line.
       </p>
       <table>
-        <thead><tr><th>Auswahl</th><th>Ansatz</th><th>Anwendung</th></tr></thead>
+        <thead><tr><th>Field</th><th>How to use it</th></tr></thead>
         <tbody>
-          <tr><td>External wall</td><td>Rsi 0.13 + Rse 0.04 = 0.17 m²K/W</td><td>Außenwand gegen Außenluft.</td></tr>
-          <tr><td>Internal / adjacent space</td><td>Rsi 0.13 + Rsi 0.13 = 0.26 m²K/W</td><td>Innenbauteile oder Bauteile zu Bereichen mit ähnlichen Randbedingungen.</td></tr>
-          <tr><td>Custom</td><td>frei einstellbarer Oberflächenwiderstand</td><td>Sonderfälle.</td></tr>
-        </tbody>
-      </table>
-      <p>
-        Lineare Profile wie CW-/UW-Profile können über <strong>Use for U-value = No</strong> aus der U-Wert-Berechnung herausgenommen werden.
-        Sie bleiben dann in der GWP-Berechnung enthalten.
-      </p>
-
-      <h3>5. Produktanteile / Product share</h3>
-      <p>
-        Mit <strong>Product share [%]</strong> können Produkte angesetzt werden, die nur einen Anteil der Fläche einnehmen.
-        Das ist besonders hilfreich für Holzrahmen- oder Ständerwände.
-      </p>
-      <p>
-        Beispiel: Eine Holzrahmenwand kann in der gleichen Schichtebene vereinfacht mit zwei Produktzeilen eingegeben werden:
-        Holzständer 15% und Gefachdämmung 85%. Die Modulwerte werden entsprechend gewichtet.
-      </p>
-      <p>
-        Für lineare Produkte wie CW-Profile kann im Materialeditor die Eingabebasis <strong>kg CO₂e/m linear product</strong> gewählt werden.
-        In der Schichttabelle wird dann über <strong>Linear amount [m/m²]</strong> angegeben, wie viele laufende Meter je m² Wandfläche enthalten sind.
-      </p>
-      <div class="manual-note">
-        Der Produktanteil beeinflusst in dieser Version die GWP-Berechnung. Die U-Wert-Berechnung bleibt eine vereinfachte Schichtrechnung und bildet parallele Wärmewege nicht vollständig ab.
-        Für eine genauere thermische Bewertung sollte eine äquivalente Wärmeleitfähigkeit der gemischten Schicht verwendet werden.
-      </div>
-
-      <h3>6. Austauschzyklen / Replacement cycles</h3>
-      <p>Für jede Schicht kann ein Austauschzyklus gewählt werden:</p>
-      <table>
-        <thead>
-          <tr><th>Auswahl</th><th>Interpretation</th><th>Typische Anwendung</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>0</td><td>kein Austausch</td><td>Lebensdauer etwa 50 Jahre oder länger</td></tr>
-          <tr><td>1</td><td>ein Austausch</td><td>Lebensdauer unter 50 Jahre, z. B. 40 Jahre</td></tr>
-          <tr><td>2</td><td>zwei Austausche</td><td>Lebensdauer bis etwa 25 Jahre</td></tr>
-        </tbody>
-      </table>
-      <p>
-        Im Tool wird B4 vereinfacht berechnet als:
-        <strong>B4 = Austauschzyklen × (A1-A3 + A4-A5 + C1 + C2 + C3/C4)</strong>.
-        Modul D wird separat ausgewiesen und mit der Anzahl der Materialvorkommen berücksichtigt.
-      </p>
-
-      <h3>7. Lebenszyklusmodule</h3>
-      <table>
-        <thead>
-          <tr><th>Modul</th><th>Bedeutung im Tool</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>A1-A3</td><td>Herstellung / Product stage.</td></tr>
-          <tr><td>A4-A5</td><td>Transport zur Baustelle und Einbau.</td></tr>
-          <tr><td>B1</td><td>Nutzungsphase, z. B. Rekarbonatisierung bei calciumhaltigen Baustoffen.</td></tr>
-          <tr><td>B2</td><td>Instandhaltung / Maintenance.</td></tr>
-          <tr><td>B3</td><td>Instandsetzung / Repair.</td></tr>
-          <tr><td>B4</td><td>Austausch / Replacement, berechnet aus den Austauschzyklen.</td></tr>
-          <tr><td>C1</td><td>Rückbau / Deconstruction.</td></tr>
-          <tr><td>C2</td><td>Transport im End-of-Life-Szenario.</td></tr>
-          <tr><td>C3/C4</td><td>Wiederverwertung oder Entsorgung. Im Tool kombiniert, weil für eine konkrete Schicht ein Szenario gewählt wird.</td></tr>
-          <tr><td>D</td><td>Nutzen und Lasten außerhalb der Systemgrenze. D wird separat ausgewiesen.</td></tr>
+          <tr><td>Material name</td><td>Use a clear English name, e.g. <em>AAC block, German average</em>.</td></tr>
+          <tr><td>λ [W/(mK)]</td><td>Enter the thermal conductivity used for the simplified U-value calculation.</td></tr>
+          <tr><td>GWP input basis</td><td>Select whether the module values are per m³ material, per m² wall area or per metre of linear product.</td></tr>
+          <tr><td>A1-A3 to D</td><td>Enter the GWP module values. Use zero only where zero is technically justified or intentionally assumed.</td></tr>
+          <tr><td>Save material</td><td>Saves the material locally in the browser and updates the material selectors.</td></tr>
         </tbody>
       </table>
 
-      <h3>8. Materialdaten hinzufügen oder bearbeiten</h3>
+      <h3>5. Naming convention for materials</h3>
       <p>
-        Im Abschnitt <strong>Add or edit material</strong> können vorhandene Materialien angepasst oder neue Materialien angelegt werden.
+        Use concise English material names. Avoid mixing German and English in the visible name field, because long names reduce readability in dropdown menus and result tables.
+      </p>
+      <table>
+        <thead><tr><th>German term</th><th>Recommended English term</th></tr></thead>
+        <tbody>
+          <tr><td>DE Durchschnitt</td><td>German average</td></tr>
+          <tr><td>Porenbetonstein</td><td>AAC block</td></tr>
+          <tr><td>Kalksandstein</td><td>Calcium silicate unit</td></tr>
+          <tr><td>Ziegel</td><td>Clay masonry unit</td></tr>
+          <tr><td>Dämmstoff</td><td>Insulation material</td></tr>
+          <tr><td>Mineralwolle</td><td>Mineral wool insulation</td></tr>
+          <tr><td>Außenputz</td><td>External render</td></tr>
+          <tr><td>Innenputz</td><td>Internal plaster</td></tr>
+        </tbody>
+      </table>
+      <p>Recommended format: <strong>Material type, additional description, data scope</strong>. Example: <em>AAC block, German average</em>.</p>
+
+      <h3>6. Creating a wall construction</h3>
+      <p>
+        A wall construction is entered as a sequence of layers. Each row normally represents one physical layer, for example internal plaster, masonry, insulation and external render.
       </p>
       <ol>
-        <li>Für ein neues Material <strong>New material</strong> anklicken.</li>
-        <li>Name, λ-Wert und Eingabebasis auswählen.</li>
-        <li>Modulwerte A1-A3 bis D eingeben.</li>
-        <li>Mit <strong>Save material</strong> speichern.</li>
+        <li>Select a material from the internal material list.</li>
+        <li>Enter the layer thickness in millimetres.</li>
+        <li>Click <strong>Add layer</strong>.</li>
+        <li>Repeat this process for all layers in the desired order.</li>
+        <li>Edit product share, linear amount, U-value inclusion and replacement cycles directly in the layer table where required.</li>
+        <li>Click <strong>Apply</strong> in the row or <strong>Refresh / recalculate construction</strong>.</li>
       </ol>
-      <div class="manual-note">
-        Wird <strong>kg CO₂e/m³ material</strong> gewählt, rechnet das Tool über die Schichtdicke auf kg CO₂e/m² um.
-        Wird <strong>kg CO₂e/m² wall area</strong> gewählt, werden die Werte direkt verwendet. Wird <strong>kg CO₂e/m linear product</strong> gewählt, werden die Werte mit den laufenden Metern je m² Wandfläche multipliziert.
-      </div>
 
-      <h3>9. Ergebnisse verstehen</h3>
+      <h3>7. Editing existing entries</h3>
       <p>
-        Im Abschnitt <strong>Results for current construction</strong> werden U-Wert, A-C-Gesamtwert und Modul D separat angezeigt.
-        Das Diagramm zeigt die Beiträge der einzelnen Schichten je Modul. Die Farben stehen für die jeweiligen Layer.
+        The tool distinguishes between material master data and construction-specific layer data.
       </p>
-
-      <h3>10. Konstruktionen speichern und vergleichen</h3>
-      <ol>
-        <li>Der Konstruktion einen Namen geben.</li>
-        <li>Mit <strong>Save current construction</strong> lokal speichern.</li>
-        <li>Gespeicherte Konstruktionen können später geladen oder gelöscht werden.</li>
-        <li>Bis zu fünf Konstruktionen können für das Vergleichsdiagramm ausgewählt werden.</li>
-      </ol>
-      <p>Die Speicherung erfolgt lokal im Browser. Andere Nutzer sehen diese gespeicherten Konstruktionen nicht. Die zentrale Materialdatenbank wird aus der Datei materials.json geladen, wenn diese im gleichen Verzeichnis wie index.html liegt.</p>
-
-      <h3>11. Bericht, PDF und HTML-Export</h3>
       <ul>
-        <li><strong>Generate construction report preview / PDF</strong> erzeugt einen Bericht zur aktuellen Konstruktion.</li>
-        <li><strong>Generate comparison report preview / PDF</strong> erzeugt einen Vergleichsbericht.</li>
-        <li>Im Bericht kann der Druckdialog geöffnet oder der Bericht als HTML-Datei heruntergeladen werden.</li>
+        <li>Edit material master data in the <strong>Add or edit material</strong> section.</li>
+        <li>Edit construction-specific values, such as layer thickness or product share, in the construction table.</li>
+        <li>Use the row <strong>Apply</strong> button to make a single row change effective.</li>
+        <li>Use <strong>Refresh / recalculate construction</strong> after editing several rows.</li>
+        <li>Check the result table again after each relevant change.</li>
       </ul>
-      <p>Für die PDF-Ausgabe werden Microsoft Edge oder Google Chrome empfohlen. Einige Sicherheitsbrowser können die Druckfunktion blockieren.</p>
 
-      <h3>12. Typischer Arbeitsablauf</h3>
-      <ol>
-        <li>Materialdaten prüfen oder ergänzen.</li>
-        <li>Wandaufbau schichtweise eingeben.</li>
-        <li>Austauschzyklen je Schicht festlegen.</li>
-        <li>U-Wert und GWP-Ergebnisse prüfen.</li>
-        <li>Konstruktion speichern.</li>
-        <li>Weitere Varianten anlegen und vergleichen.</li>
-        <li>Bericht als PDF oder HTML sichern.</li>
-      </ol>
-
-      <h3>13. Short English summary</h3>
+      <h3>8. U-value boundary conditions</h3>
+      <table>
+        <thead><tr><th>Selection</th><th>Surface resistance</th><th>Typical use</th></tr></thead>
+        <tbody>
+          <tr><td>External wall</td><td>Rsi 0.13 + Rse 0.04 = 0.17 m²K/W</td><td>External wall against outdoor air.</td></tr>
+          <tr><td>Internal / adjacent space</td><td>Rsi 0.13 + Rsi 0.13 = 0.26 m²K/W</td><td>Internal components or adjacent spaces with similar boundary conditions.</td></tr>
+          <tr><td>Custom</td><td>User-defined value</td><td>Special cases.</td></tr>
+        </tbody>
+      </table>
       <p>
-        Add layers, define thickness and replacement cycles, check U-value and GWP modules, save constructions locally,
-        compare up to five variants, and generate a report as PDF or HTML. Module D is reported separately and is not included in the A-C total.
+        Linear products such as CW/UW profiles can be excluded from the simplified U-value calculation by setting <strong>Use for U-value = No</strong>. They remain included in the GWP calculation.
+      </p>
+
+      <h3>9. Reading the results</h3>
+      <table>
+        <thead><tr><th>Result item</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td>U-value</td><td>Simplified thermal transmittance of the selected layer sequence.</td></tr>
+          <tr><td>Layer result</td><td>Contribution of an individual material layer to the overall GWP.</td></tr>
+          <tr><td>Module result</td><td>Contribution of a life-cycle module such as A1-A3, A4-A5, B1 or C modules.</td></tr>
+          <tr><td>A-C total</td><td>Total result for modules A1-A3, A4-A5, B1, B2, B3, B4, C1, C2 and C3/C4. Module D is not included.</td></tr>
+          <tr><td>Module D</td><td>Benefits and loads beyond the system boundary. It is reported separately.</td></tr>
+        </tbody>
+      </table>
+
+      <h3>10. Replacement cycles</h3>
+      <p>
+        Replacement cycles define additional replacements within the reference period. In this prototype, B4 is calculated as:
+        <strong>B4 = replacement cycles × (A1-A3 + A4-A5 + C1 + C2 + C3/C4)</strong>.
+      </p>
+      <table>
+        <thead><tr><th>Value</th><th>Interpretation</th><th>Typical use</th></tr></thead>
+        <tbody>
+          <tr><td>0</td><td>No replacement</td><td>Service life approximately 50 years or longer.</td></tr>
+          <tr><td>1</td><td>One replacement</td><td>Service life below the reference period, e.g. around 40 years.</td></tr>
+          <tr><td>2</td><td>Two replacements</td><td>Shorter-life components, e.g. around 25 years.</td></tr>
+        </tbody>
+      </table>
+
+      <h3>11. Saving and comparing constructions</h3>
+      <p>
+        Saved constructions are stored locally in the user's browser. Other users do not see these saved variants. Up to five saved constructions can be selected for the comparison diagram.
+      </p>
+
+      <h3>12. Reports, PDF and HTML export</h3>
+      <ul>
+        <li><strong>Generate construction report preview / PDF</strong> creates a report for the current construction.</li>
+        <li><strong>Generate comparison report preview / PDF</strong> creates a comparison report.</li>
+        <li>The browser print dialog can be used to print or save the report as PDF.</li>
+        <li>Microsoft Edge or Google Chrome are recommended for PDF output.</li>
+      </ul>
+
+      <h3>13. Quality checks before using results</h3>
+      <ul>
+        <li>Check that material names are understandable and not duplicated.</li>
+        <li>Check that thickness values are realistic and entered in millimetres.</li>
+        <li>Check that the environmental data basis is consistent with the quantity calculation.</li>
+        <li>Check whether zero values mean “not relevant”, “not available” or “not yet entered”.</li>
+        <li>Document the data sources used for the material values.</li>
+        <li>Do not compare variants with different functional requirements without explaining the difference.</li>
+      </ul>
+
+      <h3>14. Troubleshooting</h3>
+      <table>
+        <thead><tr><th>Issue</th><th>Possible solution</th></tr></thead>
+        <tbody>
+          <tr><td>Material list is empty</td><td>Add materials in the internal material editor or reset the browser's local storage if an old test version is still cached.</td></tr>
+          <tr><td>Long names overlap</td><td>Use shorter English material names and avoid combined German/English labels.</td></tr>
+          <tr><td>Changed layer values do not affect the result</td><td>Click <strong>Apply</strong> in the edited row or <strong>Refresh / recalculate construction</strong>.</td></tr>
+          <tr><td>Unexpected GWP values</td><td>Check whether the input basis is per m³, per m² or per metre and whether the layer thickness, product share or linear amount is correct.</td></tr>
+          <tr><td>PDF export does not work</td><td>Use the browser print function in Microsoft Edge or Google Chrome.</td></tr>
+        </tbody>
+      </table>
+
+      <h3>15. Important limitation</h3>
+      <p>
+        The calculator depends on the quality and consistency of the data entered by the user. Results should be treated as indicative unless all material data, conversion rules and calculation assumptions have been checked and documented.
       </p>
     </div>
   </div>
@@ -1050,7 +1053,7 @@
 
 
 <script>
-const STORAGE_MATERIALS = "eaaca_materials_v18";
+const STORAGE_MATERIALS = "eaaca_materials_internal_v22";
 const STORAGE_CONSTRUCTIONS = "eaaca_constructions_v18";
 const STORAGE_COMPARE = "eaaca_compare_selection_v18";
 
@@ -1135,41 +1138,32 @@ function normaliseMaterial(mat) {
   return mat;
 }
 
-async function loadInitialData() {
+function loadInitialData() {
   const status = document.getElementById("materialDatabaseStatus");
+  const stored = localStorage.getItem(STORAGE_MATERIALS);
 
-  try {
-    const response = await fetch("materials.json", { cache: "no-store" });
-
-    if (!response.ok) {
-      throw new Error("materials.json not found or not accessible");
-    }
-
-    const externalMaterials = await response.json();
-
-    if (!Array.isArray(externalMaterials) || externalMaterials.length === 0) {
-      throw new Error("materials.json is empty or invalid");
-    }
-
-    materials = externalMaterials.map(normaliseMaterial);
-
-    if (status) {
-      status.textContent = "Loaded " + materials.length + " English materials from external materials.json. Editing mode v21: row changes require Apply or Refresh.";
-    }
-  } catch (error) {
-    console.warn("Using embedded fallback materials:", error);
-    const stored = localStorage.getItem(STORAGE_MATERIALS);
-
-    if (stored) {
-      materials = JSON.parse(stored).map(normaliseMaterial);
-      if (status) {
-        status.textContent = "materials.json could not be loaded. Using locally stored material database.";
+  if (stored) {
+    try {
+      const parsed = JSON.parse(stored);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        materials = parsed.map(normaliseMaterial);
+        if (status) {
+          status.textContent = "Loaded " + materials.length + " materials from the internal browser database. No external materials.json file is used.";
+        }
+      } else {
+        throw new Error("Stored material database is empty or invalid.");
       }
-    } else {
+    } catch (error) {
+      console.warn("Stored material database could not be read. Using embedded starter materials:", error);
       materials = clone(defaultMaterials).map(normaliseMaterial);
       if (status) {
-        status.textContent = "materials.json could not be loaded. Using embedded fallback materials.";
+        status.textContent = "Using embedded starter materials. Materials can be edited and saved locally in this browser.";
       }
+    }
+  } else {
+    materials = clone(defaultMaterials).map(normaliseMaterial);
+    if (status) {
+      status.textContent = "Using embedded starter materials. Materials can be edited and saved locally in this browser. No external materials.json file is required.";
     }
   }
 
@@ -2396,4 +2390,5 @@ loadInitialData();
 </script>
 </body>
 </html>
+
 
