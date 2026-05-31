@@ -841,8 +841,14 @@
       body.report-ready .site-nav,
       body.report-ready header.hero,
       body.report-ready .legal-note,
+      body.report-ready #legalDisclaimer,
       body.report-ready main,
       body.report-ready .eaaca-footer {
+        display: none !important;
+      }
+
+      #legalDisclaimer,
+      .liability-notice {
         display: none !important;
       }
 
@@ -1154,6 +1160,11 @@
     </div>
 
     <h3 id="comparisonLibrary">Comparison library</h3>
+    <div class="refreshbar">
+      <button class="secondary" onclick="clearComparisonSelection()">Clear diagram selection</button>
+      <button class="danger" onclick="deleteSelectedComparisonConstructions()">Delete selected constructions</button>
+      <span class="note">Use the checkboxes to select comparison variants. “Clear” only removes them from the diagram; “Delete” removes them from the local construction library.</span>
+    </div>
     <table>
       <thead>
         <tr>
@@ -1163,6 +1174,7 @@
           <th>A-C [kg CO₂e/m²]</th>
           <th>D [kg CO₂e/m²]</th>
           <th>Select for diagram</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody id="comparisonTable"></tbody>
@@ -1176,7 +1188,7 @@
     </div>
 
     <p class="note">
-      Up to five saved constructions can be selected for comparison. Saved constructions are stored locally in this browser.
+      Up to five saved constructions can be selected for comparison. Saved constructions are stored locally in this browser and can be removed directly from the comparison library table.
     </p>
   </section>
 
@@ -2871,6 +2883,56 @@ function deleteConstruction() {
   refreshSavedConstructions();
 }
 
+function deleteSavedConstructionByName(name) {
+  const saved = getSavedConstructions();
+
+  if (!saved[name]) return;
+  if (!confirm('Delete construction "' + name + '" from the local construction library?')) return;
+
+  delete saved[name];
+  setSavedConstructions(saved);
+
+  const selection = getCompareSelection().filter(x => x !== name);
+  setCompareSelection(selection);
+
+  refreshSavedConstructions();
+  refreshComparisonTable();
+  drawComparisonChart();
+}
+
+function clearComparisonSelection() {
+  const selection = getCompareSelection();
+
+  if (!selection.length) {
+    alert("No constructions are currently selected for the comparison diagram.");
+    return;
+  }
+
+  setCompareSelection([]);
+  refreshComparisonTable();
+  drawComparisonChart();
+}
+
+function deleteSelectedComparisonConstructions() {
+  const saved = getSavedConstructions();
+  const selection = getCompareSelection().filter(name => saved[name]);
+
+  if (!selection.length) {
+    alert("Please select at least one construction in the comparison table.");
+    return;
+  }
+
+  if (!confirm("Delete " + selection.length + " selected construction(s) from the local construction library?")) return;
+
+  selection.forEach(name => delete saved[name]);
+  setSavedConstructions(saved);
+  setCompareSelection([]);
+
+  refreshSavedConstructions();
+  refreshComparisonTable();
+  drawComparisonChart();
+}
+
 function toggleComparison(name, checked) {
   let selection = getCompareSelection();
 
@@ -2902,7 +2964,7 @@ function refreshComparisonTable() {
   const names = Object.keys(saved).sort();
 
   if (!names.length) {
-    tbody.innerHTML = `<tr><td colspan="6">No saved constructions yet.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="7">No saved constructions yet.</td></tr>`;
     return;
   }
 
@@ -2919,18 +2981,28 @@ function refreshComparisonTable() {
 
     const checked = selection.includes(name) ? "checked" : "";
 
-    const safe = name.replace(/'/g, "\\'");
+    const safe = name.replace(/'/g, "\'");
     const row = document.createElement("tr");
     row.innerHTML = `
-      <td>${name}</td>
-      <td>${layerNames}</td>
+      <td>${htmlEscape(name)}</td>
+      <td>${htmlEscape(layerNames)}</td>
       <td>${format(result.u)}</td>
       <td>${format(result.ac)}</td>
       <td>${format(result.d)}</td>
       <td style="text-align:center;"><input type="checkbox" ${checked} onchange="toggleComparison('${safe}', this.checked)" /></td>
     `;
-    tbody.appendChild(row);
-  });
+
+    const actionCell = document.createElement("td");
+    actionCell.style.textAlign = "center";
+    const deleteButton = document.createElement("button");
+    deleteButton.type = "button";
+    deleteButton.className = "danger smallbtn";
+    deleteButton.textContent = "Delete";
+    deleteButton.onclick = function() { deleteSavedConstructionByName(name); };
+    actionCell.appendChild(deleteButton);
+    row.appendChild(actionCell);
+
+    tbody.appendChild(row);  });
 }
 
 function drawComparisonChart() {
@@ -3347,9 +3419,7 @@ function printConstructionReport() {
       The calculation is provided in accordance with Directive (EU) 2024/1275 for transparent communication of life-cycle greenhouse gas indicators.
       For datasets with input basis kg CO₂e/m³ material, module results are converted to kg CO₂e/m² wall area by multiplication with layer thickness in metres and the selected product share. For kg CO₂e/lfdm datasets, values are multiplied by the selected running metres per m² wall and product share. For kg CO₂e/kg datasets, values are multiplied by the selected mass in kg/m² wall and product share.
       B4 is calculated as replacement cycles × (A1-A3 + A4-A5 + C1 + C2 + C3/C4). Module D is shown separately and multiplied by the total number of layer occurrences. Product share affects GWP results but does not fully model parallel thermal paths.
-      This tool does not replace a verified EPD according to EN 15804 or a project-specific building LCA according to EN 15978.<br><br>
-      <strong>Legal notice:</strong> The EAACA LCA Tool and this report are non-binding and indicative only. EAACA assumes no contractual, advisory, monitoring, verification, certification, design, update or other obligation towards the user or any third party. Users are solely responsible for all input data, assumptions, scenarios, interpretation, publication and use of results. To the maximum extent permitted by applicable law, EAACA excludes liability for losses arising from use of or reliance on this tool or report. Mandatory liability that cannot be excluded by law remains unaffected.<br><br>
-      © 2026 EAACA. All rights reserved.
+      This tool does not replace a verified EPD according to EN 15804 or a project-specific building LCA according to EN 15978.
     </div>
   `;
 
@@ -3439,9 +3509,7 @@ function printComparisonReport() {
       Up to five locally saved constructions are compared. A-C total excludes Module D.
       Module D is shown separately and is not automatically included in the A-C result.
       Saved constructions are stored locally in the user's browser.
-      This tool provides indicative results and does not replace a verified EPD according to EN 15804 or a project-specific building LCA according to EN 15978.<br><br>
-      <strong>Legal notice:</strong> The EAACA LCA Tool and this report are non-binding and indicative only. EAACA assumes no contractual, advisory, monitoring, verification, certification, design, update or other obligation towards the user or any third party. Users are solely responsible for all input data, assumptions, scenarios, interpretation, publication and use of results. To the maximum extent permitted by applicable law, EAACA excludes liability for losses arising from use of or reliance on this tool or report. Mandatory liability that cannot be excluded by law remains unaffected.<br><br>
-      © 2026 EAACA. All rights reserved.
+      This tool provides indicative results and does not replace a verified EPD according to EN 15804 or a project-specific building LCA according to EN 15978.
     </div>
   `;
 
