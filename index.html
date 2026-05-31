@@ -1156,10 +1156,13 @@
         <button class="danger" onclick="deleteConstruction()">Delete</button>
         <button class="secondary" onclick="exportConstructionLibrary()">Export construction library</button>
         <button class="secondary" onclick="triggerImportConstructionLibrary()">Import construction library</button>
+        <button class="secondary" onclick="clearComparisonSelection()">Clear comparison</button>
+        <button class="danger" onclick="deleteSelectedComparisonConstructions()">Delete selected comparisons</button>
       </div>
     </div>
 
     <h3 id="comparisonLibrary">Comparison library</h3>
+    <p class="note"><strong>Comparison actions:</strong> Use <strong>Clear comparison</strong> to uncheck all selected constructions without deleting them. Use <strong>Delete selected comparisons</strong> to remove checked constructions from the local library.</p>
     <div class="refreshbar">
       <button class="secondary" onclick="clearComparisonSelection()">Clear comparison</button>
       <button class="danger" onclick="deleteSelectedComparisonConstructions()">Delete selected constructions</button>
@@ -1293,7 +1296,7 @@
     © 2026 EAACA. All rights reserved.
   </div>
   <div>
-    Indicative tool for technical communication. Module D is reported separately.<br>
+    Indicative tool for technical communication. Module D is reported separately. Version v39.<br>
     Use is subject to the legal disclaimer displayed on this page.<br>
     Copyright notice: content, structure and calculator implementation are protected by EAACA unless otherwise stated.
   </div>
@@ -3554,6 +3557,7 @@ loadInitialData();
 </script>
 </body>
 </html>
+
 
 
 
