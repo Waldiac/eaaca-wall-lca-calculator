@@ -1161,7 +1161,7 @@
 
     <h3 id="comparisonLibrary">Comparison library</h3>
     <div class="refreshbar">
-      <button class="secondary" onclick="clearComparisonSelection()">Clear diagram selection</button>
+      <button class="secondary" onclick="clearComparisonSelection()">Clear comparison</button>
       <button class="danger" onclick="deleteSelectedComparisonConstructions()">Delete selected constructions</button>
       <span class="note">Use the checkboxes to select comparison variants. “Clear” only removes them from the diagram; “Delete” removes them from the local construction library.</span>
     </div>
@@ -1179,6 +1179,12 @@
       </thead>
       <tbody id="comparisonTable"></tbody>
     </table>
+
+    <div class="refreshbar">
+      <button class="secondary" onclick="clearComparisonSelection()">Clear comparison</button>
+      <button class="danger" onclick="deleteSelectedComparisonConstructions()">Delete selected constructions</button>
+      <span class="note">These actions refer to the checked constructions in the comparison library above.</span>
+    </div>
 
     <h3>Comparison diagram, max. 5 constructions</h3>
     <canvas id="comparisonChart" width="1150" height="420"></canvas>
@@ -3548,6 +3554,7 @@ loadInitialData();
 </script>
 </body>
 </html>
+
 
 
 
