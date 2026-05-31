@@ -66,6 +66,55 @@
       text-transform: uppercase;
     }
 
+
+    .tool-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--green);
+      border-radius: 6px;
+      background: linear-gradient(180deg, #ffffff, #eef6fa);
+      color: var(--blue);
+      font-weight: 800;
+      white-space: nowrap;
+      box-shadow: 0 1px 4px rgba(34,49,63,0.06);
+    }
+
+    .tool-logo-mark {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--blue);
+      color: white;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: .02em;
+    }
+
+    .tool-logo-text {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.05;
+    }
+
+    .tool-logo-text strong {
+      font-size: 14px;
+      color: var(--blue);
+    }
+
+    .tool-logo-text span {
+      font-size: 11px;
+      color: var(--grey);
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
     .nav-links {
       display: flex;
       gap: 22px;
@@ -383,6 +432,21 @@
       margin: 0;
       padding: 5px;
       font-size: 13px;
+    }
+
+
+    input.linear-required {
+      border-color: var(--blue);
+      background: #eef6fa;
+      font-weight: bold;
+    }
+
+    .linear-hint {
+      font-size: 10.5px;
+      color: var(--blue);
+      margin-top: 3px;
+      line-height: 1.2;
+      white-space: normal;
     }
 
     .grid-3 {
@@ -818,6 +882,10 @@
     <strong>EAACA</strong>
     <span>European Autoclaved Aerated Concrete Association</span>
   </div>
+  <div class="tool-logo" aria-label="EAACA LCA Tool">
+    <span class="tool-logo-mark">LCA</span>
+    <span class="tool-logo-text"><strong>EAACA</strong><span>LCA Tool</span></span>
+  </div>
   <div class="nav-links">
     <span>EAACA</span>
     <span>AAC</span>
@@ -847,9 +915,20 @@
   <section>
     <h2>Material database status</h2>
     <p class="note" id="materialDatabaseStatus">Internal material database ready.</p>
-    <p class="note">This version uses an embedded, user-defined internal material database. Materials are entered and maintained directly in the tool and stored locally in this browser. No external <strong>materials.json</strong> file is loaded or required. Decimal inputs accept both comma and point, e.g. 12,5 or 12.5 mm.</p>
-    <button class="secondary" onclick="resetInternalMaterialDatabase()">Reset internal starter database</button>
-    <span class="note">Use this if the browser still shows materials from an earlier external database version.</span>
+    <p class="note">This version uses an embedded, user-defined internal material database. Materials are entered and maintained directly in the tool and stored locally in this browser under a stable storage key. No external <strong>materials.json</strong> file is loaded or required. Decimal inputs accept both comma and point, e.g. 12,5 or 12.5 mm.</p>
+    <div class="refreshbar">
+      <button class="success" onclick="exportMaterialDatabase()">Export material database</button>
+      <button onclick="triggerImportMaterialDatabase()">Import material database</button>
+      <button class="secondary" onclick="exportAllToolData()">Export all data</button>
+      <button class="secondary" onclick="triggerImportAllToolData()">Import all data</button>
+      <button class="secondary" onclick="exportConstructionLibrary()">Export constructions</button>
+      <button class="secondary" onclick="triggerImportConstructionLibrary()">Import constructions</button>
+      <button class="danger" onclick="resetInternalMaterialDatabase()">Reset internal starter database</button>
+    </div>
+    <input id="materialImportFile" type="file" accept="application/json,.json" style="display:none" onchange="importMaterialDatabase(event)" />
+    <input id="allDataImportFile" type="file" accept="application/json,.json" style="display:none" onchange="importAllToolData(event)" />
+    <input id="constructionImportFile" type="file" accept="application/json,.json" style="display:none" onchange="importConstructionLibrary(event)" />
+    <p class="note">Recommendation: export the material database before replacing the HTML file with a new version. Use Export constructions or Export all data to keep saved wall build-ups as a separate backup.</p>
   </section>
 
   <section>
@@ -900,7 +979,7 @@
           <th>Material</th>
           <th>Thickness [mm]</th>
           <th>Product share [%]</th>
-          <th>Linear amount [m/m²]</th>
+          <th>Linear quantity [m/m² wall]</th>
           <th>λ [W/(mK)]</th>
           <th>R [m²K/W]</th>
           <th>Use for U-value</th>
@@ -928,6 +1007,9 @@
       <button onclick="applyAllLayerEdits()">Refresh / recalculate construction</button>
       <span class="note">Tip: values in the table are edited first and recalculated after clicking Apply, Refresh / recalculate construction, or after moving/copying layers.</span>
     </div>
+    <div class="warning">
+      For materials entered as <strong>kg CO₂e/lfdm linear product</strong>, enter the required running metres per square metre wall area in <strong>Linear quantity [m/m² wall]</strong>. Example: vertical studs at 625 mm spacing ≈ 1 / 0.625 = 1.60 lfdm/m²; with top and bottom rails add 2 / wall height.
+    </div>
 
     <div class="quick-savebar">
       <div>
@@ -940,7 +1022,7 @@
     </div>
 
     <p class="note">
-      Module values in the layer table are shown in kg CO₂e/m² wall area. Product share [%] multiplies the environmental module values and can be used for mixed systems such as timber frame walls, e.g. timber studs 15% and insulation 85%. Linear amount [m/m²] is used for datasets entered as kg CO₂e/m, e.g. CW profiles, studs or rails.
+      Module values in the layer table are shown in kg CO₂e/m² wall area. Product share [%] multiplies the environmental module values and can be used for mixed systems such as timber frame walls, e.g. timber studs 15% and insulation 85%. Linear quantity [m/m² wall] is required for datasets entered as kg CO₂e/lfdm, e.g. CW profiles, studs or rails. For these products the conversion is: kg CO₂e/m² wall = kg CO₂e/lfdm × linear quantity [lfdm/m²] × product share.
       “Replacement cycles” defines additional replacements within the reference period:
       0 = no replacement, 1 = one replacement, 2 = two replacements. For example, a layer with one replacement is counted twice in the life-cycle calculation: once as the initial layer and once as replacement in module B4.
       Note: in this prototype, product share affects GWP only. The U-value calculation remains a simplified layer-by-layer calculation and does not fully model parallel thermal paths. Linear products such as CW/UW profiles can be switched off for the U-value calculation using “Use for U-value = No”.
@@ -1020,6 +1102,8 @@
         <button class="success" onclick="saveConstruction()">Save current construction</button>
         <button onclick="loadConstruction()">Load</button>
         <button class="danger" onclick="deleteConstruction()">Delete</button>
+        <button class="secondary" onclick="exportConstructionLibrary()">Export construction library</button>
+        <button class="secondary" onclick="triggerImportConstructionLibrary()">Import construction library</button>
       </div>
     </div>
 
@@ -1055,9 +1139,9 @@
 
     <div class="warning">
       The material editor supports both options:
-      <strong>kg CO₂e/m³ material</strong>, <strong>kg CO₂e/m² wall area</strong> and <strong>kg CO₂e/m linear product</strong>.
+      <strong>kg CO₂e/m³ material</strong>, <strong>kg CO₂e/m² wall area</strong> and <strong>kg CO₂e/lfdm linear product</strong>.
       If kg CO₂e/m³ is selected, the GWP result is multiplied by layer thickness in metres.
-      If kg CO₂e/m² is selected, the GWP values are used directly. If kg CO₂e/m is selected, the GWP values are multiplied by the layer's linear amount in m/m². B4 is calculated from the replacement cycles of each layer.
+      If kg CO₂e/m² is selected, the GWP values are used directly. If kg CO₂e/lfdm is selected, the GWP values are converted using the layer's Linear quantity [m/m² wall]. B4 is calculated from the replacement cycles of each layer.
     </div>
 
     <div class="grid-4">
@@ -1081,7 +1165,7 @@
         <select id="matBasis">
           <option value="per_m3">kg CO₂e/m³ material</option>
           <option value="per_m2">kg CO₂e/m² wall area</option>
-          <option value="per_m">kg CO₂e/m linear product</option>
+          <option value="per_m">kg CO₂e/lfdm linear product</option>
         </select>
       </div>
     </div>
@@ -1102,6 +1186,7 @@
     <button class="secondary" onclick="newMaterialForm()">New material</button>
     <button class="danger" onclick="deleteMaterial()">Delete selected material</button>
     <span class="status" id="materialStatus"></span>
+    <p class="note">Backup tip: use <strong>Export material database</strong> before replacing the HTML file or before using another browser/computer.</p>
   </section>
 
   <section>
@@ -1112,7 +1197,7 @@
     </p>
 
     <p class="note">
-      Product share [%] can be used for products that cover only part of the wall area, such as timber studs in a timber-frame wall. The share factor multiplies the environmental module values of the layer. For linear products with input basis kg CO₂e/m, the values are multiplied by the layer's Linear amount [m/m²].
+      Product share [%] can be used for products that cover only part of the wall area, such as timber studs in a timber-frame wall. The share factor multiplies the environmental module values of the layer. For linear products with input basis kg CO₂e/lfdm, the values are multiplied by the layer's Linear quantity [m/m² wall]. Example: 2.50 kg CO₂e/lfdm × 1.60 lfdm/m² = 4.00 kg CO₂e/m² wall before product share.
       Replacement cycles are shown in module B4. In this prototype, B4 is calculated as the additional product, transport/construction and end-of-life impacts of the replaced layer:
       B4 = replacement cycles × (A1-A3 + A4-A5 + C1 + C2 + C3/C4). Module D is shown separately and is multiplied by the total number of layer occurrences.
       Product share affects GWP results. The U-value calculation remains a simplified layer-by-layer calculation and does not fully model parallel heat flow paths.
@@ -1134,11 +1219,13 @@
 
 <footer class="eaaca-footer">
   <div>
-    <strong>EAACA</strong><br>
-    Hohes Steinfeld 1 · 14797 Kloster Lehnin · Germany
+    <strong>EAACA LCA Tool</strong><br>
+    Hohes Steinfeld 1 · 14797 Kloster Lehnin · Germany<br>
+    © 2026 EAACA. All rights reserved.
   </div>
   <div>
-    Indicative tool for technical communication. Module D is reported separately.
+    Indicative tool for technical communication. Module D is reported separately.<br>
+    Copyright notice: content, structure and calculator implementation are protected by EAACA unless otherwise stated.
   </div>
 </footer>
 
@@ -1182,7 +1269,7 @@
           <tr><td>Thermal conductivity λ</td><td>W/(mK)</td><td>Used for the simplified U-value calculation where the layer is activated for U-value.</td></tr>
           <tr><td>GWP values</td><td>kg CO₂e per declared basis</td><td>Module values can be entered per m³ material, per m² wall area or per metre of linear product.</td></tr>
           <tr><td>Product share</td><td>%</td><td>Share of the product in the wall area. 100% means full-area use; lower values may be used for partial components such as studs.</td></tr>
-          <tr><td>Linear amount</td><td>m/m²</td><td>Length of a linear product per square metre of wall area, e.g. for CW/UW profiles or rails.</td></tr>
+          <tr><td>Linear quantity</td><td>m/m² wall</td><td>Running metres of a linear product per square metre of wall area, e.g. for CW/UW profiles or rails.</td></tr>
         </tbody>
       </table>
 
@@ -1307,7 +1394,7 @@
         <li>Do not compare variants with different functional requirements without explaining the difference.</li>
       </ul>
 
-      <h3>14. Troubleshooting</h3>
+      <h3>15. Troubleshooting</h3>
       <table>
         <thead><tr><th>Issue</th><th>Possible solution</th></tr></thead>
         <tbody>
@@ -1319,7 +1406,7 @@
         </tbody>
       </table>
 
-      <h3>15. Important limitation</h3>
+      <h3>16. Important limitation</h3>
       <p>
         The calculator depends on the quality and consistency of the data entered by the user. Results should be treated as indicative unless all material data, conversion rules and calculation assumptions have been checked and documented.
       </p>
@@ -1329,9 +1416,17 @@
 
 
 <script>
-const STORAGE_MATERIALS = "eaaca_materials_internal_v28_clean";
+const STORAGE_MATERIALS = "eaaca_materials_user_database";
 const STORAGE_CONSTRUCTIONS = "eaaca_constructions_v18";
 const STORAGE_COMPARE = "eaaca_compare_selection_v18";
+const LEGACY_MATERIAL_STORAGE_KEYS = [
+  "eaaca_materials_internal_v28_clean",
+  "eaaca_materials_v18",
+  "eaaca_materials_v19",
+  "eaaca_materials_v20",
+  "eaaca_materials_v21",
+  "eaaca_materials_v22"
+];
 
 const layerColors = ["#006fb6", "#6aa84f", "#f2b705", "#7b4fa3", "#c56b2c", "#2c7f8f", "#607d8b", "#a33"];
 
@@ -1403,9 +1498,18 @@ function format(v) {
   return (isFinite(v) && v !== null && v !== undefined) ? Number(v).toFixed(2) : "0.00";
 }
 
+function formatCompact(v, decimals = 2) {
+  if (!isFinite(v) || v === null || v === undefined) return "0";
+  return Number(v).toFixed(decimals).replace(/\.?0+$/, "");
+}
+
+function compactLayerLegendLabel(index, layerName, thicknessMm) {
+  return `${index + 1}. ${layerName} (${formatCompact(thicknessMm)} mm)`;
+}
+
 function shortBasis(basis) {
   if (basis === "per_m2") return "input kg/m²";
-  if (basis === "per_m") return "input kg/m";
+  if (basis === "per_m") return "input kg/lfdm";
   return "input kg/m³";
 }
 
@@ -1429,17 +1533,35 @@ function normaliseMaterial(mat) {
   return mat;
 }
 
+function readStoredMaterialDatabase() {
+  const direct = localStorage.getItem(STORAGE_MATERIALS);
+  if (direct) return { source: STORAGE_MATERIALS, json: direct };
+
+  for (const key of LEGACY_MATERIAL_STORAGE_KEYS) {
+    const value = localStorage.getItem(key);
+    if (value) return { source: key, json: value };
+  }
+
+  // Final fallback: migrate from any older prototype key that starts with eaaca_materials.
+  const dynamicKey = Object.keys(localStorage).find(key => key.startsWith("eaaca_materials") && key !== STORAGE_MATERIALS);
+  if (dynamicKey) return { source: dynamicKey, json: localStorage.getItem(dynamicKey) };
+
+  return null;
+}
+
 function loadInitialData() {
   const status = document.getElementById("materialDatabaseStatus");
-  const stored = localStorage.getItem(STORAGE_MATERIALS);
+  const stored = readStoredMaterialDatabase();
 
-  if (stored) {
+  if (stored && stored.json) {
     try {
-      const parsed = JSON.parse(stored);
+      const parsed = JSON.parse(stored.json);
       if (Array.isArray(parsed) && parsed.length > 0) {
         materials = parsed.map(normaliseMaterial);
+        saveMaterialsToStorage();
         if (status) {
-          status.textContent = "Loaded " + materials.length + " materials from the internal browser database. No external materials.json file is used.";
+          const migratedText = stored.source === STORAGE_MATERIALS ? "" : " Migrated from older browser storage key: " + stored.source + ".";
+          status.textContent = "Loaded " + materials.length + " materials from the internal browser database." + migratedText + " No external materials.json file is used.";
         }
       } else {
         throw new Error("Stored material database is empty or invalid.");
@@ -1448,17 +1570,18 @@ function loadInitialData() {
       console.warn("Stored material database could not be read. Using embedded starter materials:", error);
       materials = clone(defaultMaterials).map(normaliseMaterial);
       if (status) {
-        status.textContent = "Using embedded starter materials. Materials can be edited and saved locally in this browser.";
+        status.textContent = "Using embedded starter materials. Materials can be edited, exported and imported locally in this browser.";
       }
+      saveMaterialsToStorage();
     }
   } else {
     materials = clone(defaultMaterials).map(normaliseMaterial);
     if (status) {
-      status.textContent = "Using embedded starter materials. Materials can be edited and saved locally in this browser. No external materials.json file is required.";
+      status.textContent = "Using embedded starter materials. Materials can be edited, exported and imported locally in this browser. No external materials.json file is required.";
     }
+    saveMaterialsToStorage();
   }
 
-  saveMaterialsToStorage();
   refreshMaterialSelects();
   refreshSavedConstructions();
   calculate();
@@ -1469,7 +1592,7 @@ function saveMaterialsToStorage() {
 }
 
 function resetInternalMaterialDatabase() {
-  if (!confirm("Reset the internal material database to the embedded starter materials? User-defined material edits stored in this browser will be removed.")) return;
+  if (!confirm("Reset the internal material database to the embedded starter materials? User-defined material edits stored in this browser will be removed. Export a backup first if you want to keep your data.")) return;
 
   // Remove material databases from earlier prototype versions so that no old external materials.json content reappears from localStorage.
   Object.keys(localStorage).forEach(key => {
@@ -1487,6 +1610,227 @@ function resetInternalMaterialDatabase() {
   const status = document.getElementById("materialDatabaseStatus");
   if (status) {
     status.textContent = "Internal starter database restored. No external materials.json file is used.";
+  }
+}
+
+
+function safeFileDateString() {
+  const d = new Date();
+  const pad = n => String(n).padStart(2, "0");
+  return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()) + "_" + pad(d.getHours()) + "-" + pad(d.getMinutes());
+}
+
+function downloadJsonFile(data, filename) {
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function exportMaterialDatabase() {
+  const data = {
+    fileType: "EAACA Wall LCA Calculator material database",
+    toolVersion: "v32",
+    exportedAt: new Date().toISOString(),
+    materials: materials.map(normaliseMaterial)
+  };
+  downloadJsonFile(data, "eaaca_material_database_backup_" + safeFileDateString() + ".json");
+}
+
+function triggerImportMaterialDatabase() {
+  const input = document.getElementById("materialImportFile");
+  if (!input) return;
+  input.value = "";
+  input.click();
+}
+
+function readJsonFile(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        resolve(JSON.parse(String(reader.result || "")));
+      } catch (error) {
+        reject(error);
+      }
+    };
+    reader.onerror = () => reject(reader.error || new Error("File could not be read."));
+    reader.readAsText(file, "utf-8");
+  });
+}
+
+async function importMaterialDatabase(event) {
+  const file = event && event.target && event.target.files ? event.target.files[0] : null;
+  if (!file) return;
+
+  try {
+    const parsed = await readJsonFile(file);
+    const importedMaterials = Array.isArray(parsed) ? parsed : parsed.materials;
+
+    if (!Array.isArray(importedMaterials) || importedMaterials.length === 0) {
+      alert("The selected file does not contain a valid material database.");
+      return;
+    }
+
+    if (!confirm("Import " + importedMaterials.length + " materials and replace the current internal material database?")) return;
+
+    materials = importedMaterials.map(normaliseMaterial);
+    currentMaterialId = null;
+    saveMaterialsToStorage();
+    refreshMaterialSelects();
+    calculate();
+
+    const status = document.getElementById("materialDatabaseStatus");
+    if (status) status.textContent = "Imported " + materials.length + " materials from backup file. Stored under stable internal browser key.";
+    const materialStatus = document.getElementById("materialStatus");
+    if (materialStatus) materialStatus.textContent = "Material database imported.";
+  } catch (error) {
+    console.error("Material database import failed:", error);
+    alert("The material database could not be imported. Please check whether the file is a valid JSON backup.");
+  }
+}
+
+function exportAllToolData() {
+  const data = {
+    fileType: "EAACA Wall LCA Calculator full backup",
+    toolVersion: "v32",
+    exportedAt: new Date().toISOString(),
+    materials: materials.map(normaliseMaterial),
+    constructions: getSavedConstructions(),
+    compareSelection: getCompareSelection()
+  };
+  downloadJsonFile(data, "eaaca_lca_tool_full_backup_" + safeFileDateString() + ".json");
+}
+
+function triggerImportAllToolData() {
+  const input = document.getElementById("allDataImportFile");
+  if (!input) return;
+  input.value = "";
+  input.click();
+}
+
+async function importAllToolData(event) {
+  const file = event && event.target && event.target.files ? event.target.files[0] : null;
+  if (!file) return;
+
+  try {
+    const parsed = await readJsonFile(file);
+    const importedMaterials = parsed.materials;
+    const importedConstructions = parsed.constructions;
+    const importedCompareSelection = parsed.compareSelection;
+
+    if (!Array.isArray(importedMaterials) || importedMaterials.length === 0) {
+      alert("The selected file does not contain a valid full backup with materials.");
+      return;
+    }
+
+    if (!confirm("Import full backup? This will replace the current material database and saved comparison constructions in this browser.")) return;
+
+    materials = importedMaterials.map(normaliseMaterial);
+    currentMaterialId = null;
+    saveMaterialsToStorage();
+
+    if (importedConstructions && typeof importedConstructions === "object" && !Array.isArray(importedConstructions)) {
+      setSavedConstructions(importedConstructions);
+    }
+
+    if (Array.isArray(importedCompareSelection)) {
+      setCompareSelection(importedCompareSelection);
+    }
+
+    refreshMaterialSelects();
+    refreshSavedConstructions();
+    calculate();
+
+    const status = document.getElementById("materialDatabaseStatus");
+    if (status) status.textContent = "Full backup imported. Materials and saved constructions were restored in this browser.";
+  } catch (error) {
+    console.error("Full backup import failed:", error);
+    alert("The full backup could not be imported. Please check whether the file is a valid JSON backup.");
+  }
+}
+
+
+function exportConstructionLibrary() {
+  const saved = getSavedConstructions();
+  const names = Object.keys(saved || {}).sort();
+
+  if (!names.length) {
+    alert("No saved constructions are available for export.");
+    return;
+  }
+
+  const data = {
+    fileType: "EAACA Wall LCA Calculator construction library",
+    toolVersion: "v32",
+    exportedAt: new Date().toISOString(),
+    constructions: saved,
+    compareSelection: getCompareSelection()
+  };
+
+  downloadJsonFile(data, "eaaca_construction_library_backup_" + safeFileDateString() + ".json");
+}
+
+function triggerImportConstructionLibrary() {
+  const input = document.getElementById("constructionImportFile");
+  if (!input) return;
+  input.value = "";
+  input.click();
+}
+
+async function importConstructionLibrary(event) {
+  const file = event && event.target && event.target.files ? event.target.files[0] : null;
+  if (!file) return;
+
+  try {
+    const parsed = await readJsonFile(file);
+    const importedConstructions = parsed.constructions;
+    const importedCompareSelection = parsed.compareSelection;
+
+    if (!importedConstructions || typeof importedConstructions !== "object" || Array.isArray(importedConstructions)) {
+      alert("The selected file does not contain a valid construction library.");
+      return;
+    }
+
+    const importedNames = Object.keys(importedConstructions);
+    if (!importedNames.length) {
+      alert("The selected construction library is empty.");
+      return;
+    }
+
+    const mode = confirm(
+      "Import " + importedNames.length + " saved construction(s)?\n\n" +
+      "OK = merge with existing saved constructions. Existing constructions with the same name will be overwritten.\n" +
+      "Cancel = replace the current construction library."
+    ) ? "merge" : "replace";
+
+    const current = mode === "merge" ? getSavedConstructions() : {};
+    const merged = Object.assign({}, current, importedConstructions);
+    setSavedConstructions(merged);
+
+    if (Array.isArray(importedCompareSelection)) {
+      const validSelection = importedCompareSelection.filter(name => merged[name]).slice(0, 5);
+      setCompareSelection(validSelection);
+    }
+
+    refreshSavedConstructions();
+    calculate();
+
+    const quickStatus = document.getElementById("quickSaveStatus");
+    if (quickStatus) {
+      quickStatus.textContent = "Construction library imported.";
+      window.setTimeout(() => { quickStatus.textContent = ""; }, 3500);
+    }
+
+    alert("Construction library imported. Saved wall build-ups are now available in the comparison library.");
+  } catch (error) {
+    console.error("Construction library import failed:", error);
+    alert("The construction library could not be imported. Please check whether the file is a valid JSON backup.");
   }
 }
 
@@ -1586,6 +1930,21 @@ function syncLayerLambdaFromMaterial(index) {
   if (!matEl || !lambdaEl) return;
   const mat = getMaterialById(matEl.value);
   if (mat) lambdaEl.value = mat.lambda;
+  updateLinearInputHint(index);
+}
+
+function updateLinearInputHint(index) {
+  const matEl = document.getElementById("layerMat_" + index);
+  const linearEl = document.getElementById("layerLinear_" + index);
+  if (!matEl || !linearEl) return;
+  const mat = getMaterialById(matEl.value);
+  if (mat && mat.basis === "per_m") {
+    linearEl.classList.add("linear-required");
+    linearEl.title = "Required: running metres per m² wall area for kg CO₂e/lfdm datasets";
+  } else {
+    linearEl.classList.remove("linear-required");
+    linearEl.title = "Only used for kg CO₂e/lfdm datasets";
+  }
 }
 
 function baseLayerGwp(layer, mat) {
@@ -1669,6 +2028,7 @@ function collectLayerEditsFromTable() {
     const replEl = document.getElementById("layerRepl_" + i);
 
     layers[i].materialId = matEl.value;
+    const rowMaterial = getMaterialById(layers[i].materialId);
 
     const t = parseUserNumber(thicknessEl.value, NaN);
     if (!isFinite(t) || t <= 0) {
@@ -1695,7 +2055,11 @@ function collectLayerEditsFromTable() {
 
     let a = parseUserNumber(linearEl.value, NaN);
     if (!isFinite(a) || a < 0) {
-      alert("Please enter a valid linear amount in row " + (i + 1) + ".");
+      alert("Please enter a valid linear quantity in row " + (i + 1) + ".");
+      return false;
+    }
+    if (rowMaterial && rowMaterial.basis === "per_m" && a <= 0) {
+      alert("Row " + (i + 1) + " uses kg CO₂e/lfdm. Please enter the running metres per m² wall area, e.g. 1.60 m/m².");
       return false;
     }
     layers[i].linearAmount = a;
@@ -1739,6 +2103,7 @@ function applyLayerEdit(index) {
   if (!layers[index]) return;
 
   if (matEl) layers[index].materialId = matEl.value;
+  const rowMaterial = getMaterialById(layers[index].materialId);
 
   if (thicknessEl) {
     const t = parseUserNumber(thicknessEl.value, NaN);
@@ -1772,7 +2137,11 @@ function applyLayerEdit(index) {
   if (linearEl) {
     let a = parseUserNumber(linearEl.value, NaN);
     if (!isFinite(a) || a < 0) {
-      alert("Please enter a valid linear amount.");
+      alert("Please enter a valid linear quantity.");
+      return;
+    }
+    if (rowMaterial && rowMaterial.basis === "per_m" && a <= 0) {
+      alert("This layer uses kg CO₂e/lfdm. Please enter the running metres per m² wall area, e.g. 1.60 m/m².");
       return;
     }
     layers[index].linearAmount = a;
@@ -2025,7 +2394,10 @@ function calculate() {
       </td>
       <td><input id="layerThickness_${index}" type="text" inputmode="decimal" value="${layer.thicknessMm}" /></td>
       <td><input id="layerShare_${index}" type="text" inputmode="decimal" value="${layer.share === undefined ? 100 : layer.share}" /></td>
-      <td><input id="layerLinear_${index}" type="text" inputmode="decimal" value="${layer.linearAmount === undefined ? 1 : layer.linearAmount}" /></td>
+      <td>
+        <input id="layerLinear_${index}" type="text" inputmode="decimal" value="${layer.linearAmount === undefined ? 1 : layer.linearAmount}" class="${mat.basis === "per_m" ? "linear-required" : ""}" title="${mat.basis === "per_m" ? "Required: running metres per m² wall area for kg CO₂e/lfdm datasets" : "Only used for kg CO₂e/lfdm datasets"}" />
+        ${mat.basis === "per_m" ? `<div class="linear-hint">lfdm/m² required</div>` : ""}
+      </td>
       <td><input id="layerLambda_${index}" type="text" inputmode="decimal" value="${lambda}" /></td>
       <td>${layer.includeInU === false ? "excluded" : format(r)}</td>
       <td>
@@ -2178,7 +2550,7 @@ function drawLayerChart(layerResults, acTotal) {
   layerResults.forEach((layer, i) => {
     const div = document.createElement("div");
     div.className = "legend-item";
-    div.innerHTML = `<span class="legend-color" style="background:${layerColors[i % layerColors.length]}"></span>${i + 1}. ${layer.layerName} (${format(layer.thicknessMm)} mm, share ${format(layer.share)}%, lin. ${format(layer.linearAmount)} m/m², repl. ${layer.replacements})`;
+    div.innerHTML = `<span class="legend-color" style="background:${layerColors[i % layerColors.length]}"></span>${htmlEscape(compactLayerLegendLabel(i, layer.layerName, layer.thicknessMm))}`;
     legend.appendChild(div);
   });
 
@@ -2457,7 +2829,7 @@ function refreshComparisonTable() {
     const result = calcForLayers(constructionLayers);
     const layerNames = constructionLayers.map(l => {
       const m = getMaterialById(l.materialId);
-      return `${m ? m.name : "unknown"} ${format(l.thicknessMm)} mm, share ${format(l.share === undefined ? 100 : l.share)}%, lin. ${format(l.linearAmount === undefined ? 1 : l.linearAmount)} m/m², repl. ${l.replacements}`;
+      return compactLayerLegendLabel(0, m ? m.name : "unknown", l.thicknessMm).replace(/^1\. /, "");
     }).join(" / ");
 
     const checked = selection.includes(name) ? "checked" : "";
@@ -2820,7 +3192,7 @@ function printConstructionReport() {
 
   const html = `
     <h1>EAACA Wall LCA & Thermal Performance Calculator</h1>
-    <div class="report-meta">Construction report · ${htmlEscape(currentDateString())}</div>
+    <div class="report-meta">Construction report · ${htmlEscape(currentDateString())} · © 2026 EAACA · EAACA LCA Tool</div>
 
     <h2>${htmlEscape(name)}</h2>
 
@@ -2855,7 +3227,7 @@ function printConstructionReport() {
           <th>Layer</th>
           <th>Thickness [mm]</th>
           <th>Share [%]</th>
-          <th>Linear [m/m²]</th>
+          <th>Linear qty. [m/m²]</th>
           <th>λ [W/(mK)]</th>
           <th>R [m²K/W]</th>
           <th>Use for U</th>
@@ -2888,7 +3260,7 @@ function printConstructionReport() {
     <div class="disclaimer">
       <strong>Methodology / Disclaimer:</strong>
       The calculation is provided in accordance with Directive (EU) 2024/1275 for transparent communication of life-cycle greenhouse gas indicators.
-      For datasets with input basis kg CO₂e/m³ material, module results are converted to kg CO₂e/m² wall area by multiplication with layer thickness in metres and the selected product share. For kg CO₂e/m datasets, values are multiplied by the selected linear amount [m/m²] and product share.
+      For datasets with input basis kg CO₂e/m³ material, module results are converted to kg CO₂e/m² wall area by multiplication with layer thickness in metres and the selected product share. For kg CO₂e/lfdm datasets, values are multiplied by the selected linear amount [m/m²] and product share.
       B4 is calculated as replacement cycles × (A1-A3 + A4-A5 + C1 + C2 + C3/C4). Module D is shown separately and multiplied by the total number of layer occurrences. Product share affects GWP results but does not fully model parallel thermal paths.
       This tool does not replace a verified EPD according to EN 15804 or a project-specific building LCA according to EN 15978.
     </div>
@@ -2922,7 +3294,7 @@ function printComparisonReport() {
     const r = calcForLayers(constructionLayers);
     const layerText = constructionLayers.map(l => {
       const m = getMaterialById(l.materialId);
-      return `${m ? m.name : "unknown"} ${format(l.thicknessMm)} mm, share ${format(l.share === undefined ? 100 : l.share)}%, lin. ${format(l.linearAmount === undefined ? 1 : l.linearAmount)} m/m², repl. ${l.replacements}`;
+      return compactLayerLegendLabel(0, m ? m.name : "unknown", l.thicknessMm).replace(/^1\. /, "");
     }).join(" / ");
 
     return `
@@ -3019,6 +3391,7 @@ loadInitialData();
 </script>
 </body>
 </html>
+
 
 
 
