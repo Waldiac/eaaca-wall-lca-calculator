@@ -319,7 +319,7 @@
 
     .quick-savebar {
       display: grid;
-      grid-template-columns: 2fr auto auto 1fr;
+      grid-template-columns: 1.5fr 1.2fr auto auto auto auto 1fr;
       gap: 10px;
       align-items: end;
       margin: 12px 0 8px;
@@ -657,6 +657,24 @@
       padding: 12px;
       margin: 12px 0;
       font-size: 14px;
+    }
+
+    details.warning {
+      padding: 0;
+      overflow: hidden;
+    }
+
+    details.warning summary {
+      cursor: pointer;
+      font-weight: 800;
+      padding: 12px;
+      color: #7a4d00;
+      list-style-position: inside;
+    }
+
+    details.warning .warning-content {
+      padding: 0 12px 12px 12px;
+      line-height: 1.45;
     }
 
     canvas {
@@ -1114,17 +1132,26 @@
       <button onclick="applyAllLayerEdits()">Refresh / recalculate construction</button>
       <span class="note">Tip: values in the table are edited first and recalculated after clicking Apply, Refresh / recalculate construction, or after moving/copying layers.</span>
     </div>
-    <div class="warning">
-      For materials entered as <strong>kg CO₂e/lfdm linear product</strong>, enter the required running metres per square metre wall area in <strong>Quantity [m/m² or kg/m² wall]</strong>. For materials entered as <strong>kg CO₂e/kg material</strong>, enter the mass per square metre wall area, e.g. 20 kg/m² for reinforcing steel. Example for studs: vertical studs at 625 mm spacing ≈ 1 / 0.625 = 1.60 lfdm/m²; with top and bottom rails add 2 / wall height.
-    </div>
+    <details class="warning">
+      <summary>Important quantity note</summary>
+      <div class="warning-content">
+        For materials entered as <strong>kg CO₂e/lfdm linear product</strong>, enter the required running metres per square metre wall area in <strong>Quantity [m/m² or kg/m² wall]</strong>. For materials entered as <strong>kg CO₂e/kg material</strong>, enter the mass per square metre wall area, e.g. 20 kg/m² for reinforcing steel. Example for studs: vertical studs at 625 mm spacing ≈ 1 / 0.625 = 1.60 lfdm/m²; with top and bottom rails add 2 / wall height.
+      </div>
+    </details>
 
     <div class="quick-savebar">
       <div>
-        <label for="constructionNameTop">Construction name for comparison</label>
+        <label for="constructionNameTop">Construction name</label>
         <input id="constructionNameTop" type="text" placeholder="e.g. AAC 365 + external render" oninput="syncConstructionNameFromTop()" />
       </div>
-      <button class="success" onclick="saveConstructionFromTop()">Save for comparison</button>
-      <button class="secondary" onclick="scrollToComparisonLibrary()">Go to comparison</button>
+      <div>
+        <label for="savedConstructionsTop">Saved constructions</label>
+        <select id="savedConstructionsTop"></select>
+      </div>
+      <button class="success" onclick="saveConstructionFromTop()">Save construction</button>
+      <button onclick="loadConstructionFromTop()">Load construction</button>
+      <button class="secondary" onclick="exportConstructionLibrary()">Export library</button>
+      <button class="secondary" onclick="triggerImportConstructionLibrary()">Import library</button>
       <span class="quick-save-status" id="quickSaveStatus"></span>
     </div>
 
@@ -1192,7 +1219,7 @@
   </section>
 
   <section>
-    <h2>3. Save / load comparison constructions</h2>
+    <h2>3. Construction library and comparison</h2>
 
     <div class="grid-3">
       <div>
@@ -1215,7 +1242,7 @@
     </div>
 
     <h3 id="comparisonLibrary">Comparison library</h3>
-    <p class="note"><strong>Comparison actions:</strong> Use <strong>Clear comparison</strong> to uncheck all selected constructions without deleting them. Use <strong>Delete selected comparisons</strong> to remove checked constructions from the local library.</p>
+    <p class="note"><strong>Comparison actions:</strong> Saved constructions are managed in the local construction library. Use the checkboxes to select up to five variants for the diagram. Use <strong>Clear comparison</strong> to uncheck selected constructions without deleting them. Use <strong>Delete selected comparisons</strong> to remove checked constructions from the local library.</p>
     <div class="refreshbar">
       <button class="secondary" onclick="clearComparisonSelection()">Clear comparison</button>
       <button class="danger" onclick="deleteSelectedComparisonConstructions()">Delete selected constructions</button>
@@ -1251,12 +1278,15 @@
   <section>
     <h2>4. Add or edit material</h2>
 
-    <div class="warning">
-      The material editor supports both options:
+    <details class="warning">
+      <summary>Material editor note</summary>
+      <div class="warning-content">
+        The material editor supports both options:
       <strong>kg CO₂e/m³ material</strong>, <strong>kg CO₂e/m² wall area</strong>, <strong>kg CO₂e/lfdm linear product</strong> and <strong>kg CO₂e/kg material</strong>.
       If kg CO₂e/m³ is selected, the GWP result is multiplied by layer thickness in metres.
       If kg CO₂e/m² is selected, the GWP values are used directly. If kg CO₂e/lfdm is selected, the GWP values are converted using running metres per m² wall. If kg CO₂e/kg is selected, the GWP values are converted using kg material per m² wall, e.g. reinforcement mass. B4 is calculated from the replacement cycles of each layer.
-    </div>
+      </div>
+    </details>
 
     <div class="grid-4">
       <div>
@@ -1327,9 +1357,12 @@
       This tool does not replace a verified EPD according to EN 15804 or a project-specific building LCA according to EN 15978.
     </p>
 
-    <div class="warning">
-      <strong>Legal disclaimer:</strong> The tool is provided as a non-binding, indicative communication and comparison aid only. EAACA assumes no contractual, advisory, monitoring, verification, certification, design, update or other obligation towards the user or any third party. Users are solely responsible for all input data, assumptions, scenarios, interpretation and use of results. To the maximum extent permitted by applicable law, EAACA excludes liability for losses arising from use of or reliance on this tool. Mandatory liability that cannot be excluded by law remains unaffected.
-    </div>
+    <details class="warning">
+      <summary>Legal note</summary>
+      <div class="warning-content">
+        <strong>Legal disclaimer:</strong> The tool is provided as a non-binding, indicative communication and comparison aid only. EAACA assumes no contractual, advisory, monitoring, verification, certification, design, update or other obligation towards the user or any third party. Users are solely responsible for all input data, assumptions, scenarios, interpretation and use of results. To the maximum extent permitted by applicable law, EAACA excludes liability for losses arising from use of or reliance on this tool. Mandatory liability that cannot be excluded by law remains unaffected.
+      </div>
+    </details>
   </section>
 
 </main>
@@ -1343,7 +1376,7 @@
     © 2026 EAACA. All rights reserved.
   </div>
   <div>
-    Indicative tool for technical communication. Module D is reported separately. Version v41.<br>
+    Indicative tool for technical communication. Module D is reported separately. Version v42.<br>
     Use is subject to the legal disclaimer displayed on this page.<br>
     Copyright notice: content, structure and calculator implementation are protected by EAACA unless otherwise stated.
   </div>
@@ -1971,7 +2004,7 @@ async function importConstructionLibrary(event) {
       window.setTimeout(() => { quickStatus.textContent = ""; }, 3500);
     }
 
-    alert("Construction library imported. Saved wall build-ups are now available in the comparison library.");
+    alert("Construction library imported. Saved wall build-ups are now available in the Wall build-up loader and the comparison library.");
   } catch (error) {
     console.error("Construction library import failed:", error);
     alert("The construction library could not be imported. Please check whether the file is a valid JSON backup.");
@@ -2845,7 +2878,14 @@ function saveConstructionFromTop() {
   const top = document.getElementById("constructionNameTop");
   const name = top ? top.value.trim() : "";
   setConstructionNameEverywhere(name);
-  saveConstruction(true);
+  saveConstruction(true, false);
+}
+
+function loadConstructionFromTop() {
+  const topSelect = document.getElementById("savedConstructionsTop");
+  const bottomSelect = document.getElementById("savedConstructions");
+  if (topSelect && bottomSelect) bottomSelect.value = topSelect.value;
+  loadConstruction();
 }
 
 function scrollToComparisonLibrary() {
@@ -2855,22 +2895,30 @@ function scrollToComparisonLibrary() {
 
 function refreshSavedConstructions() {
   const saved = getSavedConstructions();
-  const select = document.getElementById("savedConstructions");
+  const selects = [
+    document.getElementById("savedConstructions"),
+    document.getElementById("savedConstructionsTop")
+  ].filter(Boolean);
 
-  select.innerHTML = "";
+  selects.forEach(select => {
+    const previousValue = select.value;
+    select.innerHTML = "";
 
-  Object.keys(saved).sort().forEach(name => {
-    const option = document.createElement("option");
-    option.value = name;
-    option.textContent = name;
-    select.appendChild(option);
+    Object.keys(saved).sort().forEach(name => {
+      const option = document.createElement("option");
+      option.value = name;
+      option.textContent = name;
+      select.appendChild(option);
+    });
+
+    if (previousValue && saved[previousValue]) select.value = previousValue;
   });
 
   refreshComparisonTable();
   drawComparisonChart();
 }
 
-function saveConstruction(silent = false) {
+function saveConstruction(silent = false, addToComparison = false) {
   const quickStatus = document.getElementById("quickSaveStatus");
   if (quickStatus) quickStatus.textContent = "";
 
@@ -2891,26 +2939,34 @@ function saveConstruction(silent = false) {
 
   setSavedConstructions(saved);
 
-  let selection = getCompareSelection();
-  if (!selection.includes(name)) {
-    if (selection.length < 5) selection.push(name);
+  if (addToComparison) {
+    let selection = getCompareSelection();
+    if (!selection.includes(name)) {
+      if (selection.length < 5) selection.push(name);
+      else alert("The comparison diagram already contains five constructions. The construction was saved but not added to the comparison diagram.");
+    }
+    setCompareSelection(selection);
   }
-  setCompareSelection(selection);
 
   refreshSavedConstructions();
-  document.getElementById("savedConstructions").value = name;
+  const bottomSelect = document.getElementById("savedConstructions");
+  const topSelect = document.getElementById("savedConstructionsTop");
+  if (bottomSelect) bottomSelect.value = name;
+  if (topSelect) topSelect.value = name;
   setConstructionNameEverywhere(name);
 
   if (quickStatus) {
-    quickStatus.textContent = "Saved for comparison.";
+    quickStatus.textContent = addToComparison ? "Saved and selected for comparison." : "Construction saved.";
     window.setTimeout(() => { quickStatus.textContent = ""; }, 3500);
   }
 
-  if (!silent) alert("Construction saved.");
+  if (!silent) alert(addToComparison ? "Construction saved and selected for comparison." : "Construction saved.");
 }
 
 function loadConstruction() {
-  const name = document.getElementById("savedConstructions").value;
+  const bottomSelect = document.getElementById("savedConstructions");
+  const topSelect = document.getElementById("savedConstructionsTop");
+  const name = bottomSelect ? bottomSelect.value : (topSelect ? topSelect.value : "");
   const saved = getSavedConstructions();
 
   if (!saved[name]) return alert("No construction selected.");
@@ -2920,6 +2976,8 @@ function loadConstruction() {
     return l;
   });
   setConstructionNameEverywhere(name);
+  if (bottomSelect) bottomSelect.value = name;
+  if (topSelect) topSelect.value = name;
   calculate();
 }
 
@@ -3660,6 +3718,7 @@ loadInitialData();
 </script>
 </body>
 </html>
+
 
 
 
