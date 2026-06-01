@@ -1159,7 +1159,7 @@
       Module values in the layer table are shown in kg CO₂e/m² wall area. Product share [%] multiplies the environmental module values and can be used for mixed systems such as timber frame walls, e.g. timber studs 15% and insulation 85%. Quantity [m/m² or kg/m² wall] is required for datasets entered as kg CO₂e/lfdm or kg CO₂e/kg. For linear products the conversion is: kg CO₂e/m² wall = kg CO₂e/lfdm × quantity [lfdm/m²] × product share. For mass-based products the conversion is: kg CO₂e/m² wall = kg CO₂e/kg × quantity [kg/m²] × product share.
       “Replacement cycles” defines additional replacements within the reference period:
       0 = no replacement, 1 = one replacement, 2 = two replacements. For example, a layer with one replacement is counted twice in the life-cycle calculation: once as the initial layer and once as replacement in module B4.
-      Note: in this prototype, product share affects GWP only. The U-value calculation remains a simplified layer-by-layer calculation and does not fully model parallel thermal paths. Linear and mass-based products such as CW/UW profiles or reinforcing steel can be switched off for the U-value calculation using “Use for U-value = No”.
+      Note: product share affects GWP and, for adjacent partial-area layers with the same thickness whose shares sum to 100%, also the U-value calculation via an automatically calculated equivalent λ-value. Linear and mass-based products such as CW/UW profiles or reinforcing steel can be switched off for the U-value calculation using “Use for U-value = No”.
     </p>
   </section>
 
@@ -1345,7 +1345,7 @@
       Product share [%] can be used for products that cover only part of the wall area, such as timber studs in a timber-frame wall. The share factor multiplies the environmental module values of the layer. For linear products with input basis kg CO₂e/lfdm, the values are multiplied by running metres per m² wall. For mass-based products with input basis kg CO₂e/kg, the values are multiplied by kg material per m² wall. Example: 2.50 kg CO₂e/lfdm × 1.60 lfdm/m² = 4.00 kg CO₂e/m² wall before product share. Example reinforcement: 0.75 kg CO₂e/kg × 20 kg/m² = 15.00 kg CO₂e/m² wall before product share.
       Replacement cycles are shown in module B4. In this prototype, B4 is calculated as the additional product, transport/construction and end-of-life impacts of the replaced layer:
       B4 = replacement cycles × (A1-A3 + A4-A5 + C1 + C2 + C3/C4). Module D is shown separately and is multiplied by the total number of layer occurrences.
-      Product share affects GWP results. The U-value calculation remains a simplified layer-by-layer calculation and does not fully model parallel heat flow paths.
+      Product share affects GWP results. For adjacent partial-area layers with the same thickness whose shares sum to 100%, the U-value calculation uses an automatically calculated equivalent λ-value for the parallel layer.
     </p>
 
     <p class="note">
@@ -1376,7 +1376,7 @@
     © 2026 EAACA. All rights reserved.
   </div>
   <div>
-    Indicative tool for technical communication. Module D is reported separately. Version v42.<br>
+    Indicative tool for technical communication. Module D is reported separately. Version v433.<br>
     Use is subject to the legal disclaimer displayed on this page.<br>
     Copyright notice: content, structure and calculator implementation are protected by EAACA unless otherwise stated.
   </div>
@@ -1421,7 +1421,7 @@
           <tr><td>Layer thickness</td><td>mm</td><td>Thickness of the material layer in the wall build-up. Decimal values may be entered with a comma or a point, e.g. 12,5 or 12.5 mm.</td></tr>
           <tr><td>Thermal conductivity λ</td><td>W/(mK)</td><td>Used for the simplified U-value calculation where the layer is activated for U-value.</td></tr>
           <tr><td>GWP values</td><td>kg CO₂e per declared basis</td><td>Module values can be entered per m³ material, per m² wall area, per metre of linear product or per kg material.</td></tr>
-          <tr><td>Product share</td><td>%</td><td>Share of the product in the wall area. 100% means full-area use; lower values may be used for partial components such as studs.</td></tr>
+          <tr><td>Product share</td><td>%</td><td>Share of the product in the wall area. 100% means full-area use. Adjacent partial-area thermal layers with the same thickness and shares summing to 100% are treated as one parallel layer for U-value calculation.</td></tr>
           <tr><td>Quantity</td><td>m/m² or kg/m² wall</td><td>Running metres per m² wall for linear products or kg per m² wall for mass-based products such as reinforcing steel.</td></tr>
         </tbody>
       </table>
@@ -1495,7 +1495,7 @@
         </tbody>
       </table>
       <p>
-        Linear products such as CW/UW profiles can be excluded from the simplified U-value calculation by setting <strong>Use for U-value = No</strong>. They remain included in the GWP calculation.
+        Linear products such as CW/UW profiles can be excluded from the simplified U-value calculation by setting <strong>Use for U-value = No</strong>. They remain included in the GWP calculation. For timber-frame or other mixed layers, enter the parallel components as adjacent rows with the same thickness and product shares summing to 100%; the tool calculates λeq automatically.
       </p>
 
       <h3>9. Reading the results</h3>
@@ -2188,6 +2188,86 @@ function getSurfaceResistance() {
   return 0.17;
 }
 
+function isPartialAreaThermalLayer(layer) {
+  const share = Number(layer.share === undefined ? 100 : layer.share);
+  return share > 0 && share < 99.999;
+}
+
+function buildThermalResistanceInfo(layerSet) {
+  const info = layerSet.map(() => ({ r: 0, display: "excluded", lambdaEq: null, groupId: null, isGroupStart: false }));
+  let rLayers = 0;
+  let groupCounter = 0;
+  const toleranceShare = 0.5;
+  const toleranceThickness = 0.001;
+
+  let i = 0;
+  while (i < layerSet.length) {
+    const layer = layerSet[i];
+    const mat = getMaterialById(layer.materialId);
+    const lambda = getLayerLambda(layer, mat);
+    const d = Number(layer.thicknessMm || 0) / 1000;
+    const include = layer.includeInU !== false && mat && lambda > 0 && d > 0;
+
+    if (!include) {
+      info[i].display = "excluded";
+      i++;
+      continue;
+    }
+
+    if (isPartialAreaThermalLayer(layer)) {
+      const sameThicknessMm = Number(layer.thicknessMm || 0);
+      const group = [];
+      let shareSum = 0;
+      let lambdaWeighted = 0;
+      let j = i;
+
+      while (j < layerSet.length) {
+        const candidate = layerSet[j];
+        const candidateMat = getMaterialById(candidate.materialId);
+        const candidateLambda = getLayerLambda(candidate, candidateMat);
+        const candidateShare = Number(candidate.share === undefined ? 100 : candidate.share);
+        const candidateInclude = candidate.includeInU !== false && candidateMat && candidateLambda > 0 && Number(candidate.thicknessMm || 0) > 0;
+        const sameThickness = Math.abs(Number(candidate.thicknessMm || 0) - sameThicknessMm) <= toleranceThickness;
+
+        if (!candidateInclude || !sameThickness || !isPartialAreaThermalLayer(candidate)) break;
+
+        group.push({ index: j, layer: candidate, lambda: candidateLambda, share: candidateShare });
+        shareSum += candidateShare;
+        lambdaWeighted += (candidateShare / 100) * candidateLambda;
+
+        if (Math.abs(shareSum - 100) <= toleranceShare) break;
+        if (shareSum > 100 + toleranceShare) break;
+        j++;
+      }
+
+      if (group.length >= 2 && Math.abs(shareSum - 100) <= toleranceShare) {
+        const lambdaEq = lambdaWeighted / (shareSum / 100);
+        const rEq = d / lambdaEq;
+        rLayers += rEq;
+        groupCounter++;
+        group.forEach((g, pos) => {
+          info[g.index] = {
+            r: pos === 0 ? rEq : 0,
+            display: pos === 0 ? `parallel group R=${format(rEq)}; λeq=${formatCompact(lambdaEq, 4)}` : `parallel group ${groupCounter}`,
+            lambdaEq,
+            groupId: groupCounter,
+            isGroupStart: pos === 0
+          };
+        });
+        i = group[group.length - 1].index + 1;
+        continue;
+      }
+    }
+
+    const r = d / lambda;
+    rLayers += r;
+    info[i] = { r, display: format(r), lambdaEq: null, groupId: null, isGroupStart: false };
+    i++;
+  }
+
+  return { rLayers, info };
+}
+
 function setAllLayersForUValue(include) {
   layers.forEach(layer => layer.includeInU = include);
   calculate();
@@ -2345,7 +2425,6 @@ function applyAllLayerEdits() {
 }
 
 function calcForLayers(layerSet) {
-  let rLayers = 0;
   let sums = { A1_A3:0, A4_A5:0, B1:0, B2:0, B3:0, B4:0, C1:0, C2:0, C3_C4:0, D:0 };
 
   layerSet.forEach(layer => {
@@ -2359,20 +2438,15 @@ function calcForLayers(layerSet) {
     const mat = getMaterialById(layer.materialId);
     if (!mat) return;
 
-    const d = layer.thicknessMm / 1000;
-    const lambda = getLayerLambda(layer, mat);
-    if (layer.includeInU !== false && lambda > 0) {
-      rLayers += d / lambda;
-    }
-
     const g = calculateLayerGwp(layer, mat);
     Object.keys(sums).forEach(k => sums[k] += Number(g[k] || 0));
   });
 
-  const u = layerSet.length ? 1 / (getSurfaceResistance() + rLayers) : null;
+  const thermal = buildThermalResistanceInfo(layerSet);
+  const u = layerSet.length ? 1 / (getSurfaceResistance() + thermal.rLayers) : null;
   const ac = calcAC(sums);
 
-  return { u, ac, d: sums.D, sums };
+  return { u, ac, d: sums.D, sums, thermal };
 }
 
 
@@ -2536,6 +2610,7 @@ function calculate() {
   tbody.innerHTML = "";
 
   const layerResults = buildLayerResultsFromLayerSet(layers);
+  const thermalInfo = buildThermalResistanceInfo(layers);
 
   layers.forEach((layer, index) => {
     if (layer.replacements === undefined) layer.replacements = 0;
@@ -2548,9 +2623,8 @@ function calculate() {
     const mat = getMaterialById(layer.materialId);
     if (!mat) return;
 
-    const d = layer.thicknessMm / 1000;
     const lambda = getLayerLambda(layer, mat);
-    const r = layer.includeInU === false || lambda <= 0 ? 0 : d / lambda;
+    const rDisplay = thermalInfo.info[index] ? thermalInfo.info[index].display : "excluded";
     const g = calculateLayerGwp(layer, mat);
 
     let opts = "";
@@ -2585,7 +2659,7 @@ function calculate() {
         ${basisNeedsQuantity(mat.basis) ? `<div class="linear-hint">${quantityUnitLabel(mat.basis)}</div>` : ""}
       </td>
       <td><input id="layerLambda_${index}" type="text" inputmode="decimal" value="${lambda}" /></td>
-      <td>${layer.includeInU === false ? "excluded" : format(r)}</td>
+      <td>${rDisplay}</td>
       <td>
         <select id="layerIncludeU_${index}">
           <option value="yes" ${layer.includeInU !== false ? "selected" : ""}>Yes</option>
@@ -2624,7 +2698,7 @@ function calculate() {
   document.getElementById("gwpD").textContent = layers.length ? format(result.d) : "–";
   const uNote = document.getElementById("uValueNote");
   if (uNote) {
-    uNote.textContent = "U-value surface resistance used: Rsi + Rse = " + format(getSurfaceResistance()) + " m²K/W. Layers marked 'Use for U-value = No' are excluded from the U-value calculation.";
+    uNote.textContent = "U-value surface resistance used: Rsi + Rse = " + format(getSurfaceResistance()) + " m²K/W. Adjacent partial-area layers with the same thickness and product shares summing to 100% are treated as one parallel thermal layer using λeq = Σ(share × λ). Layers marked 'Use for U-value = No' are excluded.";
   }
 
   document.getElementById("moduleResults").innerHTML = moduleRowsHtml(result.sums, result.ac);
@@ -2964,9 +3038,7 @@ function saveConstruction(silent = false, addToComparison = false) {
 }
 
 function loadConstruction() {
-  const bottomSelect = document.getElementById("savedConstructions");
-  const topSelect = document.getElementById("savedConstructionsTop");
-  const name = bottomSelect ? bottomSelect.value : (topSelect ? topSelect.value : "");
+  const name = document.getElementById("savedConstructions").value;
   const saved = getSavedConstructions();
 
   if (!saved[name]) return alert("No construction selected.");
@@ -3247,9 +3319,8 @@ function buildCurrentLayerRowsForReport() {
     }
     const mat = getMaterialById(layer.materialId);
     if (!mat) return "";
-    const d = layer.thicknessMm / 1000;
     const lambda = getLayerLambda(layer, mat);
-    const r = layer.includeInU === false || lambda <= 0 ? 0 : d / lambda;
+    const rDisplay = thermalInfo.info[index] ? thermalInfo.info[index].display : "excluded";
     const g = calculateLayerGwp(layer, mat);
 
     return `
@@ -3259,7 +3330,7 @@ function buildCurrentLayerRowsForReport() {
         <td>${format(layer.share)}</td>
         <td>${format(layer.linearAmount)} ${basisNeedsQuantity(mat.basis) ? quantityUnitLabel(mat.basis).replace(" required", "") : ""}</td>
         <td>${format(lambda)}</td>
-        <td>${layer.includeInU === false ? "excluded" : format(r)}</td>
+        <td>${rDisplay}</td>
         <td>${layer.includeInU === false ? "No" : "Yes"}</td>
         <td>${layer.replacements}</td>
         <td>${shortBasis(mat.basis)}</td>
@@ -3718,8 +3789,6 @@ loadInitialData();
 </script>
 </body>
 </html>
-
-
 
 
 
