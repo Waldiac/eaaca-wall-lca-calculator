@@ -1421,7 +1421,7 @@
     © 2026 EAACA. All rights reserved.
   </div>
   <div>
-    Indicative tool for technical communication. Module D is reported separately. Version v453.<br>
+    Indicative tool for technical communication. Module D is reported separately. Version v46.<br>
     Use is subject to the legal disclaimer displayed on this page.<br>
     Copyright notice: content, structure and calculator implementation are protected by EAACA unless otherwise stated.
   </div>
@@ -3101,7 +3101,8 @@ function loadConstruction() {
   if (bottomSelect) bottomSelect.value = name;
   if (topSelect) topSelect.value = name;
 
-  renderLayerTable();
+  // Rebuild the layer table and all calculated outputs.
+  // Earlier versions called renderLayerTable(), but the current table is rendered inside calculate().
   calculate();
 }
 
@@ -3851,6 +3852,7 @@ loadInitialData();
 </script>
 </body>
 </html>
+
 
 
 
