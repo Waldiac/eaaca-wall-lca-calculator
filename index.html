@@ -1421,7 +1421,7 @@
     © 2026 EAACA. All rights reserved.
   </div>
   <div>
-    Indicative tool for technical communication. Module D is reported separately. Version v443.<br>
+    Indicative tool for technical communication. Module D is reported separately. Version v453.<br>
     Use is subject to the legal disclaimer displayed on this page.<br>
     Copyright notice: content, structure and calculator implementation are protected by EAACA unless otherwise stated.
   </div>
@@ -3082,18 +3082,26 @@ function saveConstruction(silent = false, addToComparison = false) {
 }
 
 function loadConstruction() {
-  const name = document.getElementById("savedConstructions").value;
+  const bottomSelect = document.getElementById("savedConstructions");
+  const topSelect = document.getElementById("savedConstructionsTop");
+  const name = bottomSelect ? bottomSelect.value : (topSelect ? topSelect.value : "");
   const saved = getSavedConstructions();
 
   if (!saved[name]) return alert("No construction selected.");
 
-  layers = clone(saved[name].layers).map(l => {
+  layers = clone(saved[name].layers || []).map(l => {
     if (l.replacements === undefined) l.replacements = 0;
+    if (l.share === undefined) l.share = 100;
+    if (l.quantity === undefined) l.quantity = 1;
+    if (l.includeU === undefined) l.includeU = true;
     return l;
   });
+
   setConstructionNameEverywhere(name);
   if (bottomSelect) bottomSelect.value = name;
   if (topSelect) topSelect.value = name;
+
+  renderLayerTable();
   calculate();
 }
 
@@ -3843,6 +3851,7 @@ loadInitialData();
 </script>
 </body>
 </html>
+
 
 
 
