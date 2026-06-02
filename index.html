@@ -719,6 +719,36 @@
       border-top: 1px solid var(--line);
     }
 
+    .report-control {
+      display: grid;
+      grid-template-columns: minmax(260px, 420px) auto 1fr;
+      gap: 10px;
+      align-items: end;
+      margin: 14px 0 22px;
+      padding: 14px;
+      background: #f7fbfd;
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--blue);
+      border-radius: 4px;
+    }
+
+    .report-control select,
+    .report-control button {
+      margin-bottom: 0;
+    }
+
+    .material-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .material-actions .delete-material-action {
+      margin-left: auto;
+    }
+
     .advanced-maintenance {
       margin-top: 14px;
       padding: 12px 14px;
@@ -959,8 +989,13 @@
         gap: 6px;
       }
 
-      .quick-savebar {
+      .quick-savebar,
+      .report-control {
         grid-template-columns: 1fr;
+      }
+
+      .material-actions .delete-material-action {
+        margin-left: 0;
       }
 
       .module-share-total {
@@ -1213,8 +1248,19 @@
     <canvas id="resultChart" width="1150" height="430"></canvas>
     <div class="legend" id="layerLegend"></div>
 
-    <div class="report-actions">
-      <button onclick="printConstructionReport()">Generate construction report preview / PDF</button>
+    <div class="report-actions" id="reportCenter">
+      <h3>Report / PDF output</h3>
+      <div class="report-control">
+        <div>
+          <label for="reportTypeSelect">Select report content</label>
+          <select id="reportTypeSelect">
+            <option value="construction">Current construction report</option>
+            <option value="comparison">Comparison report</option>
+          </select>
+        </div>
+        <button onclick="generateSelectedReport()">Generate selected report preview / PDF</button>
+        <span class="note">The report preview opens below the tool and can be printed or saved as PDF via the browser print dialog.</span>
+      </div>
     </div>
   </section>
 
@@ -1265,10 +1311,6 @@
 
     <h3>Comparison diagram, max. 5 constructions</h3>
     <canvas id="comparisonChart" width="1150" height="420"></canvas>
-
-    <div class="report-actions">
-      <button onclick="printComparisonReport()">Generate comparison report preview / PDF</button>
-    </div>
 
     <p class="note">
       Up to five saved constructions can be selected for comparison. Saved constructions are stored locally in this browser and can be removed directly from the comparison library table.
@@ -1327,10 +1369,13 @@
       <div><label for="matD">D</label><input id="matD" type="text" inputmode="decimal" step="0.01" value="0" /></div>
     </div>
 
-    <button class="success" onclick="saveMaterial()">Save material</button>
-    <button class="secondary" onclick="newMaterialForm()">New material</button>
-    <button class="danger" onclick="deleteMaterial()">Delete selected material</button>
-    <span class="status" id="materialStatus"></span>
+    <div class="material-actions">
+      <button class="secondary" onclick="newMaterialForm()">New material</button>
+      <button class="success" onclick="saveMaterial()">Save material</button>
+      <button class="secondary" onclick="exportMaterialDatabase()">Export material database</button>
+      <button class="danger delete-material-action" onclick="deleteMaterial()">Delete selected material</button>
+      <span class="status" id="materialStatus"></span>
+    </div>
     <p class="note">Backup tip: use <strong>Export material database</strong> before replacing the HTML file or before using another browser/computer.</p>
   </section>
 
@@ -1376,7 +1421,7 @@
     © 2026 EAACA. All rights reserved.
   </div>
   <div>
-    Indicative tool for technical communication. Module D is reported separately. Version v433.<br>
+    Indicative tool for technical communication. Module D is reported separately. Version v443.<br>
     Use is subject to the legal disclaimer displayed on this page.<br>
     Copyright notice: content, structure and calculator implementation are protected by EAACA unless otherwise stated.
   </div>
@@ -1531,9 +1576,8 @@
 
       <h3>12. Reports, PDF and HTML export</h3>
       <ul>
-        <li><strong>Generate construction report preview / PDF</strong> creates a report for the current construction.</li>
-        <li><strong>Generate comparison report preview / PDF</strong> creates a comparison report.</li>
-        <li>The browser print dialog can be used to print or save the report as PDF.</li>
+        <li>The central <strong>Report / PDF output</strong> control lets the user select either the current construction report or the comparison report.</li>
+        <li>The browser print dialog can be used to print or save the selected report as PDF.</li>
         <li>Microsoft Edge or Google Chrome are recommended for PDF output.</li>
       </ul>
 
@@ -3573,6 +3617,16 @@ function buildSelectedComparisonReportSection() {
     </table>
     ${chartImage ? `<h2>Comparison diagram</h2><img src="${chartImage}" alt="Comparison diagram">` : ""}
   `;
+}
+
+function generateSelectedReport() {
+  const select = document.getElementById("reportTypeSelect");
+  const type = select ? select.value : "construction";
+  if (type === "comparison") {
+    printComparisonReport();
+  } else {
+    printConstructionReport();
+  }
 }
 
 function printConstructionReport() {
