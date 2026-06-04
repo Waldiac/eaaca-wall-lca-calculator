@@ -1029,7 +1029,7 @@
 
 <body>
 <div class="topbar">
-  +49 (0) 3382 7060 112 &nbsp;&nbsp;|&nbsp;&nbsp; info@eaaca.org &nbsp;&nbsp;|&nbsp;&nbsp; Tool version <strong><span class="app-version">v48</span></strong>
+  +49 (0) 3382 7060 112 &nbsp;&nbsp;|&nbsp;&nbsp; info@eaaca.org &nbsp;&nbsp;|&nbsp;&nbsp; Tool version <strong><span class="app-version">v50</span></strong>
 </div>
 
 <nav class="site-nav" aria-label="EAACA navigation">
@@ -1444,7 +1444,7 @@
     © 2026 EAACA. All rights reserved.
   </div>
   <div>
-    Indicative tool for technical communication. Module D is reported separately. Version <span class="app-version">v48</span>.<br>
+    Indicative tool for technical communication. Module D is reported separately. Version <span class="app-version">v50</span>.<br>
     Use is subject to the legal disclaimer displayed on this page.<br>
     Copyright notice: content, structure and calculator implementation are protected by EAACA unless otherwise stated.
   </div>
@@ -1636,7 +1636,7 @@
 
 
 <script>
-const APP_VERSION = "v48";
+const APP_VERSION = "v50";
 const STORAGE_MATERIALS = "eaaca_materials_user_database";
 const STORAGE_CONSTRUCTIONS = "eaaca_constructions_v18";
 const STORAGE_COMPARE = "eaaca_compare_selection_v18";
@@ -3506,15 +3506,76 @@ function printVisibleReport() {
     return;
   }
 
-  document.body.classList.add("report-ready");
-  document.body.classList.add("print-mode");
+  // Print from a dedicated hidden iframe. This avoids browser print-CSS conflicts
+  // when the report preview is embedded inside the normal tool page.
+  const reportClone = report.cloneNode(true);
+  const toolbar = reportClone.querySelector(".report-toolbar");
+  if (toolbar) toolbar.remove();
+
+  const printHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>EAACA Calculator Report ${APP_VERSION}</title>
+<style>
+  @page { size: A4; margin: 14mm; }
+  html, body { background: #fff; }
+  body { font-family: Arial, Helvetica, sans-serif; color: #111; margin: 0; font-size: 10pt; line-height: 1.35; }
+  h1 { font-size: 19pt; color: #006fb6; margin: 0 0 6mm 0; }
+  h2 { font-size: 13.5pt; color: #006fb6; margin: 8mm 0 3mm 0; page-break-after: avoid; }
+  h3 { font-size: 11pt; color: #22313f; margin: 5mm 0 2mm 0; page-break-after: avoid; }
+  table { width: 100%; border-collapse: collapse; margin: 3mm 0 6mm 0; font-size: 8.8pt; page-break-inside: auto; }
+  tr { page-break-inside: avoid; page-break-after: auto; }
+  th, td { border: 0.2mm solid #999; padding: 1.6mm; text-align: right; vertical-align: top; }
+  th:first-child, td:first-child { text-align: left; }
+  th { background: #eaf4f9; }
+  img { max-width: 100%; height: auto; border: 0.2mm solid #ccc; margin-top: 3mm; page-break-inside: avoid; }
+  .report-meta { color: #4b5563; font-size: 9.5pt; margin-bottom: 5mm; }
+  .report-boxes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5mm; margin: 5mm 0; page-break-inside: avoid; }
+  .report-box { border: 0.3mm solid #b8c2cc; padding: 4mm; text-align: center; background: #f4f7f9; }
+  .report-box strong { display: block; font-size: 15pt; color: #006fb6; margin-top: 2mm; }
+  .disclaimer { font-size: 8.8pt; color: #333; border-top: 0.3mm solid #999; margin-top: 8mm; padding-top: 3mm; }
+  .module-share-list { display: block; }
+  .module-share-row { display: grid; grid-template-columns: 48mm 1fr 24mm; gap: 3mm; align-items: center; margin: 1.5mm 0; page-break-inside: avoid; }
+  .module-share-label { font-weight: bold; font-size: 8.5pt; }
+  .module-share-bar { min-height: 4mm; display: flex; background: #e5edf3; border: 0.2mm solid #d7e0e6; }
+  .module-share-segment { height: 4mm; }
+  .module-share-total { text-align: right; font-weight: bold; font-size: 8.5pt; }
+  .legend { display: flex; flex-wrap: wrap; gap: 3mm 5mm; font-size: 8.5pt; margin: 2mm 0 5mm 0; }
+  .legend-item { display: inline-flex; align-items: center; gap: 1.5mm; }
+  .legend-color, .share-dot { width: 3mm; height: 3mm; border-radius: 0.8mm; display: inline-block; }
+</style>
+</head>
+<body>
+${reportClone.innerHTML}
+</body>
+</html>`;
+
+  const iframe = document.createElement("iframe");
+  iframe.setAttribute("aria-hidden", "true");
+  iframe.style.position = "fixed";
+  iframe.style.right = "0";
+  iframe.style.bottom = "0";
+  iframe.style.width = "0";
+  iframe.style.height = "0";
+  iframe.style.border = "0";
+  document.body.appendChild(iframe);
+
+  const doc = iframe.contentDocument || iframe.contentWindow.document;
+  doc.open();
+  doc.write(printHtml);
+  doc.close();
 
   setTimeout(() => {
-    window.print();
-    setTimeout(() => {
-      document.body.classList.remove("print-mode");
-    }, 500);
-  }, 100);
+    try {
+      iframe.contentWindow.focus();
+      iframe.contentWindow.print();
+    } finally {
+      setTimeout(() => {
+        if (iframe && iframe.parentNode) iframe.parentNode.removeChild(iframe);
+      }, 2000);
+    }
+  }, 250);
 }
 
 function closeVisibleReport() {
@@ -3913,8 +3974,6 @@ loadInitialData();
 </script>
 </body>
 </html>
-
-
 
 
 
