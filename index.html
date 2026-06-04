@@ -1636,7 +1636,7 @@
 
 
 <script>
-const APP_VERSION = "v50";
+const APP_VERSION = "v51";
 const STORAGE_MATERIALS = "eaaca_materials_user_database";
 const STORAGE_CONSTRUCTIONS = "eaaca_constructions_v18";
 const STORAGE_COMPARE = "eaaca_compare_selection_v18";
@@ -3386,6 +3386,7 @@ function currentDateString() {
 }
 
 function buildCurrentLayerRowsForReport() {
+  const thermalInfo = buildThermalResistanceInfo(layers);
   return layers.map((layer, index) => {
     if (layer.replacements === undefined) layer.replacements = 0;
     if (layer.share === undefined) layer.share = 100;
