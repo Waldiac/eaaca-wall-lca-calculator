@@ -719,6 +719,19 @@
       border-top: 1px solid var(--line);
     }
 
+    .report-output-host {
+      margin-top: 16px;
+    }
+
+    .report-status {
+      display: inline-block;
+      margin-left: 0;
+      margin-top: 8px;
+      color: #1a7f37;
+      font-weight: bold;
+      font-size: 13px;
+    }
+
     .report-control {
       display: grid;
       grid-template-columns: minmax(260px, 420px) auto 1fr;
@@ -1016,7 +1029,7 @@
 
 <body>
 <div class="topbar">
-  +49 (0) 3382 7060 112 &nbsp;&nbsp;|&nbsp;&nbsp; info@eaaca.org
+  +49 (0) 3382 7060 112 &nbsp;&nbsp;|&nbsp;&nbsp; info@eaaca.org &nbsp;&nbsp;|&nbsp;&nbsp; Tool version <strong><span class="app-version">v48</span></strong>
 </div>
 
 <nav class="site-nav" aria-label="EAACA navigation">
@@ -1266,9 +1279,11 @@
             <option value="comparison">Comparison report</option>
           </select>
         </div>
-        <button onclick="generateSelectedReport()">Generate selected report preview / PDF</button>
-        <span class="note">The report preview opens below the tool and can be printed or saved as PDF via the browser print dialog.</span>
+        <button type="button" onclick="return generateSelectedReport()">Generate selected report preview / PDF</button>
+        <span class="note">The report preview opens directly here and can be printed or saved as PDF via the browser print dialog.</span>
       </div>
+      <span class="report-status" id="reportStatus"></span>
+      <div id="reportOutputHost" class="report-output-host"></div>
     </div>
   </section>
 
@@ -1429,7 +1444,7 @@
     © 2026 EAACA. All rights reserved.
   </div>
   <div>
-    Indicative tool for technical communication. Module D is reported separately. Version v47.<br>
+    Indicative tool for technical communication. Module D is reported separately. Version <span class="app-version">v48</span>.<br>
     Use is subject to the legal disclaimer displayed on this page.<br>
     Copyright notice: content, structure and calculator implementation are protected by EAACA unless otherwise stated.
   </div>
@@ -1621,6 +1636,7 @@
 
 
 <script>
+const APP_VERSION = "v48";
 const STORAGE_MATERIALS = "eaaca_materials_user_database";
 const STORAGE_CONSTRUCTIONS = "eaaca_constructions_v18";
 const STORAGE_COMPARE = "eaaca_compare_selection_v18";
@@ -3440,11 +3456,17 @@ function buildCurrentShareRowsForReport(acTotal) {
 
 function doPrintReport(html) {
   let report = document.getElementById("printReport");
+  const host = document.getElementById("reportOutputHost");
 
   if (!report) {
     report = document.createElement("div");
     report.id = "printReport";
     report.className = "print-report";
+  }
+
+  if (host && report.parentElement !== host) {
+    host.appendChild(report);
+  } else if (!report.parentElement) {
     document.body.appendChild(report);
   }
 
@@ -3467,6 +3489,9 @@ function doPrintReport(html) {
   report.style.boxShadow = "0 2px 12px rgba(34,49,63,0.12)";
 
   document.body.classList.add("report-ready");
+
+  const status = document.getElementById("reportStatus");
+  if (status) status.textContent = "Report preview generated below.";
 
   setTimeout(() => {
     report.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -3501,6 +3526,9 @@ function closeVisibleReport() {
     report.innerHTML = "";
     report.style.display = "none";
   }
+
+  const status = document.getElementById("reportStatus");
+  if (status) status.textContent = "";
 }
 
 function getReportDownloadFilename() {
@@ -3637,13 +3665,30 @@ function buildSelectedComparisonReportSection() {
 }
 
 function generateSelectedReport() {
-  const select = document.getElementById("reportTypeSelect");
-  const type = select ? select.value : "construction";
-  if (type === "comparison") {
-    printComparisonReport();
-  } else {
-    printConstructionReport();
+  const status = document.getElementById("reportStatus");
+  if (status) status.textContent = "Generating report...";
+
+  try {
+    // Ensure edited table values and diagrams are up to date before creating the report.
+    if (typeof applyAllLayerEdits === "function") applyAllLayerEdits();
+    if (typeof calculate === "function") calculate();
+
+    const select = document.getElementById("reportTypeSelect");
+    const type = select ? select.value : "construction";
+
+    if (type === "comparison") {
+      if (typeof drawComparisonChart === "function") drawComparisonChart();
+      printComparisonReport();
+    } else {
+      printConstructionReport();
+    }
+  } catch (err) {
+    console.error("Report generation failed", err);
+    if (status) status.textContent = "Report generation failed.";
+    alert("Report could not be generated. Please check the current construction and try again. Technical detail: " + (err && err.message ? err.message : err));
   }
+
+  return false;
 }
 
 function printConstructionReport() {
@@ -3659,7 +3704,7 @@ function printConstructionReport() {
 
   const html = `
     <h1>EAACA Wall LCA & Thermal Performance Calculator</h1>
-    <div class="report-meta">Construction report · ${htmlEscape(currentDateString())} · © 2026 EAACA · EAACA LCA Tool</div>
+    <div class="report-meta">Construction report · ${htmlEscape(currentDateString())} · ${APP_VERSION} · © 2026 EAACA · EAACA LCA Tool</div>
 
     <h2>${htmlEscape(name)}</h2>
 
@@ -3752,7 +3797,9 @@ function printComparisonReport() {
     return;
   }
 
-  const chartImage = document.getElementById("comparisonChart").toDataURL("image/png");
+  if (typeof drawComparisonChart === "function") drawComparisonChart();
+  const comparisonCanvas = document.getElementById("comparisonChart");
+  const chartImage = comparisonCanvas ? comparisonCanvas.toDataURL("image/png") : "";
 
   const rows = names.map(name => {
     const c = saved[name];
@@ -3788,7 +3835,7 @@ function printComparisonReport() {
 
   const html = `
     <h1>EAACA Wall LCA & Thermal Performance Calculator</h1>
-    <div class="report-meta">Comparison report · ${htmlEscape(currentDateString())}</div>
+    <div class="report-meta">Comparison report · ${htmlEscape(currentDateString())} · ${APP_VERSION}</div>
 
     <h2>Comparison of selected constructions</h2>
     <table>
@@ -3856,6 +3903,12 @@ document.addEventListener("click", function(event) {
   }
 });
 
+function updateAppVersionLabels() {
+  document.querySelectorAll(".app-version").forEach(el => { el.textContent = APP_VERSION; });
+  document.title = "EAACA Wall LCA Calculator " + APP_VERSION;
+}
+
+updateAppVersionLabels();
 loadInitialData();
 </script>
 </body>
