@@ -1071,22 +1071,30 @@
   <section>
     <h2>Material database status</h2>
     <p class="note" id="materialDatabaseStatus">Internal material database ready.</p>
-    <p class="note">This version uses an embedded, user-defined internal material database. Materials are entered and maintained directly in the tool and stored locally in this browser under a stable storage key. No external <strong>materials.json</strong> file is loaded or required. Decimal inputs accept both comma and point, e.g. 12,5 or 12.5 mm.</p>
+    <p class="note">This version stores all user data locally in this browser: the material database, saved wall constructions and the current comparison selection. No external <strong>materials.json</strong> file is loaded or required. Decimal inputs accept both comma and point, e.g. 12,5 or 12.5 mm.</p>
     <div class="refreshbar">
-      <button class="success" onclick="exportMaterialDatabase()">Export material database</button>
-      <button onclick="triggerImportMaterialDatabase()">Import material database</button>
-      <button class="secondary" onclick="exportAllToolData()">Export all data</button>
-      <button class="secondary" onclick="triggerImportAllToolData()">Import all data</button>
-      <button class="secondary" onclick="exportConstructionLibrary()">Export constructions</button>
-      <button class="secondary" onclick="triggerImportConstructionLibrary()">Import constructions</button>
+      <button class="success" onclick="exportAllToolData()">Export complete backup</button>
+      <button onclick="triggerImportAllToolData()">Import complete backup</button>
+      <span class="note">Recommended for normal use: one file containing materials, saved constructions and comparison selection.</span>
     </div>
     <input id="materialImportFile" type="file" accept="application/json,.json" style="display:none" onchange="importMaterialDatabase(event)" />
     <input id="allDataImportFile" type="file" accept="application/json,.json" style="display:none" onchange="importAllToolData(event)" />
     <input id="constructionImportFile" type="file" accept="application/json,.json" style="display:none" onchange="importConstructionLibrary(event)" />
-    <p class="note">Recommendation: export the material database before replacing the HTML file with a new version. Use Export constructions or Export all data to keep saved wall build-ups as a separate backup.</p>
+
+    <details class="advanced-maintenance">
+      <summary>Advanced export / import options</summary>
+      <p class="note"><strong>Use only when needed:</strong> separate exports are useful if you want to exchange only the material database or only saved constructions without replacing the other part.</p>
+      <div class="refreshbar">
+        <button class="secondary" onclick="exportMaterialDatabase()">Export materials only</button>
+        <button class="secondary" onclick="triggerImportMaterialDatabase()">Import materials only</button>
+        <button class="secondary" onclick="exportConstructionLibrary()">Export constructions only</button>
+        <button class="secondary" onclick="triggerImportConstructionLibrary()">Import constructions only</button>
+      </div>
+    </details>
+
     <details class="advanced-maintenance">
       <summary>Advanced / maintenance</summary>
-      <p class="note">Use this only if the local browser material database is damaged or if you intentionally want to replace your edited material database with the embedded starter version. Export your material database first if you want to keep your own changes.</p>
+      <p class="note">Use this only if the local browser material database is damaged or if you intentionally want to replace your edited material database with the embedded starter version. Export a complete backup first if you want to keep your own changes.</p>
       <button class="danger" onclick="resetInternalMaterialDatabase()">Restore starter material database</button>
     </details>
   </section>
@@ -1421,7 +1429,7 @@
     © 2026 EAACA. All rights reserved.
   </div>
   <div>
-    Indicative tool for technical communication. Module D is reported separately. Version v46.<br>
+    Indicative tool for technical communication. Module D is reported separately. Version v47.<br>
     Use is subject to the legal disclaimer displayed on this page.<br>
     Copyright notice: content, structure and calculator implementation are protected by EAACA unless otherwise stated.
   </div>
@@ -1856,7 +1864,7 @@ function downloadJsonFile(data, filename) {
 function exportMaterialDatabase() {
   const data = {
     fileType: "EAACA Wall LCA Calculator material database",
-    toolVersion: "v34",
+    toolVersion: "v47",
     exportedAt: new Date().toISOString(),
     materials: materials.map(normaliseMaterial)
   };
@@ -1919,7 +1927,7 @@ async function importMaterialDatabase(event) {
 function exportAllToolData() {
   const data = {
     fileType: "EAACA Wall LCA Calculator full backup",
-    toolVersion: "v34",
+    toolVersion: "v47",
     exportedAt: new Date().toISOString(),
     materials: materials.map(normaliseMaterial),
     constructions: getSavedConstructions(),
@@ -1988,7 +1996,7 @@ function exportConstructionLibrary() {
 
   const data = {
     fileType: "EAACA Wall LCA Calculator construction library",
-    toolVersion: "v34",
+    toolVersion: "v47",
     exportedAt: new Date().toISOString(),
     constructions: saved,
     compareSelection: getCompareSelection()
@@ -3852,7 +3860,6 @@ loadInitialData();
 </script>
 </body>
 </html>
-
 
 
 
