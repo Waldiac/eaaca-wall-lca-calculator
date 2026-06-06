@@ -1034,7 +1034,7 @@
 
 <body>
 <div class="topbar">
-  +49 (0) 3382 7060 112 &nbsp;&nbsp;|&nbsp;&nbsp; info@eaaca.org &nbsp;&nbsp;|&nbsp;&nbsp; Tool version <strong><span class="app-version">v53</span></strong>
+  +49 (0) 3382 7060 112 &nbsp;&nbsp;|&nbsp;&nbsp; info@eaaca.org &nbsp;&nbsp;|&nbsp;&nbsp; Tool version <strong><span class="app-version">v54</span></strong>
 </div>
 
 <nav class="site-nav" aria-label="EAACA navigation">
@@ -1641,7 +1641,7 @@
 
 
 <script>
-const APP_VERSION = "v53";
+const APP_VERSION = "v54";
 const STORAGE_MATERIALS = "eaaca_materials_user_database";
 const STORAGE_CONSTRUCTIONS = "eaaca_constructions_v18";
 const STORAGE_COMPARE = "eaaca_compare_selection_v18";
@@ -3078,22 +3078,34 @@ function saveConstruction(silent = false, addToComparison = false) {
   if (!layers.length) return alert("No layers to save.");
 
   const saved = getSavedConstructions();
+  const selectionBeforeSave = getCompareSelection();
+  const wasAlreadySelectedForComparison = selectionBeforeSave.includes(name);
+
+  // Overwrite an existing construction with the same name deliberately.
+  // Important: the comparison table references saved constructions by name only.
+  // Therefore, if a selected construction is overwritten, the comparison table and
+  // chart must be rebuilt immediately from the updated saved object.
   saved[name] = {
     name,
     layers: clone(layers),
-    savedAt: new Date().toISOString()
+    savedAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
   };
 
   setSavedConstructions(saved);
 
+  let selection = getCompareSelection().filter(savedName => saved[savedName]);
+
   if (addToComparison) {
-    let selection = getCompareSelection();
     if (!selection.includes(name)) {
       if (selection.length < 5) selection.push(name);
       else alert("The comparison diagram already contains five constructions. The construction was saved but not added to the comparison diagram.");
     }
-    setCompareSelection(selection);
+  } else if (wasAlreadySelectedForComparison && !selection.includes(name)) {
+    selection.push(name);
   }
+
+  setCompareSelection(selection);
 
   refreshSavedConstructions();
   const bottomSelect = document.getElementById("savedConstructions");
@@ -3102,12 +3114,19 @@ function saveConstruction(silent = false, addToComparison = false) {
   if (topSelect) topSelect.value = name;
   setConstructionNameEverywhere(name);
 
+  // Force an immediate update of all comparison outputs after overwriting a saved construction.
+  // This prevents stale values in the lower comparison table when the name remains unchanged.
+  refreshComparisonTable();
+  drawComparisonChart();
+
   if (quickStatus) {
-    quickStatus.textContent = addToComparison ? "Saved and selected for comparison." : "Construction saved.";
+    quickStatus.textContent = wasAlreadySelectedForComparison
+      ? "Construction saved and comparison updated."
+      : (addToComparison ? "Saved and selected for comparison." : "Construction saved.");
     window.setTimeout(() => { quickStatus.textContent = ""; }, 3500);
   }
 
-  if (!silent) alert(addToComparison ? "Construction saved and selected for comparison." : "Construction saved.");
+  if (!silent) alert(wasAlreadySelectedForComparison ? "Construction saved. Comparison updated." : (addToComparison ? "Construction saved and selected for comparison." : "Construction saved."));
 }
 
 function loadConstruction() {
