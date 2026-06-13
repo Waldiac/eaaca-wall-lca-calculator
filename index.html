@@ -319,7 +319,7 @@
 
     .quick-savebar {
       display: grid;
-      grid-template-columns: minmax(220px, 0.9fr) minmax(340px, 1.7fr) auto auto auto auto;
+      grid-template-columns: minmax(250px, 1fr) minmax(420px, 1.8fr) auto auto auto auto;
       gap: 10px;
       align-items: end;
       margin: 12px 0 8px;
@@ -328,6 +328,25 @@
       border: 1px solid var(--line);
       border-left: 4px solid var(--green);
       border-radius: 4px;
+    }
+
+    .quick-save-heading {
+      grid-column: 1 / -1;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      margin-bottom: 2px;
+    }
+
+    .quick-save-heading strong {
+      color: var(--blue);
+      font-size: 16px;
+    }
+
+    .quick-save-heading span {
+      color: #4b5563;
+      font-size: 13px;
+      line-height: 1.35;
     }
 
     .quick-savebar input {
@@ -753,6 +772,10 @@
     .report-control select,
     .report-control button {
       margin-bottom: 0;
+    }
+
+    .material-source-row {
+      margin-top: 12px;
     }
 
     .material-actions {
@@ -1201,18 +1224,22 @@
     </details>
 
     <div class="quick-savebar">
+      <div class="quick-save-heading">
+        <strong>Save / load wall build-up construction</strong>
+        <span>Save the current layer table as a reusable built-up construction, or load a saved construction back into the table.</span>
+      </div>
       <div>
-        <label for="constructionNameTop">Construction name</label>
+        <label for="constructionNameTop">Name of current input construction</label>
         <input id="constructionNameTop" type="text" placeholder="e.g. AAC 365 + external render" oninput="syncConstructionNameFromTop()" />
       </div>
       <div>
-        <label for="savedConstructionsTop">Saved constructions</label>
+        <label for="savedConstructionsTop">Saved construction library</label>
         <select id="savedConstructionsTop"></select>
       </div>
-      <button class="success" onclick="saveConstructionFromTop()">Save construction</button>
-      <button onclick="loadConstructionFromTop()">Load construction</button>
-      <button class="secondary" onclick="exportConstructionLibrary()">Export library</button>
-      <button class="secondary" onclick="triggerImportConstructionLibrary()">Import library</button>
+      <button class="success" onclick="saveConstructionFromTop()">Save current input construction</button>
+      <button onclick="loadConstructionFromTop()">Load selected construction</button>
+      <button class="secondary" onclick="exportConstructionLibrary()">Export construction library</button>
+      <button class="secondary" onclick="triggerImportConstructionLibrary()">Import construction library</button>
       <span class="quick-save-status" id="quickSaveStatus"></span>
     </div>
 
@@ -1297,18 +1324,18 @@
 
     <div class="grid-3">
       <div>
-        <label for="constructionName">Construction name</label>
+        <label for="constructionName">Name of current / selected construction</label>
         <input id="constructionName" type="text" placeholder="e.g. AAC 365 + render + EPS 40" oninput="syncConstructionNameFromBottom()" />
       </div>
 
       <div>
-        <label for="savedConstructions">Saved constructions</label>
+        <label for="savedConstructions">Saved construction library</label>
         <select id="savedConstructions"></select>
       </div>
 
       <div>
-        <button class="success" onclick="saveConstruction()">Save current construction</button>
-        <button onclick="loadConstruction()">Load</button>
+        <button class="success" onclick="saveConstruction()">Save current input construction</button>
+        <button onclick="loadConstruction()">Load selected construction</button>
         <button class="danger" onclick="deleteConstruction()">Delete</button>
         <button class="secondary" onclick="exportConstructionLibrary()">Export construction library</button>
         <button class="secondary" onclick="triggerImportConstructionLibrary()">Import construction library</button>
@@ -1385,6 +1412,16 @@
       </div>
     </div>
 
+    <div class="grid-3 material-source-row">
+      <div>
+        <label for="matSource">Source / data reference</label>
+        <input id="matSource" type="text" placeholder="e.g. EPD number, ÖKOBAUDAT dataset ID, database reference, assumption" />
+      </div>
+      <div class="note" style="align-self:center; padding-top:10px;">
+        Use this field to document where the material data comes from. It is saved with the material database and exported in backups.
+      </div>
+    </div>
+
     <div class="grid-5">
       <div><label for="matA1A3">A1-A3</label><input id="matA1A3" type="text" inputmode="decimal" step="0.01" value="0" /></div>
       <div><label for="matA4A5">A4-A5</label><input id="matA4A5" type="text" inputmode="decimal" step="0.01" value="0" /></div>
@@ -1449,7 +1486,7 @@
     © 2026 EAACA. All rights reserved.
   </div>
   <div>
-    Indicative tool for technical communication. Module D is reported separately. Version <span class="app-version">v55</span>.<br>
+    Indicative tool for technical communication. Module D is reported separately. Version <span class="app-version">v57</span>.<br>
     Use is subject to the legal disclaimer displayed on this page.<br>
     Copyright notice: content, structure and calculator implementation are protected by EAACA unless otherwise stated.
   </div>
@@ -1530,7 +1567,7 @@
         </tbody>
       </table>
       <p>
-        Imported constructions are immediately available in <strong>Saved constructions</strong>. Imported materials are immediately available in the material selectors. After importing, check whether the material names and input bases are consistent with the construction data.
+        Imported constructions are immediately available in the <strong>Saved construction library</strong>. Imported materials are immediately available in the material selectors. After importing, check whether the material names, source references and input bases are consistent with the construction data.
       </p>
 
       <h3>6. Editing materials and constructions</h3>
@@ -1682,7 +1719,7 @@
 
 
 <script>
-const APP_VERSION = "v55";
+const APP_VERSION = "v57";
 const STORAGE_MATERIALS = "eaaca_materials_user_database";
 const STORAGE_CONSTRUCTIONS = "eaaca_constructions_v18";
 const STORAGE_COMPARE = "eaaca_compare_selection_v18";
@@ -1809,6 +1846,8 @@ function getMaterialById(id) {
 }
 
 function normaliseMaterial(mat) {
+  if (!mat || typeof mat !== "object") mat = {};
+  mat.source = typeof mat.source === "string" ? mat.source : (mat.dataSource || mat.epd || mat.comment || "");
   const old = mat.gwp || {};
   mat.gwp = {
     A1_A3: Number(old.A1_A3 || 0),
@@ -2136,11 +2175,13 @@ function refreshMaterialSelects() {
     const o1 = document.createElement("option");
     o1.value = mat.id;
     o1.textContent = mat.name;
+    o1.title = mat.source ? mat.name + " | Source: " + mat.source : mat.name;
     materialSelect.appendChild(o1);
 
     const o2 = document.createElement("option");
     o2.value = mat.id;
     o2.textContent = mat.name;
+    o2.title = mat.source ? mat.name + " | Source: " + mat.source : mat.name;
     editMaterialSelect.appendChild(o2);
   });
 
@@ -2945,6 +2986,8 @@ function loadMaterialForEditing() {
   document.getElementById("matName").value = mat.name;
   document.getElementById("matLambda").value = mat.lambda;
   document.getElementById("matBasis").value = mat.basis;
+  const sourceInput = document.getElementById("matSource");
+  if (sourceInput) sourceInput.value = mat.source || "";
   document.getElementById("matA1A3").value = mat.gwp.A1_A3;
   document.getElementById("matA4A5").value = mat.gwp.A4_A5;
   document.getElementById("matB1").value = mat.gwp.B1;
@@ -2963,6 +3006,8 @@ function newMaterialForm() {
   document.getElementById("matName").value = "";
   document.getElementById("matLambda").value = 0.10;
   document.getElementById("matBasis").value = "per_m2";
+  const sourceInput = document.getElementById("matSource");
+  if (sourceInput) sourceInput.value = "";
   ["matA1A3","matA4A5","matB1","matB2","matB3","matC1","matC2","matC3C4","matD"].forEach(id => document.getElementById(id).value = 0);
   document.getElementById("materialStatus").textContent = "New material mode.";
 }
@@ -2971,6 +3016,8 @@ function saveMaterial() {
   const name = document.getElementById("matName").value.trim();
   const lambda = parseUserNumber(document.getElementById("matLambda").value, NaN);
   const basis = document.getElementById("matBasis").value;
+  const sourceInput = document.getElementById("matSource");
+  const source = sourceInput ? sourceInput.value.trim() : "";
 
   if (!name) return alert("Please enter a material name.");
   if (!lambda || lambda <= 0) return alert("Please enter a valid lambda value.");
@@ -2980,6 +3027,7 @@ function saveMaterial() {
     name,
     lambda,
     basis,
+    source,
     gwp: {
       A1_A3: parseUserNumber(document.getElementById("matA1A3").value, 0),
       A4_A5: parseUserNumber(document.getElementById("matA4A5").value, 0),
@@ -3469,6 +3517,7 @@ function buildCurrentLayerRowsForReport() {
     return `
       <tr>
         <td>${index + 1}. ${htmlEscape(mat.name)}</td>
+        <td>${htmlEscape(mat.source || "")}</td>
         <td>${format(layer.thicknessMm)}</td>
         <td>${format(layer.share)}</td>
         <td>${format(layer.linearAmount)} ${basisNeedsQuantity(mat.basis) ? quantityUnitLabel(mat.basis).replace(" required", "") : ""}</td>
@@ -3865,6 +3914,7 @@ function printConstructionReport() {
       <thead>
         <tr>
           <th>Layer</th>
+          <th>Source / data reference</th>
           <th>Thickness [mm]</th>
           <th>Share [%]</th>
           <th>Linear qty. [m/m²]</th>
@@ -3903,7 +3953,7 @@ function printConstructionReport() {
       <strong>Methodology / Legal disclaimer:</strong>
       The calculation is provided in accordance with Directive (EU) 2024/1275 for transparent communication of life-cycle greenhouse gas indicators.
       For datasets with input basis kg CO₂e/m³ material, module results are converted to kg CO₂e/m² wall area by multiplication with layer thickness in metres and the selected product share. For kg CO₂e/lfdm datasets, values are multiplied by the selected running metres per m² wall and product share. For kg CO₂e/kg datasets, values are multiplied by the selected mass in kg/m² wall and product share.
-      B4 is calculated as replacement cycles × (A1-A3 + A4-A5 + C1 + C2 + C3/C4). Module D is shown separately and multiplied by the total number of layer occurrences. Product share affects GWP results but does not fully model parallel thermal paths.
+      B4 is calculated as replacement cycles × (A1-A3 + A4-A5 + C1 + C2 + C3/C4). Module D is shown separately and multiplied by the total number of layer occurrences. Product share affects GWP results and, for adjacent partial-area layers with equal thickness whose shares sum to 100%, the U-value calculation uses an automatically calculated equivalent λ-value.
       This tool does not replace a verified EPD according to EN 15804 or a project-specific building LCA according to EN 15978.
     </div>
   `;
@@ -4041,6 +4091,5 @@ loadInitialData();
 </script>
 </body>
 </html>
-
 
 
