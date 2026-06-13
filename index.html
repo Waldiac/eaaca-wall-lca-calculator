@@ -319,8 +319,8 @@
 
     .quick-savebar {
       display: grid;
-      grid-template-columns: minmax(250px, 1fr) minmax(420px, 1.8fr) auto auto auto auto;
-      gap: 10px;
+      grid-template-columns: minmax(240px, 300px) minmax(420px, 1fr);
+      gap: 10px 14px;
       align-items: end;
       margin: 12px 0 8px;
       padding: 12px;
@@ -356,6 +356,30 @@
     .quick-savebar button {
       margin-bottom: 0;
       white-space: nowrap;
+    }
+
+    .quick-save-actions {
+      grid-column: 1 / -1;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      padding-top: 4px;
+      border-top: 1px solid #d7e0e6;
+      margin-top: 2px;
+    }
+
+    .quick-save-actions button {
+      margin-right: 0;
+    }
+
+    .quick-save-actions .primary-save-action {
+      font-size: 14px;
+      padding: 11px 18px;
+    }
+
+    .quick-save-actions .library-action {
+      background: var(--grey);
     }
 
     .quick-save-status {
@@ -1057,7 +1081,7 @@
 
 <body>
 <div class="topbar">
-  +49 (0) 3382 7060 112 &nbsp;&nbsp;|&nbsp;&nbsp; info@eaaca.org &nbsp;&nbsp;|&nbsp;&nbsp; Tool version <strong><span class="app-version">v58</span></strong>
+  +49 (0) 3382 7060 112 &nbsp;&nbsp;|&nbsp;&nbsp; info@eaaca.org &nbsp;&nbsp;|&nbsp;&nbsp; Tool version <strong><span class="app-version">v59</span></strong>
 </div>
 
 <nav class="site-nav" aria-label="EAACA navigation">
@@ -1236,10 +1260,12 @@
         <label for="savedConstructionsTop">Saved construction library</label>
         <select id="savedConstructionsTop"></select>
       </div>
-      <button class="success" onclick="saveConstructionFromTop()">Save current input construction</button>
-      <button onclick="loadConstructionFromTop()">Load selected construction</button>
-      <button class="secondary" onclick="exportConstructionLibrary()">Export construction library</button>
-      <button class="secondary" onclick="triggerImportConstructionLibrary()">Import construction library</button>
+      <div class="quick-save-actions">
+        <button class="success primary-save-action" onclick="saveConstructionFromTop()">Save current input construction</button>
+        <button onclick="loadConstructionFromTop()">Load selected construction</button>
+        <button class="secondary library-action" onclick="exportConstructionLibrary()">Export construction library</button>
+        <button class="secondary library-action" onclick="triggerImportConstructionLibrary()">Import construction library</button>
+      </div>
       <span class="quick-save-status" id="quickSaveStatus"></span>
     </div>
 
@@ -1719,7 +1745,7 @@
 
 
 <script>
-const APP_VERSION = "v58";
+const APP_VERSION = "v59";
 const STORAGE_MATERIALS = "eaaca_materials_user_database";
 const STORAGE_CONSTRUCTIONS = "eaaca_constructions_v18";
 const STORAGE_COMPARE = "eaaca_compare_selection_v18";
@@ -4091,4 +4117,3 @@ loadInitialData();
 </script>
 </body>
 </html>
-
