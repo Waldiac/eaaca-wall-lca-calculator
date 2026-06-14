@@ -424,7 +424,7 @@
     }
 
     #layerTable {
-      min-width: 1500px;
+      min-width: 1660px;
     }
 
     #layerTable th:nth-child(1),
@@ -1081,7 +1081,7 @@
 
 <body>
 <div class="topbar">
-  +49 (0) 3382 7060 112 &nbsp;&nbsp;|&nbsp;&nbsp; info@eaaca.org &nbsp;&nbsp;|&nbsp;&nbsp; Tool version <strong><span class="app-version">v59</span></strong>
+  +49 (0) 3382 7060 112 &nbsp;&nbsp;|&nbsp;&nbsp; info@eaaca.org &nbsp;&nbsp;|&nbsp;&nbsp; Tool version <strong><span class="app-version">v60</span></strong>
 </div>
 
 <nav class="site-nav" aria-label="EAACA navigation">
@@ -1212,6 +1212,7 @@
           <th>Material</th>
           <th>Thickness [mm]</th>
           <th>Product share [%]</th>
+          <th>Share mode</th>
           <th>Quantity [m/m² or kg/m² wall]</th>
           <th>λ [W/(mK)]</th>
           <th>R [m²K/W]</th>
@@ -1270,7 +1271,7 @@
     </div>
 
     <p class="note">
-      Module values in the layer table are shown in kg CO₂e/m² wall area. Product share [%] multiplies the environmental module values and can be used for mixed systems such as timber frame walls, e.g. timber studs 15% and insulation 85%. Quantity [m/m² or kg/m² wall] is required for datasets entered as kg CO₂e/lfdm or kg CO₂e/kg. For linear products the conversion is: kg CO₂e/m² wall = kg CO₂e/lfdm × quantity [lfdm/m²] × product share. For mass-based products the conversion is: kg CO₂e/m² wall = kg CO₂e/kg × quantity [kg/m²] × product share.
+      Module values in the layer table are shown in kg CO₂e/m² wall area. Product share [%] describes the construction share of a component and can be used for mixed systems such as timber frame walls, e.g. timber studs 15% and insulation 85%. The new <strong>Share mode</strong> controls whether this share is applied to GWP or whether the entered quantity already represents the real consumption per m² wall. For mortar, reinforcement or linear profiles entered as real kg/m² or lfdm/m², use <strong>Quantity includes share</strong> to avoid double reduction.
       “Replacement cycles” defines additional replacements within the reference period:
       0 = no replacement, 1 = one replacement, 2 = two replacements. For example, a layer with one replacement is counted twice in the life-cycle calculation: once as the initial layer and once as replacement in module B4.
       Note: product share affects GWP and, for adjacent partial-area layers with the same thickness whose shares sum to 100%, also the U-value calculation via an automatically calculated equivalent λ-value. Linear and mass-based products such as CW/UW profiles or reinforcing steel can be switched off for the U-value calculation using “Use for U-value = No”.
@@ -1478,7 +1479,7 @@
     </p>
 
     <p class="note">
-      Product share [%] can be used for products that cover only part of the wall area, such as timber studs in a timber-frame wall. The share factor multiplies the environmental module values of the layer. For linear products with input basis kg CO₂e/lfdm, the values are multiplied by running metres per m² wall. For mass-based products with input basis kg CO₂e/kg, the values are multiplied by kg material per m² wall. Example: 2.50 kg CO₂e/lfdm × 1.60 lfdm/m² = 4.00 kg CO₂e/m² wall before product share. Example reinforcement: 0.75 kg CO₂e/kg × 20 kg/m² = 15.00 kg CO₂e/m² wall before product share.
+      Product share [%] can be used for products that cover only part of the wall area, such as timber studs in a timber-frame wall or mortar in masonry. The new <strong>Share mode</strong> defines the GWP calculation: <strong>Apply share</strong> multiplies the environmental values by the product share. <strong>Quantity includes share</strong> keeps the share visible for documentation but does not multiply GWP again, because the entered quantity already represents the real consumption per m² wall. This is recommended for mortar, reinforcement, anchors and linear profiles when quantity is entered as kg/m² or lfdm/m².
       Replacement cycles are shown in module B4. In this prototype, B4 is calculated as the additional product, transport/construction and end-of-life impacts of the replaced layer:
       B4 = replacement cycles × (A1-A3 + A4-A5 + C1 + C2 + C3/C4). Module D is shown separately and is multiplied by the total number of layer occurrences.
       Product share affects GWP results. For adjacent partial-area layers with the same thickness whose shares sum to 100%, the U-value calculation uses an automatically calculated equivalent λ-value for the parallel layer.
@@ -1614,10 +1615,10 @@
       <table>
         <thead><tr><th>GWP input basis</th><th>How the tool converts it</th><th>Typical use</th></tr></thead>
         <tbody>
-          <tr><td>kg CO₂e/m³ material</td><td>Module value × layer thickness in m × product share</td><td>Masonry, insulation, render, plaster, boards</td></tr>
-          <tr><td>kg CO₂e/m² wall area</td><td>Module value × product share</td><td>Products already declared per m² wall or façade area</td></tr>
-          <tr><td>kg CO₂e/lfdm linear product</td><td>Module value × quantity in lfdm/m² × product share</td><td>CW/UW profiles, rails, anchors, linear components</td></tr>
-          <tr><td>kg CO₂e/kg material</td><td>Module value × quantity in kg/m² × product share</td><td>Reinforcing steel, metal parts, small components by mass</td></tr>
+          <tr><td>kg CO₂e/m³ material</td><td>Module value × layer thickness in m × product share, unless “Quantity includes share” is selected</td><td>Masonry, insulation, render, plaster, boards</td></tr>
+          <tr><td>kg CO₂e/m² wall area</td><td>Module value × product share, unless “Quantity includes share” is selected</td><td>Products already declared per m² wall or façade area</td></tr>
+          <tr><td>kg CO₂e/lfdm linear product</td><td>Module value × quantity in lfdm/m²; product share is only applied when “Apply share” is selected</td><td>CW/UW profiles, rails, anchors, linear components</td></tr>
+          <tr><td>kg CO₂e/kg material</td><td>Module value × quantity in kg/m²; product share is only applied when “Apply share” is selected</td><td>Mortar, reinforcing steel, metal parts, small components by mass</td></tr>
         </tbody>
       </table>
       <p>
@@ -1626,7 +1627,7 @@
 
       <h3>8. Product share and quantity</h3>
       <p>
-        <strong>Product share [%]</strong> describes the share of a product in the wall area. A full-area layer normally has 100 %. For a timber-frame wall, the insulation may be entered with 85 % and the timber studs with 15 %. The product share multiplies the environmental module values.
+        <strong>Product share [%]</strong> describes the share of a product in the wall area. A full-area layer normally has 100 %. For a timber-frame wall, the insulation may be entered with 85 % and the timber studs with 15 %. For masonry, the units may be entered with 98–99 % and mortar with 1–2 %. The <strong>Share mode</strong> then decides whether the product share is actually applied to GWP.
       </p>
       <p>
         <strong>Quantity</strong> is required only for input bases per lfdm and per kg. For linear products, enter running metres per square metre wall area. For mass-based products, enter kg per square metre wall area.
@@ -1634,9 +1635,10 @@
       <table>
         <thead><tr><th>Example</th><th>Input</th><th>Result principle</th></tr></thead>
         <tbody>
-          <tr><td>Vertical studs at 625 mm spacing</td><td>Quantity ≈ 1 / 0.625 = 1.60 lfdm/m²</td><td>kg CO₂e/lfdm × 1.60 × product share</td></tr>
-          <tr><td>Top and bottom rail for 2.50 m wall height</td><td>Quantity ≈ 2 / 2.50 = 0.80 lfdm/m²</td><td>kg CO₂e/lfdm × 0.80 × product share</td></tr>
-          <tr><td>Reinforcement 20 kg/m²</td><td>Quantity = 20 kg/m²</td><td>kg CO₂e/kg × 20 × product share</td></tr>
+          <tr><td>Vertical studs at 625 mm spacing</td><td>Quantity ≈ 1 / 0.625 = 1.60 lfdm/m²</td><td>Usually: kg CO₂e/lfdm × 1.60 with “Quantity includes share” if the quantity is already the real amount per m²</td></tr>
+          <tr><td>Top and bottom rail for 2.50 m wall height</td><td>Quantity ≈ 2 / 2.50 = 0.80 lfdm/m²</td><td>Usually: kg CO₂e/lfdm × 0.80 with “Quantity includes share”</td></tr>
+          <tr><td>Mortar 8 kg/m² wall</td><td>Quantity = 8 kg/m²</td><td>kg CO₂e/kg × 8 with “Quantity includes share”; product share may still show 1–2 % for documentation</td></tr>
+          <tr><td>Reinforcement 20 kg/m²</td><td>Quantity = 20 kg/m²</td><td>kg CO₂e/kg × 20 with “Quantity includes share”</td></tr>
         </tbody>
       </table>
 
@@ -1729,7 +1731,7 @@
         <tbody>
           <tr><td>Material list is empty</td><td>Import a backup, create materials manually or restore the starter material database.</td></tr>
           <tr><td>Changed layer values do not affect the result</td><td>Click <strong>Apply</strong> in the edited row or <strong>Refresh / recalculate construction</strong>.</td></tr>
-          <tr><td>Unexpected GWP values</td><td>Check input basis, thickness, product share and quantity.</td></tr>
+          <tr><td>Unexpected GWP values</td><td>Check input basis, thickness, product share, quantity and Share mode. For real kg/m² or lfdm/m² quantities, “Quantity includes share” usually avoids double reduction.</td></tr>
           <tr><td>Unexpected U-value for a timber-frame wall</td><td>Check that the parallel components are adjacent, have the same thickness, are active for U-value and have shares summing to 100 %.</td></tr>
           <tr><td>PDF output is empty or incomplete</td><td>Generate the report preview first, then use the print button or browser print dialog. Refresh the browser with Ctrl+F5 after uploading a new HTML version.</td></tr>
         </tbody>
@@ -1745,7 +1747,7 @@
 
 
 <script>
-const APP_VERSION = "v59";
+const APP_VERSION = "v60";
 const STORAGE_MATERIALS = "eaaca_materials_user_database";
 const STORAGE_CONSTRUCTIONS = "eaaca_constructions_v18";
 const STORAGE_COMPARE = "eaaca_compare_selection_v18";
@@ -1865,6 +1867,34 @@ function quantityTitle(basis) {
 
 function quantityInputClass(basis) {
   return basisNeedsQuantity(basis) ? "linear-required" : "";
+}
+
+function defaultShareModeForBasis(basis) {
+  return basis === "per_m" || basis === "per_kg" ? "quantity_includes_share" : "apply_share";
+}
+
+function normaliseShareMode(value, basis) {
+  if (value === "apply_share" || value === "quantity_includes_share") return value;
+  return defaultShareModeForBasis(basis);
+}
+
+function shareModeLabel(mode) {
+  return mode === "quantity_includes_share" ? "Quantity includes share" : "Apply share";
+}
+
+function shareModeShortLabel(mode) {
+  return mode === "quantity_includes_share" ? "qty includes share" : "apply share";
+}
+
+function getLayerShareMode(layer, mat) {
+  const basis = mat ? mat.basis : "per_m3";
+  return normaliseShareMode(layer.shareMode, basis);
+}
+
+function shareFactorForGwp(layer, mat) {
+  const mode = getLayerShareMode(layer, mat);
+  if (mode === "quantity_includes_share") return 1;
+  return (layer.share === undefined ? 100 : Number(layer.share)) / 100;
 }
 
 function getMaterialById(id) {
@@ -2234,7 +2264,7 @@ function addLayer() {
   }
 
   const includeInU = mat && basisNeedsQuantity(mat.basis) ? false : true;
-  layers.push({ materialId, thicknessMm, lambda: mat ? Number(mat.lambda) : 0, share: 100, linearAmount: 1, includeInU, replacements: 0 });
+  layers.push({ materialId, thicknessMm, lambda: mat ? Number(mat.lambda) : 0, share: 100, shareMode: mat ? defaultShareModeForBasis(mat.basis) : "apply_share", linearAmount: 1, includeInU, replacements: 0 });
   calculate();
 }
 
@@ -2302,16 +2332,18 @@ function syncLayerLambdaFromMaterial(index) {
 function updateLinearInputHint(index) {
   const matEl = document.getElementById("layerMat_" + index);
   const linearEl = document.getElementById("layerLinear_" + index);
+  const shareModeEl = document.getElementById("layerShareMode_" + index);
   if (!matEl || !linearEl) return;
   const mat = getMaterialById(matEl.value);
   const basis = mat ? mat.basis : "per_m3";
   linearEl.className = quantityInputClass(basis);
   linearEl.title = quantityTitle(basis);
+  if (shareModeEl) shareModeEl.value = defaultShareModeForBasis(basis);
 }
 
 function baseLayerGwp(layer, mat) {
   const d = layer.thicknessMm / 1000;
-  const shareFactor = (layer.share === undefined ? 100 : Number(layer.share)) / 100;
+  const shareFactor = shareFactorForGwp(layer, mat);
   const linearAmount = layer.linearAmount === undefined ? 1 : Number(layer.linearAmount);
   const out = {};
 
@@ -2466,6 +2498,7 @@ function collectLayerEditsFromTable() {
 
     const thicknessEl = document.getElementById("layerThickness_" + i);
     const shareEl = document.getElementById("layerShare_" + i);
+    const shareModeEl = document.getElementById("layerShareMode_" + i);
     const lambdaEl = document.getElementById("layerLambda_" + i);
     const linearEl = document.getElementById("layerLinear_" + i);
     const includeEl = document.getElementById("layerIncludeU_" + i);
@@ -2489,6 +2522,7 @@ function collectLayerEditsFromTable() {
     if (s < 0) s = 0;
     if (s > 100) s = 100;
     layers[i].share = s;
+    if (shareModeEl) layers[i].shareMode = normaliseShareMode(shareModeEl.value, rowMaterial ? rowMaterial.basis : "per_m3");
 
     const lambda = parseUserNumber(lambdaEl.value, NaN);
     if (!isFinite(lambda) || lambda <= 0) {
@@ -2540,6 +2574,7 @@ function applyLayerEdit(index) {
   const matEl = document.getElementById("layerMat_" + index);
   const thicknessEl = document.getElementById("layerThickness_" + index);
   const shareEl = document.getElementById("layerShare_" + index);
+  const shareModeEl = document.getElementById("layerShareMode_" + index);
   const lambdaEl = document.getElementById("layerLambda_" + index);
   const linearEl = document.getElementById("layerLinear_" + index);
   const includeEl = document.getElementById("layerIncludeU_" + index);
@@ -2569,6 +2604,8 @@ function applyLayerEdit(index) {
     if (s > 100) s = 100;
     layers[index].share = s;
   }
+
+  if (shareModeEl) layers[index].shareMode = normaliseShareMode(shareModeEl.value, rowMaterial ? rowMaterial.basis : "per_m3");
 
   if (lambdaEl) {
     const lambda = parseUserNumber(lambdaEl.value, NaN);
@@ -2612,6 +2649,10 @@ function calcForLayers(layerSet) {
     if (layer.replacements === undefined) layer.replacements = 0;
     if (layer.share === undefined) layer.share = 100;
     if (layer.linearAmount === undefined) layer.linearAmount = 1;
+    if (layer.shareMode === undefined) {
+      const mForShare = getMaterialById(layer.materialId);
+      layer.shareMode = defaultShareModeForBasis(mForShare ? mForShare.basis : "per_m3");
+    }
     if (layer.includeInU === undefined) {
       const mForU = getMaterialById(layer.materialId);
       layer.includeInU = !(mForU && basisNeedsQuantity(mForU.basis));
@@ -2643,6 +2684,10 @@ function buildLayerResultsFromLayerSet(layerSet) {
     if (layer.replacements === undefined) layer.replacements = 0;
     if (layer.share === undefined) layer.share = 100;
     if (layer.linearAmount === undefined) layer.linearAmount = 1;
+    if (layer.shareMode === undefined) {
+      const mForShare = getMaterialById(layer.materialId);
+      layer.shareMode = defaultShareModeForBasis(mForShare ? mForShare.basis : "per_m3");
+    }
     if (layer.includeInU === undefined) {
       const mForU = getMaterialById(layer.materialId);
       layer.includeInU = !(mForU && basisNeedsQuantity(mForU.basis));
@@ -2658,6 +2703,7 @@ function buildLayerResultsFromLayerSet(layerSet) {
       share: Number(layer.share === undefined ? 100 : layer.share),
       linearAmount: Number(layer.linearAmount === undefined ? 1 : layer.linearAmount),
       basis: mat.basis,
+      shareMode: getLayerShareMode(layer, mat),
       includeInU: layer.includeInU !== false,
       replacements: Number(layer.replacements || 0),
       gwp: calculateLayerGwp(layer, mat)
@@ -2797,6 +2843,10 @@ function calculate() {
     if (layer.replacements === undefined) layer.replacements = 0;
     if (layer.share === undefined) layer.share = 100;
     if (layer.linearAmount === undefined) layer.linearAmount = 1;
+    if (layer.shareMode === undefined) {
+      const mForShare = getMaterialById(layer.materialId);
+      layer.shareMode = defaultShareModeForBasis(mForShare ? mForShare.basis : "per_m3");
+    }
     if (layer.includeInU === undefined) {
       const mForU = getMaterialById(layer.materialId);
       layer.includeInU = !(mForU && basisNeedsQuantity(mForU.basis));
@@ -2835,6 +2885,13 @@ function calculate() {
       </td>
       <td><input id="layerThickness_${index}" type="text" inputmode="decimal" value="${layer.thicknessMm}" /></td>
       <td><input id="layerShare_${index}" type="text" inputmode="decimal" value="${layer.share === undefined ? 100 : layer.share}" /></td>
+      <td>
+        <select id="layerShareMode_${index}" title="Apply share = product share multiplies GWP. Quantity includes share = entered quantity is already the real consumption per m² wall; product share is documented but not multiplied again.">
+          <option value="apply_share" ${getLayerShareMode(layer, mat) === "apply_share" ? "selected" : ""}>Apply share</option>
+          <option value="quantity_includes_share" ${getLayerShareMode(layer, mat) === "quantity_includes_share" ? "selected" : ""}>Quantity includes share</option>
+        </select>
+        <div class="linear-hint">${shareModeShortLabel(getLayerShareMode(layer, mat))}</div>
+      </td>
       <td>
         <input id="layerLinear_${index}" type="text" inputmode="decimal" value="${layer.linearAmount === undefined ? 1 : layer.linearAmount}" class="${quantityInputClass(mat.basis)}" title="${quantityTitle(mat.basis)}" />
         ${basisNeedsQuantity(mat.basis) ? `<div class="linear-hint">${quantityUnitLabel(mat.basis)}</div>` : ""}
@@ -2879,7 +2936,7 @@ function calculate() {
   document.getElementById("gwpD").textContent = layers.length ? format(result.d) : "–";
   const uNote = document.getElementById("uValueNote");
   if (uNote) {
-    uNote.textContent = "U-value surface resistance used: Rsi + Rse = " + format(getSurfaceResistance()) + " m²K/W. Adjacent partial-area layers with the same thickness and product shares summing to 100% are treated as one parallel thermal layer using λeq = Σ(share × λ). Layers marked 'Use for U-value = No' are excluded.";
+    uNote.textContent = "U-value surface resistance used: Rsi + Rse = " + format(getSurfaceResistance()) + " m²K/W. Adjacent partial-area layers with the same thickness and product shares summing to 100% are treated as one parallel thermal layer using λeq = Σ(share × λ). Share mode affects GWP only, not λeq. Layers marked 'Use for U-value = No' are excluded.";
   }
 
   document.getElementById("moduleResults").innerHTML = moduleRowsHtml(result.sums, result.ac);
@@ -3253,10 +3310,13 @@ function loadConstruction() {
   if (!saved[name]) return alert("No construction selected.");
 
   layers = clone(saved[name].layers || []).map(l => {
+    const mat = getMaterialById(l.materialId);
     if (l.replacements === undefined) l.replacements = 0;
     if (l.share === undefined) l.share = 100;
-    if (l.quantity === undefined) l.quantity = 1;
-    if (l.includeU === undefined) l.includeU = true;
+    if (l.linearAmount === undefined) l.linearAmount = l.quantity !== undefined ? l.quantity : 1;
+    if (l.shareMode === undefined) l.shareMode = defaultShareModeForBasis(mat ? mat.basis : "per_m3");
+    if (l.includeInU === undefined) l.includeInU = l.includeU !== undefined ? l.includeU : !(mat && basisNeedsQuantity(mat.basis));
+    if (l.lambda === undefined && mat) l.lambda = mat.lambda;
     return l;
   });
 
@@ -3427,6 +3487,10 @@ function drawComparisonChart() {
       if (layer.replacements === undefined) layer.replacements = 0;
     if (layer.share === undefined) layer.share = 100;
     if (layer.linearAmount === undefined) layer.linearAmount = 1;
+    if (layer.shareMode === undefined) {
+      const mForShare = getMaterialById(layer.materialId);
+      layer.shareMode = defaultShareModeForBasis(mForShare ? mForShare.basis : "per_m3");
+    }
     if (layer.includeInU === undefined) {
       const mForU = getMaterialById(layer.materialId);
       layer.includeInU = !(mForU && basisNeedsQuantity(mForU.basis));
@@ -3530,6 +3594,10 @@ function buildCurrentLayerRowsForReport() {
     if (layer.replacements === undefined) layer.replacements = 0;
     if (layer.share === undefined) layer.share = 100;
     if (layer.linearAmount === undefined) layer.linearAmount = 1;
+    if (layer.shareMode === undefined) {
+      const mForShare = getMaterialById(layer.materialId);
+      layer.shareMode = defaultShareModeForBasis(mForShare ? mForShare.basis : "per_m3");
+    }
     if (layer.includeInU === undefined) {
       const mForU = getMaterialById(layer.materialId);
       layer.includeInU = !(mForU && basisNeedsQuantity(mForU.basis));
@@ -3546,6 +3614,7 @@ function buildCurrentLayerRowsForReport() {
         <td>${htmlEscape(mat.source || "")}</td>
         <td>${format(layer.thicknessMm)}</td>
         <td>${format(layer.share)}</td>
+        <td>${shareModeLabel(getLayerShareMode(layer, mat))}</td>
         <td>${format(layer.linearAmount)} ${basisNeedsQuantity(mat.basis) ? quantityUnitLabel(mat.basis).replace(" required", "") : ""}</td>
         <td>${format(lambda)}</td>
         <td>${rDisplay}</td>
@@ -3943,7 +4012,8 @@ function printConstructionReport() {
           <th>Source / data reference</th>
           <th>Thickness [mm]</th>
           <th>Share [%]</th>
-          <th>Linear qty. [m/m²]</th>
+          <th>Share mode</th>
+          <th>Quantity [m/m² or kg/m²]</th>
           <th>λ [W/(mK)]</th>
           <th>R [m²K/W]</th>
           <th>Use for U</th>
@@ -4117,4 +4187,3 @@ loadInitialData();
 </script>
 </body>
 </html>
-
