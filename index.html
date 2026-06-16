@@ -420,17 +420,18 @@
 
     #layerTable th,
     #layerTable td {
-      font-size: 12px;
+      font-size: 11px;
+      padding: 5px;
     }
 
     #layerTable {
-      min-width: 1680px;
+      min-width: 1420px;
     }
 
     #layerTable th:nth-child(1),
     #layerTable td:nth-child(1) {
-      width: 92px;
-      min-width: 92px;
+      width: 72px;
+      min-width: 72px;
       position: sticky;
       left: 0;
       z-index: 3;
@@ -446,10 +447,10 @@
 
     #layerTable th:nth-child(2),
     #layerTable td:nth-child(2) {
-      width: 280px;
-      min-width: 280px;
+      width: 235px;
+      min-width: 235px;
       position: sticky;
-      left: 92px;
+      left: 72px;
       z-index: 3;
       background: #ffffff;
       box-shadow: 2px 0 0 var(--line);
@@ -463,48 +464,72 @@
 
     #layerTable th:nth-child(3),
     #layerTable td:nth-child(3) {
-      min-width: 78px;
+      min-width: 64px;
     }
 
     #layerTable th:nth-child(4),
     #layerTable td:nth-child(4) {
-      min-width: 92px;
+      min-width: 78px;
     }
 
     #layerTable th:nth-child(5),
     #layerTable td:nth-child(5) {
-      min-width: 150px;
-      max-width: 170px;
+      min-width: 120px;
+      max-width: 125px;
       text-align: left;
     }
 
     #layerTable th:nth-child(6),
     #layerTable td:nth-child(6) {
-      min-width: 112px;
+      min-width: 102px;
     }
 
     #layerTable th:nth-child(7),
-    #layerTable td:nth-child(7),
+    #layerTable td:nth-child(7) {
+      min-width: 72px;
+    }
+
     #layerTable th:nth-child(8),
-    #layerTable td:nth-child(8),
+    #layerTable td:nth-child(8) {
+      min-width: 64px;
+    }
+
     #layerTable th:nth-child(9),
-    #layerTable td:nth-child(9) {
-      min-width: 84px;
+    #layerTable td:nth-child(9),
+    #layerTable th:nth-child(10),
+    #layerTable td:nth-child(10) {
+      min-width: 72px;
+    }
+
+    #layerTable th:nth-child(n+11),
+    #layerTable td:nth-child(n+11) {
+      min-width: 54px;
     }
 
     .share-mode-cell select {
-      min-width: 118px;
-      max-width: 118px;
-      font-size: 10.5px;
-      padding: 4px 18px 4px 5px;
+      min-width: 104px;
+      max-width: 104px;
+      font-size: 9.5px;
+      padding: 3px 16px 3px 4px;
     }
 
     .share-mode-cell .linear-hint {
-      max-width: 118px;
+      max-width: 104px;
       white-space: normal;
-      line-height: 1.15;
-      margin-top: 3px;
+      line-height: 1.1;
+      margin-top: 2px;
+      font-size: 9px;
+    }
+
+    .module-value-cell {
+      font-size: 10.5px;
+      white-space: nowrap;
+    }
+
+    .gwp-basis-cell {
       font-size: 10px;
+      color: #3f4d58;
+      white-space: normal;
     }
 
     .layer-table-wrap {
@@ -555,16 +580,16 @@
     }
 
     .layer-actions button {
-      padding: 4px 6px;
-      min-width: 26px;
-      font-size: 11px;
+      padding: 3px 5px;
+      min-width: 24px;
+      font-size: 10px;
       margin: 0;
       line-height: 1;
     }
 
     .copybtn { background: var(--aqua); }
     .material-cell select {
-      min-width: 260px;
+      min-width: 220px;
       font-weight: 600;
     }
 
@@ -578,8 +603,8 @@
 
     td input, td select {
       margin: 0;
-      padding: 5px;
-      font-size: 13px;
+      padding: 4px;
+      font-size: 11px;
     }
 
 
@@ -1249,7 +1274,6 @@
           <th>R [m²K/W]</th>
           <th>Use for U-value</th>
           <th>Replacement cycles</th>
-          <th>GWP basis</th>
           <th>A1-A3</th>
           <th>A4-A5</th>
           <th>B1</th>
@@ -1260,6 +1284,7 @@
           <th>C2</th>
           <th>C3/C4</th>
           <th>D</th>
+          <th>GWP basis</th>
           <th>Apply changes</th>
           <th></th>
         </tr>
@@ -1778,7 +1803,7 @@
 
 
 <script>
-const APP_VERSION = "v62";
+const APP_VERSION = "v63";
 const STORAGE_MATERIALS = "eaaca_materials_user_database";
 const STORAGE_CONSTRUCTIONS = "eaaca_constructions_v18";
 const STORAGE_COMPARE = "eaaca_compare_selection_v18";
@@ -2964,17 +2989,17 @@ function calculate() {
           <option value="2" ${Number(layer.replacements) === 2 ? "selected" : ""}>2</option>
         </select>
       </td>
-      <td>${shortBasis(mat.basis)}</td>
-      <td>${format(g.A1_A3)}</td>
-      <td>${format(g.A4_A5)}</td>
-      <td>${format(g.B1)}</td>
-      <td>${format(g.B2)}</td>
-      <td>${format(g.B3)}</td>
-      <td>${format(g.B4)}</td>
-      <td>${format(g.C1)}</td>
-      <td>${format(g.C2)}</td>
-      <td>${format(g.C3_C4)}</td>
-      <td>${format(g.D)}</td>
+      <td class="module-value-cell">${format(g.A1_A3)}</td>
+      <td class="module-value-cell">${format(g.A4_A5)}</td>
+      <td class="module-value-cell">${format(g.B1)}</td>
+      <td class="module-value-cell">${format(g.B2)}</td>
+      <td class="module-value-cell">${format(g.B3)}</td>
+      <td class="module-value-cell">${format(g.B4)}</td>
+      <td class="module-value-cell">${format(g.C1)}</td>
+      <td class="module-value-cell">${format(g.C2)}</td>
+      <td class="module-value-cell">${format(g.C3_C4)}</td>
+      <td class="module-value-cell">${format(g.D)}</td>
+      <td class="gwp-basis-cell">${shortBasis(mat.basis)}</td>
       <td><button class="applybtn smallbtn" onclick="applyLayerEdit(${index})">Apply</button></td>
       <td><button class="danger smallbtn" onclick="removeLayer(${index})">X</button></td>
     `;
