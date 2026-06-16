@@ -1569,7 +1569,7 @@
     © 2026 EAACA. All rights reserved.
   </div>
   <div>
-    Indicative tool for technical communication. Module D is reported separately. Version <span class="app-version">v58</span>.<br>
+    Indicative tool for technical communication. Module D is reported separately. Version <span class="app-version">v64</span>.<br>
     Use is subject to the legal disclaimer displayed on this page.<br>
     Copyright notice: content, structure and calculator implementation are protected by EAACA unless otherwise stated.
   </div>
@@ -1589,213 +1589,160 @@
 <div class="manual-content">
       <h3>1. Purpose of the tool</h3>
       <p>
-        The EAACA Wall LCA Calculator is a browser-based tool for indicative assessment of wall constructions. It calculates a simplified U-value and life-cycle greenhouse gas indicators in kg CO₂e per m² wall area from user-defined material data, layer thicknesses, quantities and life-cycle module values.
+        The EAACA Wall LCA Calculator is a browser-based tool for indicative comparison of wall build-ups. It calculates a simplified U-value and life-cycle GWP indicators per m² wall area from user-defined material data. The tool is intended for transparent communication, plausibility checks and comparison of variants. It does not replace verified EPDs, a complete building LCA according to EN 15978 or project-specific engineering assessment.
       </p>
       <div class="manual-note">
-        The tool is intended for transparent comparison, plausibility checks, internal discussion and communication. It is not a verified environmental product declaration, not a complete building LCA and not a substitute for project-specific verification by qualified persons.
+        All data remain local in the user's browser unless exported by the user. Results depend on the selected material data, quantities, assumptions and scenarios.
       </div>
 
       <h3>2. Basic workflow</h3>
       <ol>
-        <li>Check or create the required materials in the internal material database.</li>
-        <li>Create a wall build-up by adding layers from the material list.</li>
-        <li>Enter or adjust layer thickness, product share, quantity, U-value inclusion and replacement cycles in the layer table.</li>
-        <li>Click <strong>Apply</strong> for a single row or <strong>Refresh / recalculate construction</strong> after several changes.</li>
-        <li>Review the U-value, the module results, the layer contributions and the diagrams.</li>
-        <li>Save the construction in the local construction library if it shall be reused or compared.</li>
-        <li>Select saved constructions in the comparison library and generate a comparison report if required.</li>
+        <li>Check or edit the material database.</li>
+        <li>Create the wall build-up by adding layers.</li>
+        <li>Enter layer thickness, product share, quantity and share mode where required.</li>
+        <li>Use <strong>Apply</strong> in a row or <strong>Refresh / recalculate construction</strong>.</li>
+        <li>Review U-value, module results, layer shares and diagrams.</li>
+        <li>Save the current input as a reusable wall build-up construction.</li>
+        <li>Select saved constructions for comparison and generate reports where needed.</li>
       </ol>
 
-      <h3>3. Example A: Creating a construction with newly entered materials</h3>
-      <p>
-        Use this workflow when the required material is not yet available in the database, for example a new EPD value or a manufacturer-specific dataset.
-      </p>
+      <h3>3. Example A: Entering a new material and using it in a wall</h3>
       <ol>
-        <li>Go to <strong>Add or edit material</strong> and click <strong>New material</strong>.</li>
-        <li>Enter a clear material name, for example <em>Lightweight render, project EPD</em>.</li>
-        <li>Enter the thermal conductivity λ used for the simplified U-value calculation.</li>
-        <li>Select the correct <strong>GWP input basis</strong>: per m³, per m², per lfdm or per kg.</li>
-        <li>Enter the module values A1-A3, A4-A5, B1, B2, B3, C1, C2, C3/C4 and D. Enter zero only where zero is intended or justified.</li>
-        <li>Click <strong>Save material</strong>. The material is now available in the layer material list.</li>
-        <li>Go to <strong>Wall build-up</strong>, select the new material, enter the layer thickness and click <strong>Add layer</strong>.</li>
-        <li>After all layers are entered, click <strong>Refresh / recalculate construction</strong>.</li>
-        <li>Enter a construction name and click <strong>Save construction</strong> to store the complete wall build-up locally.</li>
+        <li>Open <strong>Add or edit material</strong>.</li>
+        <li>Click <strong>New material</strong>.</li>
+        <li>Enter a clear material name, e.g. <em>Thin-bed mortar, EPD XY</em>.</li>
+        <li>Select the correct <strong>GWP input basis</strong>, e.g. <strong>kg CO₂e/kg material</strong>.</li>
+        <li>Enter λ and the GWP module values A1-A3, A4-A5, B1, C modules and D as required.</li>
+        <li>Use <strong>Source / data reference</strong> for the EPD number, ÖKOBAUDAT UUID, dataset version or assumption note.</li>
+        <li>Click <strong>Save material</strong>.</li>
+        <li>Return to <strong>Wall build-up</strong>, select the new material and add it as a layer.</li>
       </ol>
-
-      <h3>4. Example B: Creating a construction from existing database materials</h3>
       <p>
-        Use this workflow when the required materials are already available in the internal material database, for example AAC, calcium silicate units, mineral wool, EPS, gypsum plaster or render.
+        In the module input fields, simple calculations may be entered directly. Example: <strong>10.75 + 1.48</strong> or <strong>8,5 + 2,25</strong>. The calculated numeric value is stored in the database.
       </p>
+
+      <h3>4. Example B: Using existing database materials</h3>
       <ol>
-        <li>Select the first material in <strong>Wall build-up</strong>, for example <em>Gypsum plaster</em>, enter the thickness, for example 10 mm, and click <strong>Add layer</strong>.</li>
-        <li>Select the masonry material, for example <em>AAC 400 kg/m³</em> or <em>Calcium silicate unit</em>, enter the thickness and click <strong>Add layer</strong>.</li>
-        <li>Add insulation, render or other layers in the same way.</li>
-        <li>Check whether every layer shall be included in the U-value calculation. Linear or mass-based components such as steel profiles may remain included in GWP but be switched off for U-value.</li>
-        <li>Click <strong>Refresh / recalculate construction</strong> and review the results.</li>
-        <li>Save the wall build-up under a clear construction name. If the same name is used again later, the saved construction is overwritten and the comparison table is updated.</li>
+        <li>Select a material from the material dropdown, e.g. AAC, render, insulation or plaster.</li>
+        <li>Enter the layer thickness in mm and click <strong>Add layer</strong>.</li>
+        <li>Repeat this for all layers in the wall build-up.</li>
+        <li>Edit the layer-specific values in the table if required.</li>
+        <li>Click <strong>Refresh / recalculate construction</strong>.</li>
+        <li>Enter a name under <strong>Save / load wall build-up construction</strong> and click <strong>Save current input construction</strong>.</li>
       </ol>
-
-      <h3>5. Internal database, backup and imported data</h3>
       <p>
-        Materials and saved constructions are stored locally in the user's browser. This means that the data is available on the same computer and browser, but it is not automatically transferred to another browser or another user.
+        Material master data and construction-specific layer data are deliberately separated. Changing a layer in the wall table does not automatically change the material master data unless it is edited and saved in the material editor.
       </p>
+
+      <h3>5. Internal database, backups and imported data</h3>
+      <p>
+        The tool uses an internal browser database for materials and saved wall build-up constructions. Use <strong>Export complete backup</strong> to save materials, constructions and comparison selections together. Use <strong>Import complete backup</strong> to restore the full data state on another computer or after updating the HTML file.
+      </p>
+      <p>
+        Advanced export/import options allow materials-only or constructions-only exchange. This is useful when a central material database should be distributed without overwriting user-specific constructions, or when only wall build-ups should be shared.
+      </p>
+      <p>
+        The <strong>Source / data reference</strong> field is part of the material database and is included in exports and reports. Keep it short and traceable, for example: EPD number, ÖKOBAUDAT dataset ID, database version/year or internal assumption reference.
+      </p>
+
+      <h3>6. Input bases and conversion to kg CO₂e/m² wall</h3>
       <table>
-        <thead><tr><th>Function</th><th>Use</th></tr></thead>
+        <thead><tr><th>Input basis</th><th>Conversion principle</th><th>Typical use</th></tr></thead>
         <tbody>
-          <tr><td>Export complete backup</td><td>Exports materials, saved constructions and comparison selection into one JSON backup file. This is the recommended backup before replacing the HTML file.</td></tr>
-          <tr><td>Import complete backup</td><td>Restores a complete backup and replaces the current local database content in this browser.</td></tr>
-          <tr><td>Export / import materials only</td><td>Use only when the material database shall be exchanged without changing the saved constructions.</td></tr>
-          <tr><td>Export / import constructions only</td><td>Use only when saved wall build-ups shall be exchanged without changing the material database.</td></tr>
-          <tr><td>Restore starter material database</td><td>Resets the material database to the embedded starter version. Use only after exporting a backup if user-defined materials shall be kept.</td></tr>
-        </tbody>
-      </table>
-      <p>
-        Imported constructions are immediately available in the <strong>Saved construction library</strong>. Imported materials are immediately available in the material selectors. After importing, check whether the material names, source references and input bases are consistent with the construction data.
-      </p>
-
-      <h3>6. Editing materials and constructions</h3>
-      <p>
-        The tool distinguishes between <strong>material master data</strong> and <strong>construction-specific layer data</strong>.
-      </p>
-      <ul>
-        <li><strong>Material master data</strong> is edited in <strong>Add or edit material</strong>. This includes material name, λ-value, GWP input basis and module values.</li>
-        <li><strong>Layer data</strong> is edited in the wall build-up table. This includes thickness, product share, quantity, U-value inclusion and replacement cycles.</li>
-        <li>After editing values directly in the layer table, click <strong>Apply</strong> in the row or <strong>Refresh / recalculate construction</strong>.</li>
-        <li>If a saved construction is loaded and then saved again under the same name, the existing construction is overwritten.</li>
-      </ul>
-      <div class="manual-note">
-        Important: Changing a material in the database affects future use of that material. For existing saved constructions, load the construction and check the values before relying on the result.
-      </div>
-
-      <h3>7. Input bases and conversion to kg CO₂e/m² wall</h3>
-      <table>
-        <thead><tr><th>GWP input basis</th><th>How the tool converts it</th><th>Typical use</th></tr></thead>
-        <tbody>
-          <tr><td>kg CO₂e/m³ material</td><td>Module value × layer thickness in m × product share, unless “Quantity includes share” is selected</td><td>Masonry, insulation, render, plaster, boards</td></tr>
-          <tr><td>kg CO₂e/m² wall area</td><td>Module value × product share, unless “Quantity includes share” is selected</td><td>Products already declared per m² wall or façade area</td></tr>
-          <tr><td>kg CO₂e/lfdm linear product</td><td>Module value × quantity in lfdm/m²; product share is only applied when “Apply share” is selected</td><td>CW/UW profiles, rails, anchors, linear components</td></tr>
-          <tr><td>kg CO₂e/kg material</td><td>Module value × quantity in kg/m²; product share is only applied when “Apply share” is selected</td><td>Mortar, reinforcing steel, metal parts, small components by mass</td></tr>
-        </tbody>
-      </table>
-      <p>
-        Decimal input accepts comma and point, for example 12,5 or 12.5 mm.
-      </p>
-
-      <h3>8. Product share and quantity</h3>
-      <p>
-        <strong>Product share [%]</strong> describes the share of a product in the wall area. A full-area layer normally has 100 %. For a timber-frame wall, the insulation may be entered with 85 % and the timber studs with 15 %. For masonry, the units may be entered with 98–99 % and mortar with 1–2 %. The <strong>Share mode</strong> then decides whether the product share is actually applied to GWP.
-      </p>
-      <p>
-        <strong>Quantity</strong> is required only for input bases per lfdm and per kg. For linear products, enter running metres per square metre wall area. For mass-based products, enter kg per square metre wall area.
-      </p>
-      <table>
-        <thead><tr><th>Example</th><th>Input</th><th>Result principle</th></tr></thead>
-        <tbody>
-          <tr><td>Vertical studs at 625 mm spacing</td><td>Quantity ≈ 1 / 0.625 = 1.60 lfdm/m²</td><td>Usually: kg CO₂e/lfdm × 1.60 with “Quantity includes share” if the quantity is already the real amount per m²</td></tr>
-          <tr><td>Top and bottom rail for 2.50 m wall height</td><td>Quantity ≈ 2 / 2.50 = 0.80 lfdm/m²</td><td>Usually: kg CO₂e/lfdm × 0.80 with “Quantity includes share”</td></tr>
-          <tr><td>Mortar 8 kg/m² wall</td><td>Quantity = 8 kg/m²</td><td>kg CO₂e/kg × 8 with “Quantity includes share”; product share may still show 1–2 % for documentation</td></tr>
-          <tr><td>Reinforcement 20 kg/m²</td><td>Quantity = 20 kg/m²</td><td>kg CO₂e/kg × 20 with “Quantity includes share”</td></tr>
+          <tr><td>kg CO₂e/m³ material</td><td>Module value × layer thickness [m] × product share if applied</td><td>Blocks, boards, insulation, render layers</td></tr>
+          <tr><td>kg CO₂e/m² wall area</td><td>Module value × product share if applied</td><td>Products already declared per m² system</td></tr>
+          <tr><td>kg CO₂e/lfdm linear product</td><td>Module value × running metres per m² wall</td><td>Profiles, rails, anchors, linear products</td></tr>
+          <tr><td>kg CO₂e/kg material</td><td>Module value × kg material per m² wall</td><td>Mortar, reinforcement, steel, small components</td></tr>
         </tbody>
       </table>
 
-      <h3>9. U-value calculation and inhomogeneous layers</h3>
+      <h3>7. Product share, quantity and share mode</h3>
       <p>
-        For normal homogeneous layers, the tool uses a simplified serial resistance model:
-        <strong>U = 1 / (surface resistance + Σ d/λ)</strong>. The selectable boundary conditions define the surface resistance, for example external wall Rsi 0.13 + Rse 0.04 = 0.17 m²K/W.
+        <strong>Product share [%]</strong> describes the visible or construction-related proportion of a layer, for example 85% insulation and 15% timber studs, or 98% masonry unit and 2% mortar share. <strong>Quantity</strong> is used when a dataset is declared per linear metre or per kg and a real consumption per m² wall is required.
       </p>
+      <table>
+        <thead><tr><th>Share mode</th><th>Meaning</th><th>Typical example</th></tr></thead>
+        <tbody>
+          <tr><td>Apply share</td><td>Product share is multiplied into the GWP result.</td><td>Timber 15%, insulation 85%, masonry unit 98%</td></tr>
+          <tr><td>Qty includes share</td><td>Quantity is already the real amount per m² wall. Product share remains visible but is not multiplied again.</td><td>Mortar 6 kg/m², reinforcement 2 kg/m², rails 1.6 lfdm/m²</td></tr>
+        </tbody>
+      </table>
       <p>
-        For inhomogeneous layers such as timber studs with insulation between the studs, the components should be entered as adjacent rows with the same thickness and product shares that sum to 100 %. If these conditions are met and the layers are activated for U-value, the tool automatically calculates an equivalent thermal conductivity:
+        Example: thin-bed mortar with 0.80 kg CO₂e/kg and 6 kg/m² real consumption gives 4.80 kg CO₂e/m². If the Product share is shown as 2%, use <strong>Qty includes share</strong> to avoid multiplying the result by 2% again.
       </p>
-      <p>
-        <strong>λeq = share₁ × λ₁ + share₂ × λ₂ + ...</strong>
-      </p>
-      <p>
-        Example: 85 % mineral wool with λ = 0.035 W/(mK) and 15 % timber with λ = 0.12 W/(mK) gives:
-        <strong>λeq = 0.85 × 0.035 + 0.15 × 0.12 = 0.04775 W/(mK)</strong>.
-        For a 160 mm layer this gives <strong>R = 0.160 / 0.04775 = 3.35 m²K/W</strong>.
-      </p>
-      <p>
-        Components that should influence GWP but not the simplified U-value, for example certain steel profiles or reinforcing elements, can be set to <strong>Use for U-value = No</strong>.
-      </p>
-      <div class="manual-note">
-        The automatic λeq method is a simplified area-weighted approach. It is suitable for transparent early-stage comparison, but it does not replace detailed thermal bridge or two-dimensional heat-flow assessment where required.
-      </div>
 
-      <h3>10. Reading the results</h3>
+      <h3>8. U-value calculation and inhomogeneous layers</h3>
+      <p>
+        For normal serial layers, the tool calculates:
+        <strong>U = 1 / (surface resistance + Σ d/λ)</strong>. Layers can be excluded from the U-value calculation by setting <strong>Use for U-value = No</strong>. They remain included in GWP.
+      </p>
+      <p>
+        For adjacent partial-area layers with the same thickness and product shares summing approximately to 100%, the tool automatically calculates an equivalent thermal conductivity:
+        <strong>λeq = Σ (share × λ)</strong>. This is intended for simple inhomogeneous layers such as timber studs plus insulation in the same plane. The resulting equivalent layer resistance is calculated with <strong>R = d / λeq</strong>.
+      </p>
+      <p>
+        The automatic λeq approach is a simplified model for regular parallel paths. It is not a substitute for detailed thermal bridge modelling or product/system-specific U-value assessment.
+      </p>
+
+      <h3>9. Reading the results</h3>
       <table>
         <thead><tr><th>Result item</th><th>Meaning</th></tr></thead>
         <tbody>
-          <tr><td>U-value</td><td>Simplified thermal transmittance of the selected wall build-up.</td></tr>
-          <tr><td>GWP A-C incl. B modules</td><td>Total result for A1-A3, A4-A5, B1, B2, B3, B4, C1, C2 and C3/C4. Module D is not included.</td></tr>
-          <tr><td>Module D separately</td><td>Benefits and loads beyond the system boundary. It is reported separately.</td></tr>
-          <tr><td>Layer contribution</td><td>Contribution of each layer to the A-C result and to individual modules.</td></tr>
-          <tr><td>Comparison diagram</td><td>Visual comparison of selected saved constructions.</td></tr>
+          <tr><td>U-value</td><td>Simplified thermal transmittance of the selected layer sequence.</td></tr>
+          <tr><td>A-C total</td><td>Total for A1-A3, A4-A5, B1, B2, B3, B4, C1, C2 and C3/C4.</td></tr>
+          <tr><td>Module D</td><td>Benefits and loads beyond the system boundary, reported separately.</td></tr>
+          <tr><td>Layer share overview</td><td>Shows the contribution of individual layers to the A-C total.</td></tr>
+          <tr><td>Module diagram</td><td>Shows how layers contribute to individual life-cycle modules.</td></tr>
         </tbody>
       </table>
 
-      <h3>11. Replacement cycles</h3>
+      <h3>10. Replacement cycles</h3>
       <p>
         Replacement cycles define additional replacements within the reference period. In this prototype, B4 is calculated as:
-        <strong>B4 = replacement cycles × (A1-A3 + A4-A5 + C1 + C2 + C3/C4)</strong>.
+        <strong>B4 = replacement cycles × (A1-A3 + A4-A5 + C1 + C2 + C3/C4)</strong>. Module D is shown separately and is multiplied by the total number of layer occurrences.
       </p>
-      <table>
-        <thead><tr><th>Value</th><th>Interpretation</th><th>Typical use</th></tr></thead>
-        <tbody>
-          <tr><td>0</td><td>No replacement</td><td>Service life approximately equal to or longer than the reference period.</td></tr>
-          <tr><td>1</td><td>One replacement</td><td>Service life below the reference period.</td></tr>
-          <tr><td>2</td><td>Two replacements</td><td>Shorter-life components.</td></tr>
-        </tbody>
-      </table>
 
-      <h3>12. Saving, loading and comparing constructions</h3>
+      <h3>11. Saving, loading and comparing constructions</h3>
+      <p>
+        Use <strong>Save / load wall build-up construction</strong> to save the current layer table as a reusable construction. Use a clear name and click <strong>Save current input construction</strong>. To reuse an existing variant, select it from <strong>Saved construction library</strong> and click <strong>Load selected construction</strong>.
+      </p>
+      <p>
+        The <strong>Comparison library</strong> is used to select saved constructions for the comparison diagram and comparison report. If a saved construction is overwritten under the same name, the comparison is updated from the new data.
+      </p>
+
+      <h3>12. Report and PDF output</h3>
+      <p>
+        The <strong>Report / PDF output</strong> area provides a central place to generate report previews. Select whether the report should show the current construction or the selected comparison. The report preview opens directly in the tool and can be printed or saved as PDF using the browser print dialog.
+      </p>
+      <p>
+        Construction reports include layer data, module results, source references and diagrams. Comparison reports show the selected variants and their main indicators. For clean PDF output, Microsoft Edge or Google Chrome are recommended.
+      </p>
+
+      <h3>13. Quality checks before using results</h3>
       <ul>
-        <li>Use <strong>Save construction</strong> in the wall build-up section to store the current construction in the local construction library.</li>
-        <li>Use <strong>Load construction</strong> to load a saved or imported construction back into the layer table.</li>
-        <li>Use the checkboxes in the <strong>Comparison library</strong> to select saved variants for the comparison diagram.</li>
-        <li><strong>Clear comparison</strong> removes the checkmarks from the diagram selection but does not delete saved constructions.</li>
-        <li><strong>Delete selected constructions</strong> removes the selected constructions from the local construction library.</li>
+        <li>Check whether each material uses the correct GWP input basis.</li>
+        <li>Check whether zero module values are justified or simply missing.</li>
+        <li>Check Quantity and Share mode for mortar, profiles, reinforcement and other real consumption entries.</li>
+        <li>Check whether product shares are used consistently for GWP and U-value purposes.</li>
+        <li>Use Source / data reference to make datasets traceable.</li>
+        <li>Export a complete backup before replacing the HTML file or distributing a new tool version.</li>
       </ul>
 
-      <h3>13. Report and PDF output</h3>
-      <p>
-        The central <strong>Report / PDF output</strong> section is used for print and PDF generation. Select the desired report content and click <strong>Generate selected report preview / PDF</strong>.
-      </p>
-      <table>
-        <thead><tr><th>Report content</th><th>Use</th></tr></thead>
-        <tbody>
-          <tr><td>Current construction report</td><td>Documents the active wall build-up, results, module table, layer contributions and diagrams.</td></tr>
-          <tr><td>Comparison report</td><td>Documents selected saved constructions and the comparison diagram.</td></tr>
-        </tbody>
-      </table>
-      <p>
-        The report preview appears directly below the report control. Use the print button in the report preview or the browser print dialog to print or save as PDF. Microsoft Edge or Google Chrome are recommended for PDF output. Before printing, check page orientation and scaling; comparison reports with many constructions may be easier to read in landscape orientation.
-      </p>
-
-      <h3>14. Quality checks before using results</h3>
-      <ul>
-        <li>Check that all material data comes from the intended source and that the declared basis is correct.</li>
-        <li>Check whether values entered as zero are intended zero values or missing data.</li>
-        <li>Check thicknesses, product shares, quantities and U-value activation for every layer.</li>
-        <li>Check that inhomogeneous layers are entered as adjacent rows with equal thickness and shares summing to 100 % if automatic λeq shall be used.</li>
-        <li>Do not compare constructions with different functional requirements without explaining the differences.</li>
-        <li>Document assumptions, sources and deviations from verified EPD or project data.</li>
-      </ul>
-
-      <h3>15. Troubleshooting</h3>
+      <h3>14. Troubleshooting</h3>
       <table>
         <thead><tr><th>Issue</th><th>Possible solution</th></tr></thead>
         <tbody>
-          <tr><td>Material list is empty</td><td>Import a backup, create materials manually or restore the starter material database.</td></tr>
-          <tr><td>Changed layer values do not affect the result</td><td>Click <strong>Apply</strong> in the edited row or <strong>Refresh / recalculate construction</strong>.</td></tr>
-          <tr><td>Unexpected GWP values</td><td>Check input basis, thickness, product share, quantity and Share mode. For real kg/m² or lfdm/m² quantities, “Quantity includes share” usually avoids double reduction.</td></tr>
-          <tr><td>Unexpected U-value for a timber-frame wall</td><td>Check that the parallel components are adjacent, have the same thickness, are active for U-value and have shares summing to 100 %.</td></tr>
-          <tr><td>PDF output is empty or incomplete</td><td>Generate the report preview first, then use the print button or browser print dialog. Refresh the browser with Ctrl+F5 after uploading a new HTML version.</td></tr>
+          <tr><td>Changed layer values do not affect the result</td><td>Click Apply in the edited row or Refresh / recalculate construction.</td></tr>
+          <tr><td>Mortar or reinforcement result is too small</td><td>Check whether Share mode should be Qty includes share.</td></tr>
+          <tr><td>Inhomogeneous U-value seems wrong</td><td>Check that partial layers have the same thickness, are adjacent and shares sum to about 100%.</td></tr>
+          <tr><td>Imported data do not appear</td><td>Check whether a complete backup, material-only file or construction-only file was imported.</td></tr>
+          <tr><td>PDF output is empty</td><td>Generate the report preview first, then use the print button in the report preview.</td></tr>
         </tbody>
       </table>
 
-      <h3>16. Important limitation</h3>
+      <h3>15. Important limitation</h3>
       <p>
-        The calculator depends on the quality and consistency of the data entered by the user. Results should be treated as indicative unless all material data, conversion rules, quantities, scenarios and calculation assumptions have been checked and documented.
+        The calculator depends on the quality and consistency of the data entered by the user. Results are indicative. They must be independently checked before use in design, procurement, tendering, permitting, environmental claims, regulatory compliance, marketing or publication.
       </p>
     </div>
   </div>
@@ -1803,7 +1750,7 @@
 
 
 <script>
-const APP_VERSION = "v63";
+const APP_VERSION = "v64";
 const STORAGE_MATERIALS = "eaaca_materials_user_database";
 const STORAGE_CONSTRUCTIONS = "eaaca_constructions_v18";
 const STORAGE_COMPARE = "eaaca_compare_selection_v18";
@@ -4271,4 +4218,5 @@ loadInitialData();
 </script>
 </body>
 </html>
+
 
