@@ -424,7 +424,7 @@
     }
 
     #layerTable {
-      min-width: 1660px;
+      min-width: 1680px;
     }
 
     #layerTable th:nth-child(1),
@@ -461,19 +461,50 @@
       z-index: 4;
     }
 
+    #layerTable th:nth-child(3),
+    #layerTable td:nth-child(3) {
+      min-width: 78px;
+    }
+
     #layerTable th:nth-child(4),
-    #layerTable td:nth-child(4),
+    #layerTable td:nth-child(4) {
+      min-width: 92px;
+    }
+
     #layerTable th:nth-child(5),
-    #layerTable td:nth-child(5),
+    #layerTable td:nth-child(5) {
+      min-width: 150px;
+      max-width: 170px;
+      text-align: left;
+    }
+
     #layerTable th:nth-child(6),
-    #layerTable td:nth-child(6),
+    #layerTable td:nth-child(6) {
+      min-width: 112px;
+    }
+
     #layerTable th:nth-child(7),
     #layerTable td:nth-child(7),
     #layerTable th:nth-child(8),
     #layerTable td:nth-child(8),
     #layerTable th:nth-child(9),
     #layerTable td:nth-child(9) {
-      min-width: 70px;
+      min-width: 84px;
+    }
+
+    .share-mode-cell select {
+      min-width: 118px;
+      max-width: 118px;
+      font-size: 10.5px;
+      padding: 4px 18px 4px 5px;
+    }
+
+    .share-mode-cell .linear-hint {
+      max-width: 118px;
+      white-space: normal;
+      line-height: 1.15;
+      margin-top: 3px;
+      font-size: 10px;
     }
 
     .layer-table-wrap {
@@ -1081,7 +1112,7 @@
 
 <body>
 <div class="topbar">
-  +49 (0) 3382 7060 112 &nbsp;&nbsp;|&nbsp;&nbsp; info@eaaca.org &nbsp;&nbsp;|&nbsp;&nbsp; Tool version <strong><span class="app-version">v60</span></strong>
+  +49 (0) 3382 7060 112 &nbsp;&nbsp;|&nbsp;&nbsp; info@eaaca.org &nbsp;&nbsp;|&nbsp;&nbsp; Tool version <strong><span class="app-version">v61</span></strong>
 </div>
 
 <nav class="site-nav" aria-label="EAACA navigation">
@@ -1405,7 +1436,7 @@
     <details class="warning">
       <summary>Material editor note</summary>
       <div class="warning-content">
-        The material editor supports both options:
+        The material editor supports arithmetic in module fields, e.g. <strong>10.75 + 1.48</strong> or <strong>8,5 + 2,25</strong>. The calculated numeric result is saved. The material editor supports both options:
       <strong>kg CO₂e/m³ material</strong>, <strong>kg CO₂e/m² wall area</strong>, <strong>kg CO₂e/lfdm linear product</strong> and <strong>kg CO₂e/kg material</strong>.
       If kg CO₂e/m³ is selected, the GWP result is multiplied by layer thickness in metres.
       If kg CO₂e/m² is selected, the GWP values are used directly. If kg CO₂e/lfdm is selected, the GWP values are converted using running metres per m² wall. If kg CO₂e/kg is selected, the GWP values are converted using kg material per m² wall, e.g. reinforcement mass. B4 is calculated from the replacement cycles of each layer.
@@ -1747,7 +1778,7 @@
 
 
 <script>
-const APP_VERSION = "v60";
+const APP_VERSION = "v62";
 const STORAGE_MATERIALS = "eaaca_materials_user_database";
 const STORAGE_CONSTRUCTIONS = "eaaca_constructions_v18";
 const STORAGE_COMPARE = "eaaca_compare_selection_v18";
@@ -1825,6 +1856,30 @@ function parseUserNumber(value, defaultValue = 0) {
   return isFinite(n) ? n : defaultValue;
 }
 
+function parseUserExpression(value, defaultValue = 0) {
+  if (value === null || value === undefined) return defaultValue;
+  if (typeof value === "number") return isFinite(value) ? value : defaultValue;
+
+  let s = String(value).trim();
+  if (s === "") return defaultValue;
+
+  // Accept simple arithmetic expressions in material module fields, e.g.
+  // 10.75 + 1.48, 8,5 + 2,25, 2 * 4.5 or 15 / 3.
+  s = s.replace(/\u00A0/g, " ").replace(/,/g, ".");
+  if (!/^[0-9+\-*/().\s]+$/.test(s)) {
+    const n = parseUserNumber(value, NaN);
+    return isFinite(n) ? n : defaultValue;
+  }
+
+  try {
+    const n = Function('"use strict"; return (' + s + ');')();
+    return isFinite(n) ? Number(n) : defaultValue;
+  } catch (e) {
+    const n = parseUserNumber(value, NaN);
+    return isFinite(n) ? n : defaultValue;
+  }
+}
+
 function clone(obj) { return JSON.parse(JSON.stringify(obj)); }
 
 function format(v) {
@@ -1883,7 +1938,7 @@ function shareModeLabel(mode) {
 }
 
 function shareModeShortLabel(mode) {
-  return mode === "quantity_includes_share" ? "qty includes share" : "apply share";
+  return mode === "quantity_includes_share" ? "quantity already includes share" : "share applied to GWP";
 }
 
 function getLayerShareMode(layer, mat) {
@@ -2332,13 +2387,11 @@ function syncLayerLambdaFromMaterial(index) {
 function updateLinearInputHint(index) {
   const matEl = document.getElementById("layerMat_" + index);
   const linearEl = document.getElementById("layerLinear_" + index);
-  const shareModeEl = document.getElementById("layerShareMode_" + index);
   if (!matEl || !linearEl) return;
   const mat = getMaterialById(matEl.value);
   const basis = mat ? mat.basis : "per_m3";
   linearEl.className = quantityInputClass(basis);
   linearEl.title = quantityTitle(basis);
-  if (shareModeEl) shareModeEl.value = defaultShareModeForBasis(basis);
 }
 
 function baseLayerGwp(layer, mat) {
@@ -2885,10 +2938,10 @@ function calculate() {
       </td>
       <td><input id="layerThickness_${index}" type="text" inputmode="decimal" value="${layer.thicknessMm}" /></td>
       <td><input id="layerShare_${index}" type="text" inputmode="decimal" value="${layer.share === undefined ? 100 : layer.share}" /></td>
-      <td>
+      <td class="share-mode-cell">
         <select id="layerShareMode_${index}" title="Apply share = product share multiplies GWP. Quantity includes share = entered quantity is already the real consumption per m² wall; product share is documented but not multiplied again.">
           <option value="apply_share" ${getLayerShareMode(layer, mat) === "apply_share" ? "selected" : ""}>Apply share</option>
-          <option value="quantity_includes_share" ${getLayerShareMode(layer, mat) === "quantity_includes_share" ? "selected" : ""}>Quantity includes share</option>
+          <option value="quantity_includes_share" ${getLayerShareMode(layer, mat) === "quantity_includes_share" ? "selected" : ""}>Qty includes share</option>
         </select>
         <div class="linear-hint">${shareModeShortLabel(getLayerShareMode(layer, mat))}</div>
       </td>
@@ -3112,17 +3165,26 @@ function saveMaterial() {
     basis,
     source,
     gwp: {
-      A1_A3: parseUserNumber(document.getElementById("matA1A3").value, 0),
-      A4_A5: parseUserNumber(document.getElementById("matA4A5").value, 0),
-      B1: parseUserNumber(document.getElementById("matB1").value, 0),
-      B2: parseUserNumber(document.getElementById("matB2").value, 0),
-      B3: parseUserNumber(document.getElementById("matB3").value, 0),
-      C1: parseUserNumber(document.getElementById("matC1").value, 0),
-      C2: parseUserNumber(document.getElementById("matC2").value, 0),
-      C3_C4: parseUserNumber(document.getElementById("matC3C4").value, 0),
-      D: parseUserNumber(document.getElementById("matD").value, 0)
+      A1_A3: parseUserExpression(document.getElementById("matA1A3").value, 0),
+      A4_A5: parseUserExpression(document.getElementById("matA4A5").value, 0),
+      B1: parseUserExpression(document.getElementById("matB1").value, 0),
+      B2: parseUserExpression(document.getElementById("matB2").value, 0),
+      B3: parseUserExpression(document.getElementById("matB3").value, 0),
+      C1: parseUserExpression(document.getElementById("matC1").value, 0),
+      C2: parseUserExpression(document.getElementById("matC2").value, 0),
+      C3_C4: parseUserExpression(document.getElementById("matC3C4").value, 0),
+      D: parseUserExpression(document.getElementById("matD").value, 0)
     }
   };
+
+  const moduleFieldMap = {
+    matA1A3: "A1_A3", matA4A5: "A4_A5", matB1: "B1", matB2: "B2", matB3: "B3",
+    matC1: "C1", matC2: "C2", matC3C4: "C3_C4", matD: "D"
+  };
+  Object.keys(moduleFieldMap).forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = formatCompact(matData.gwp[moduleFieldMap[id]], 6);
+  });
 
   const index = materials.findIndex(m => m.id === matData.id);
   if (index >= 0) {
@@ -3310,13 +3372,10 @@ function loadConstruction() {
   if (!saved[name]) return alert("No construction selected.");
 
   layers = clone(saved[name].layers || []).map(l => {
-    const mat = getMaterialById(l.materialId);
     if (l.replacements === undefined) l.replacements = 0;
     if (l.share === undefined) l.share = 100;
-    if (l.linearAmount === undefined) l.linearAmount = l.quantity !== undefined ? l.quantity : 1;
-    if (l.shareMode === undefined) l.shareMode = defaultShareModeForBasis(mat ? mat.basis : "per_m3");
-    if (l.includeInU === undefined) l.includeInU = l.includeU !== undefined ? l.includeU : !(mat && basisNeedsQuantity(mat.basis));
-    if (l.lambda === undefined && mat) l.lambda = mat.lambda;
+    if (l.quantity === undefined) l.quantity = 1;
+    if (l.includeU === undefined) l.includeU = true;
     return l;
   });
 
