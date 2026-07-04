@@ -481,12 +481,14 @@
 
     #layerTable th:nth-child(6),
     #layerTable td:nth-child(6) {
-      min-width: 102px;
+      min-width: 150px;
+      max-width: 155px;
+      text-align: left;
     }
 
     #layerTable th:nth-child(7),
     #layerTable td:nth-child(7) {
-      min-width: 72px;
+      min-width: 102px;
     }
 
     #layerTable th:nth-child(8),
@@ -501,8 +503,13 @@
       min-width: 72px;
     }
 
-    #layerTable th:nth-child(n+11),
-    #layerTable td:nth-child(n+11) {
+    #layerTable th:nth-child(11),
+    #layerTable td:nth-child(11) {
+      min-width: 74px;
+    }
+
+    #layerTable th:nth-child(n+12),
+    #layerTable td:nth-child(n+12) {
       min-width: 54px;
     }
 
@@ -519,6 +526,15 @@
       line-height: 1.1;
       margin-top: 2px;
       font-size: 9px;
+    }
+
+    .b1-coating-cell select {
+      min-width: 136px;
+      max-width: 136px;
+    }
+
+    .b1-coating-cell .linear-hint {
+      max-width: 136px;
     }
 
     .module-value-cell {
@@ -1269,6 +1285,7 @@
           <th>Thickness [mm]</th>
           <th>Product share [%]</th>
           <th>Share mode</th>
+          <th>B1 coating / sd factor</th>
           <th>Quantity [m/m² or kg/m² wall]</th>
           <th>λ [W/(mK)]</th>
           <th>R [m²K/W]</th>
@@ -1300,7 +1317,7 @@
     <details class="warning">
       <summary>Important quantity note</summary>
       <div class="warning-content">
-        For materials entered as <strong>kg CO₂e/lfdm linear product</strong>, enter the required running metres per square metre wall area in <strong>Quantity [m/m² or kg/m² wall]</strong>. For materials entered as <strong>kg CO₂e/kg material</strong>, enter the mass per square metre wall area, e.g. 20 kg/m² for reinforcing steel. Example for studs: vertical studs at 625 mm spacing ≈ 1 / 0.625 = 1.60 lfdm/m²; with top and bottom rails add 2 / wall height.
+        For materials entered as <strong>kg CO₂e/lfdm linear product</strong>, enter the required running metres per square metre wall area in <strong>Quantity [m/m² or kg/m² wall]</strong>. For materials entered as <strong>kg CO₂e/kg material</strong>, enter the mass per square metre wall area, e.g. 20 kg/m² for reinforcing steel. Example for studs: vertical studs at 625 mm spacing ≈ 1 / 0.625 = 1.60 lfdm/m²; with top and bottom rails add 2 / wall height. If a layer has a negative B1 value, select the <strong>B1 coating / sd factor</strong> according to the assumed surface coating. The tool does not calculate sd values; the selected factor is applied only to negative B1 values.
       </div>
     </details>
 
@@ -1426,7 +1443,7 @@
     </div>
 
     <h3 id="comparisonLibrary">Comparison library</h3>
-    <p class="note"><strong>Comparison actions:</strong> Saved constructions are managed in the local construction library. Use the checkboxes to select up to five variants for the diagram. Use <strong>Clear comparison</strong> to uncheck selected constructions without deleting them. Use <strong>Delete selected comparisons</strong> to remove checked constructions from the local library.</p>
+    <p class="note"><strong>Comparison actions:</strong> Saved constructions are managed in the local construction library. Use the checkboxes to select up to 10 variants for the diagram. Use <strong>Clear comparison</strong> to uncheck selected constructions without deleting them. Use <strong>Delete selected comparisons</strong> to remove checked constructions from the local library.</p>
     <div class="refreshbar">
       <button class="secondary" onclick="clearComparisonSelection()">Clear comparison</button>
       <button class="danger" onclick="deleteSelectedComparisonConstructions()">Delete selected constructions</button>
@@ -1447,11 +1464,11 @@
       <tbody id="comparisonTable"></tbody>
     </table>
 
-    <h3>Comparison diagram, max. 5 constructions</h3>
-    <canvas id="comparisonChart" width="1150" height="420"></canvas>
+    <h3>Comparison diagram, max. 10 constructions</h3>
+    <canvas id="comparisonChart" width="1150" height="560"></canvas>
 
     <p class="note">
-      Up to five saved constructions can be selected for comparison. Saved constructions are stored locally in this browser and can be removed directly from the comparison library table.
+      Up to 10 saved constructions can be selected for comparison. For presentation charts, 3 to 5 variants are usually easier to read. Saved constructions are stored locally in this browser and can be removed directly from the comparison library table.
     </p>
   </section>
 
@@ -1569,7 +1586,7 @@
     © 2026 EAACA. All rights reserved.
   </div>
   <div>
-    Indicative tool for technical communication. Module D is reported separately. Version <span class="app-version">v64</span>.<br>
+    Indicative tool for technical communication. Module D is reported separately. Version <span class="app-version">V1_2026</span>.<br>
     Use is subject to the legal disclaimer displayed on this page.<br>
     Copyright notice: content, structure and calculator implementation are protected by EAACA unless otherwise stated.
   </div>
@@ -1671,7 +1688,25 @@
         Example: thin-bed mortar with 0.80 kg CO₂e/kg and 6 kg/m² real consumption gives 4.80 kg CO₂e/m². If the Product share is shown as 2%, use <strong>Qty includes share</strong> to avoid multiplying the result by 2% again.
       </p>
 
-      <h3>8. U-value calculation and inhomogeneous layers</h3>
+      <h3>8. Negative B1 values, coating and sd assumptions</h3>
+      <p>
+        Negative B1 values may represent carbonation or recarbonation benefits. If the surface is coated, rendered or otherwise less open to CO₂, the effective B1 credit may be lower. The tool does not calculate sd values. Instead, the user selects a <strong>B1 coating / sd factor</strong> for each layer.
+      </p>
+      <table>
+        <thead><tr><th>B1 factor</th><th>Meaning</th><th>Effect</th></tr></thead>
+        <tbody>
+          <tr><td>100%</td><td>Open or uncoated surface</td><td>Full negative B1 is used</td></tr>
+          <tr><td>75%</td><td>Very open coating, low sd assumption</td><td>Negative B1 × 0.75</td></tr>
+          <tr><td>50%</td><td>Moderate coating or render system</td><td>Negative B1 × 0.50</td></tr>
+          <tr><td>25%</td><td>Dense coating</td><td>Negative B1 × 0.25</td></tr>
+          <tr><td>0%</td><td>Very dense or vapour-tight surface</td><td>Negative B1 is not applied</td></tr>
+        </tbody>
+      </table>
+      <p>
+        The factor is applied only when the calculated layer B1 value is negative. Positive B1 values are not reduced.
+      </p>
+
+      <h3>9. U-value calculation and inhomogeneous layers</h3>
       <p>
         For normal serial layers, the tool calculates:
         <strong>U = 1 / (surface resistance + Σ d/λ)</strong>. Layers can be excluded from the U-value calculation by setting <strong>Use for U-value = No</strong>. They remain included in GWP.
@@ -1684,7 +1719,7 @@
         The automatic λeq approach is a simplified model for regular parallel paths. It is not a substitute for detailed thermal bridge modelling or product/system-specific U-value assessment.
       </p>
 
-      <h3>9. Reading the results</h3>
+      <h3>10. Reading the results</h3>
       <table>
         <thead><tr><th>Result item</th><th>Meaning</th></tr></thead>
         <tbody>
@@ -1696,13 +1731,13 @@
         </tbody>
       </table>
 
-      <h3>10. Replacement cycles</h3>
+      <h3>11. Replacement cycles</h3>
       <p>
         Replacement cycles define additional replacements within the reference period. In this prototype, B4 is calculated as:
         <strong>B4 = replacement cycles × (A1-A3 + A4-A5 + C1 + C2 + C3/C4)</strong>. Module D is shown separately and is multiplied by the total number of layer occurrences.
       </p>
 
-      <h3>11. Saving, loading and comparing constructions</h3>
+      <h3>12. Saving, loading and comparing constructions</h3>
       <p>
         Use <strong>Save / load wall build-up construction</strong> to save the current layer table as a reusable construction. Use a clear name and click <strong>Save current input construction</strong>. To reuse an existing variant, select it from <strong>Saved construction library</strong> and click <strong>Load selected construction</strong>.
       </p>
@@ -1710,7 +1745,7 @@
         The <strong>Comparison library</strong> is used to select saved constructions for the comparison diagram and comparison report. If a saved construction is overwritten under the same name, the comparison is updated from the new data.
       </p>
 
-      <h3>12. Report and PDF output</h3>
+      <h3>13. Report and PDF output</h3>
       <p>
         The <strong>Report / PDF output</strong> area provides a central place to generate report previews. Select whether the report should show the current construction or the selected comparison. The report preview opens directly in the tool and can be printed or saved as PDF using the browser print dialog.
       </p>
@@ -1718,22 +1753,24 @@
         Construction reports include layer data, module results, source references and diagrams. Comparison reports show the selected variants and their main indicators. For clean PDF output, Microsoft Edge or Google Chrome are recommended.
       </p>
 
-      <h3>13. Quality checks before using results</h3>
+      <h3>14. Quality checks before using results</h3>
       <ul>
         <li>Check whether each material uses the correct GWP input basis.</li>
         <li>Check whether zero module values are justified or simply missing.</li>
         <li>Check Quantity and Share mode for mortar, profiles, reinforcement and other real consumption entries.</li>
+        <li>Check B1 coating / sd factor for all layers with negative B1 values.</li>
         <li>Check whether product shares are used consistently for GWP and U-value purposes.</li>
         <li>Use Source / data reference to make datasets traceable.</li>
         <li>Export a complete backup before replacing the HTML file or distributing a new tool version.</li>
       </ul>
 
-      <h3>14. Troubleshooting</h3>
+      <h3>15. Troubleshooting</h3>
       <table>
         <thead><tr><th>Issue</th><th>Possible solution</th></tr></thead>
         <tbody>
           <tr><td>Changed layer values do not affect the result</td><td>Click Apply in the edited row or Refresh / recalculate construction.</td></tr>
           <tr><td>Mortar or reinforcement result is too small</td><td>Check whether Share mode should be Qty includes share.</td></tr>
+          <tr><td>B1 credit seems too high</td><td>Check the B1 coating / sd factor for layers with negative B1 values.</td></tr>
           <tr><td>Inhomogeneous U-value seems wrong</td><td>Check that partial layers have the same thickness, are adjacent and shares sum to about 100%.</td></tr>
           <tr><td>Imported data do not appear</td><td>Check whether a complete backup, material-only file or construction-only file was imported.</td></tr>
           <tr><td>PDF output is empty</td><td>Generate the report preview first, then use the print button in the report preview.</td></tr>
@@ -1750,7 +1787,7 @@
 
 
 <script>
-const APP_VERSION = "v64";
+const APP_VERSION = "V1_2026";
 const STORAGE_MATERIALS = "eaaca_materials_user_database";
 const STORAGE_CONSTRUCTIONS = "eaaca_constructions_v18";
 const STORAGE_COMPARE = "eaaca_compare_selection_v18";
@@ -1916,6 +1953,41 @@ function shareModeShortLabel(mode) {
 function getLayerShareMode(layer, mat) {
   const basis = mat ? mat.basis : "per_m3";
   return normaliseShareMode(layer.shareMode, basis);
+}
+
+const b1CoatingFactors = [
+  { value: 1, label: "100% open / no coating", short: "100% B1", description: "Uncoated or highly open surface; full negative B1 is applied." },
+  { value: 0.75, label: "75% very open coating", short: "75% B1", description: "Very open mineral coating, low sd assumption." },
+  { value: 0.5, label: "50% moderate coating", short: "50% B1", description: "Moderate coating or render system; half of negative B1 is applied." },
+  { value: 0.25, label: "25% dense coating", short: "25% B1", description: "Dense coating; only a quarter of negative B1 is applied." },
+  { value: 0, label: "0% vapour-tight coating", short: "0% B1", description: "Very dense or vapour-tight surface; negative B1 is not applied." }
+];
+
+function normaliseB1CoatingFactor(value) {
+  const n = parseUserNumber(value, 1);
+  const match = b1CoatingFactors.find(item => Math.abs(item.value - n) < 0.0001);
+  return match ? match.value : 1;
+}
+
+function getLayerB1CoatingFactor(layer) {
+  return normaliseB1CoatingFactor(layer && layer.b1CoatingFactor !== undefined ? layer.b1CoatingFactor : 1);
+}
+
+function b1CoatingFactorOptionHtml(selectedValue) {
+  const selected = normaliseB1CoatingFactor(selectedValue);
+  return b1CoatingFactors.map(item => `<option value="${item.value}" ${Math.abs(item.value - selected) < 0.0001 ? "selected" : ""}>${item.label}</option>`).join("");
+}
+
+function b1CoatingFactorLabel(value) {
+  const n = normaliseB1CoatingFactor(value);
+  const item = b1CoatingFactors.find(option => Math.abs(option.value - n) < 0.0001);
+  return item ? item.label : "100% open / no coating";
+}
+
+function b1CoatingFactorShort(value) {
+  const n = normaliseB1CoatingFactor(value);
+  const item = b1CoatingFactors.find(option => Math.abs(option.value - n) < 0.0001);
+  return item ? item.short : "100% B1";
 }
 
 function shareFactorForGwp(layer, mat) {
@@ -2227,7 +2299,7 @@ async function importConstructionLibrary(event) {
     setSavedConstructions(merged);
 
     if (Array.isArray(importedCompareSelection)) {
-      const validSelection = importedCompareSelection.filter(name => merged[name]).slice(0, 5);
+      const validSelection = importedCompareSelection.filter(name => merged[name]).slice(0, 10);
       setCompareSelection(validSelection);
     }
 
@@ -2291,7 +2363,7 @@ function addLayer() {
   }
 
   const includeInU = mat && basisNeedsQuantity(mat.basis) ? false : true;
-  layers.push({ materialId, thicknessMm, lambda: mat ? Number(mat.lambda) : 0, share: 100, shareMode: mat ? defaultShareModeForBasis(mat.basis) : "apply_share", linearAmount: 1, includeInU, replacements: 0 });
+  layers.push({ materialId, thicknessMm, lambda: mat ? Number(mat.lambda) : 0, share: 100, shareMode: mat ? defaultShareModeForBasis(mat.basis) : "apply_share", b1CoatingFactor: 1, linearAmount: 1, includeInU, replacements: 0 });
   calculate();
 }
 
@@ -2394,11 +2466,13 @@ function baseLayerGwp(layer, mat) {
 function calculateLayerGwp(layer, mat) {
   const base = baseLayerGwp(layer, mat);
   const repl = Number(layer.replacements || 0);
+  const b1Factor = getLayerB1CoatingFactor(layer);
+  const adjustedB1 = Number(base.B1 || 0) < 0 ? Number(base.B1 || 0) * b1Factor : Number(base.B1 || 0);
 
   const out = {
     A1_A3: base.A1_A3,
     A4_A5: base.A4_A5,
-    B1: base.B1,
+    B1: adjustedB1,
     B2: base.B2,
     B3: base.B3,
     B4: repl * (base.A1_A3 + base.A4_A5 + base.C1 + base.C2 + base.C3_C4),
@@ -2524,6 +2598,7 @@ function collectLayerEditsFromTable() {
     const thicknessEl = document.getElementById("layerThickness_" + i);
     const shareEl = document.getElementById("layerShare_" + i);
     const shareModeEl = document.getElementById("layerShareMode_" + i);
+    const b1CoatingEl = document.getElementById("layerB1Coating_" + i);
     const lambdaEl = document.getElementById("layerLambda_" + i);
     const linearEl = document.getElementById("layerLinear_" + i);
     const includeEl = document.getElementById("layerIncludeU_" + i);
@@ -2548,6 +2623,7 @@ function collectLayerEditsFromTable() {
     if (s > 100) s = 100;
     layers[i].share = s;
     if (shareModeEl) layers[i].shareMode = normaliseShareMode(shareModeEl.value, rowMaterial ? rowMaterial.basis : "per_m3");
+    if (b1CoatingEl) layers[i].b1CoatingFactor = normaliseB1CoatingFactor(b1CoatingEl.value);
 
     const lambda = parseUserNumber(lambdaEl.value, NaN);
     if (!isFinite(lambda) || lambda <= 0) {
@@ -2600,6 +2676,7 @@ function applyLayerEdit(index) {
   const thicknessEl = document.getElementById("layerThickness_" + index);
   const shareEl = document.getElementById("layerShare_" + index);
   const shareModeEl = document.getElementById("layerShareMode_" + index);
+  const b1CoatingEl = document.getElementById("layerB1Coating_" + index);
   const lambdaEl = document.getElementById("layerLambda_" + index);
   const linearEl = document.getElementById("layerLinear_" + index);
   const includeEl = document.getElementById("layerIncludeU_" + index);
@@ -2631,6 +2708,7 @@ function applyLayerEdit(index) {
   }
 
   if (shareModeEl) layers[index].shareMode = normaliseShareMode(shareModeEl.value, rowMaterial ? rowMaterial.basis : "per_m3");
+  if (b1CoatingEl) layers[index].b1CoatingFactor = normaliseB1CoatingFactor(b1CoatingEl.value);
 
   if (lambdaEl) {
     const lambda = parseUserNumber(lambdaEl.value, NaN);
@@ -2729,6 +2807,7 @@ function buildLayerResultsFromLayerSet(layerSet) {
       linearAmount: Number(layer.linearAmount === undefined ? 1 : layer.linearAmount),
       basis: mat.basis,
       shareMode: getLayerShareMode(layer, mat),
+      b1CoatingFactor: getLayerB1CoatingFactor(layer),
       includeInU: layer.includeInU !== false,
       replacements: Number(layer.replacements || 0),
       gwp: calculateLayerGwp(layer, mat)
@@ -2917,6 +2996,12 @@ function calculate() {
         </select>
         <div class="linear-hint">${shareModeShortLabel(getLayerShareMode(layer, mat))}</div>
       </td>
+      <td class="share-mode-cell b1-coating-cell">
+        <select id="layerB1Coating_${index}" title="Only applied when the calculated B1 value of this layer is negative. The tool does not calculate sd values; select the factor according to the assumed coating.">
+          ${b1CoatingFactorOptionHtml(getLayerB1CoatingFactor(layer))}
+        </select>
+        <div class="linear-hint">negative B1 × ${formatCompact(getLayerB1CoatingFactor(layer), 2)}</div>
+      </td>
       <td>
         <input id="layerLinear_${index}" type="text" inputmode="decimal" value="${layer.linearAmount === undefined ? 1 : layer.linearAmount}" class="${quantityInputClass(mat.basis)}" title="${quantityTitle(mat.basis)}" />
         ${basisNeedsQuantity(mat.basis) ? `<div class="linear-hint">${quantityUnitLabel(mat.basis)}</div>` : ""}
@@ -2938,7 +3023,7 @@ function calculate() {
       </td>
       <td class="module-value-cell">${format(g.A1_A3)}</td>
       <td class="module-value-cell">${format(g.A4_A5)}</td>
-      <td class="module-value-cell">${format(g.B1)}</td>
+      <td class="module-value-cell" title="B1 coating factor: ${htmlEscape(b1CoatingFactorLabel(getLayerB1CoatingFactor(layer)))}">${format(g.B1)}</td>
       <td class="module-value-cell">${format(g.B2)}</td>
       <td class="module-value-cell">${format(g.B3)}</td>
       <td class="module-value-cell">${format(g.B4)}</td>
@@ -3304,8 +3389,8 @@ function saveConstruction(silent = false, addToComparison = false) {
 
   if (addToComparison) {
     if (!selection.includes(name)) {
-      if (selection.length < 5) selection.push(name);
-      else alert("The comparison diagram already contains five constructions. The construction was saved but not added to the comparison diagram.");
+      if (selection.length < 10) selection.push(name);
+      else alert("The comparison diagram already contains 10 constructions. The construction was saved but not added to the comparison diagram.");
     }
   } else if (wasAlreadySelectedForComparison && !selection.includes(name)) {
     selection.push(name);
@@ -3430,8 +3515,8 @@ function toggleComparison(name, checked) {
   let selection = getCompareSelection();
 
   if (checked) {
-    if (selection.length >= 5) {
-      alert("Maximum 5 constructions can be compared.");
+    if (selection.length >= 10) {
+      alert("Maximum 10 constructions can be compared.");
       refreshComparisonTable();
       return;
     }
@@ -3504,12 +3589,12 @@ function drawComparisonChart() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   const saved = getSavedConstructions();
-  const selection = getCompareSelection().filter(name => saved[name]).slice(0, 5);
+  const selection = getCompareSelection().filter(name => saved[name]).slice(0, 10);
 
   if (!selection.length) {
     ctx.font = "16px Arial";
     ctx.fillStyle = "#4b5563";
-    ctx.fillText("Select up to five saved constructions for comparison.", 40, 50);
+    ctx.fillText("Select up to 10 saved constructions for comparison.", 40, 50);
     return;
   }
 
@@ -3646,6 +3731,7 @@ function buildCurrentLayerRowsForReport() {
         <td>${format(layer.thicknessMm)}</td>
         <td>${format(layer.share)}</td>
         <td>${shareModeLabel(getLayerShareMode(layer, mat))}</td>
+        <td>${htmlEscape(b1CoatingFactorShort(getLayerB1CoatingFactor(layer)))}</td>
         <td>${format(layer.linearAmount)} ${basisNeedsQuantity(mat.basis) ? quantityUnitLabel(mat.basis).replace(" required", "") : ""}</td>
         <td>${format(lambda)}</td>
         <td>${rDisplay}</td>
@@ -4044,6 +4130,7 @@ function printConstructionReport() {
           <th>Thickness [mm]</th>
           <th>Share [%]</th>
           <th>Share mode</th>
+          <th>B1 coating / sd factor</th>
           <th>Quantity [m/m² or kg/m²]</th>
           <th>λ [W/(mK)]</th>
           <th>R [m²K/W]</th>
@@ -4080,7 +4167,7 @@ function printConstructionReport() {
       <strong>Methodology / Legal disclaimer:</strong>
       The calculation is provided in accordance with Directive (EU) 2024/1275 for transparent communication of life-cycle greenhouse gas indicators.
       For datasets with input basis kg CO₂e/m³ material, module results are converted to kg CO₂e/m² wall area by multiplication with layer thickness in metres and the selected product share. For kg CO₂e/lfdm datasets, values are multiplied by the selected running metres per m² wall and product share. For kg CO₂e/kg datasets, values are multiplied by the selected mass in kg/m² wall and product share.
-      B4 is calculated as replacement cycles × (A1-A3 + A4-A5 + C1 + C2 + C3/C4). Module D is shown separately and multiplied by the total number of layer occurrences. Product share affects GWP results and, for adjacent partial-area layers with equal thickness whose shares sum to 100%, the U-value calculation uses an automatically calculated equivalent λ-value.
+      B1 coating / sd factor is applied only to negative B1 values. The tool does not calculate sd values; the selected factor documents the user's coating assumption. B4 is calculated as replacement cycles × (A1-A3 + A4-A5 + C1 + C2 + C3/C4). Module D is shown separately and multiplied by the total number of layer occurrences. Product share affects GWP results and, for adjacent partial-area layers with equal thickness whose shares sum to 100%, the U-value calculation uses an automatically calculated equivalent λ-value.
       This tool does not replace a verified EPD according to EN 15804 or a project-specific building LCA according to EN 15978.
     </div>
   `;
@@ -4090,7 +4177,7 @@ function printConstructionReport() {
 
 function selectedComparisonNames() {
   const saved = getSavedConstructions();
-  return getCompareSelection().filter(name => saved[name]).slice(0, 5);
+  return getCompareSelection().filter(name => saved[name]).slice(0, 10);
 }
 
 function printComparisonReport() {
@@ -4170,7 +4257,7 @@ function printComparisonReport() {
 
     <div class="disclaimer">
       <strong>Methodology / Legal disclaimer:</strong>
-      Up to five locally saved constructions are compared. A-C total excludes Module D.
+      Up to 10 locally saved constructions are compared. A-C total excludes Module D.
       Module D is shown separately and is not automatically included in the A-C result.
       Saved constructions are stored locally in the user's browser.
       This tool provides indicative results and does not replace a verified EPD according to EN 15804 or a project-specific building LCA according to EN 15978.
@@ -4218,5 +4305,4 @@ loadInitialData();
 </script>
 </body>
 </html>
-
 
