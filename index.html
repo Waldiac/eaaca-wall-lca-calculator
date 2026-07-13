@@ -1220,12 +1220,10 @@
 
     <details class="advanced-maintenance">
       <summary>Advanced export / import options</summary>
-      <p class="note"><strong>Use only when needed:</strong> separate exports are useful if you want to exchange only the material database or only saved constructions without replacing the other part.</p>
+      <p class="note"><strong>Use only when needed:</strong> separate exports are useful if you want to exchange only the material database without replacing saved constructions. Saved constructions are normally secured via the complete backup.</p>
       <div class="refreshbar">
         <button class="secondary" onclick="exportMaterialDatabase()">Export materials only</button>
         <button class="secondary" onclick="triggerImportMaterialDatabase()">Import materials only</button>
-        <button class="secondary" onclick="exportConstructionLibrary()">Export constructions only</button>
-        <button class="secondary" onclick="triggerImportConstructionLibrary()">Import constructions only</button>
       </div>
     </details>
 
@@ -1357,8 +1355,6 @@
       <div class="quick-save-actions">
         <button class="success primary-save-action" onclick="saveConstructionFromTop()">Save current input construction</button>
         <button onclick="loadConstructionFromTop()">Load selected construction</button>
-        <button class="secondary library-action" onclick="exportConstructionLibrary()">Export construction library</button>
-        <button class="secondary library-action" onclick="triggerImportConstructionLibrary()">Import construction library</button>
       </div>
       <span class="quick-save-status" id="quickSaveStatus"></span>
     </div>
@@ -1441,26 +1437,6 @@
 
   <section>
     <h2>3. Construction library and comparison</h2>
-
-    <div class="grid-3">
-      <div>
-        <label for="constructionName">Name of current / selected construction</label>
-        <input id="constructionName" type="text" placeholder="e.g. AAC 365 + render + EPS 40" oninput="syncConstructionNameFromBottom()" />
-      </div>
-
-      <div>
-        <label for="savedConstructions">Saved construction library</label>
-        <select id="savedConstructions"></select>
-      </div>
-
-      <div>
-        <button class="success" onclick="saveConstruction()">Save current input construction</button>
-        <button onclick="loadConstruction()">Load selected construction</button>
-        <button class="danger" onclick="deleteConstruction()">Delete</button>
-        <button class="secondary" onclick="exportConstructionLibrary()">Export construction library</button>
-        <button class="secondary" onclick="triggerImportConstructionLibrary()">Import construction library</button>
-      </div>
-    </div>
 
     <h3 id="comparisonLibrary">Comparison library</h3>
     <p class="note"><strong>Comparison actions:</strong> Saved constructions are managed in the local construction library. Use the checkboxes to select up to 10 variants for the diagram. Use <strong>Clear comparison</strong> to uncheck selected constructions without deleting them. Use <strong>Delete selected comparisons</strong> to remove checked constructions from the local library.</p>
@@ -1558,11 +1534,12 @@
     <div class="material-actions">
       <button class="secondary" onclick="newMaterialForm()">New material</button>
       <button class="success" onclick="saveMaterial()">Save material</button>
+      <button class="secondary" onclick="saveMaterialAsNew()">Save as new material</button>
       <button class="secondary" onclick="exportMaterialDatabase()">Export material database</button>
       <button class="danger delete-material-action" onclick="deleteMaterial()">Delete selected material</button>
       <span class="status" id="materialStatus"></span>
     </div>
-    <p class="note">Backup tip: use <strong>Export material database</strong> before replacing the HTML file or before using another browser/computer.</p>
+    <p class="note">Backup tip: use <strong>Export complete backup</strong> before replacing the HTML file or before using another browser/computer. Use <strong>Export material database</strong> only if you intentionally want to exchange materials separately.</p>
   </section>
 
   <section>
@@ -1652,7 +1629,7 @@
         <li>Select the correct <strong>GWP input basis</strong>, e.g. <strong>kg CO₂e/kg material</strong>.</li>
         <li>Enter λ and the GWP module values A1-A3, A4-A5, B1, C modules and D as required.</li>
         <li>Use <strong>Source / data reference</strong> for the EPD number, ÖKOBAUDAT UUID, dataset version or assumption note.</li>
-        <li>Click <strong>Save material</strong>.</li>
+        <li>Click <strong>Save material</strong>. If you started from an existing material and want to keep the original dataset, change the name and use <strong>Save as new material</strong>.</li>
         <li>Return to <strong>Wall build-up</strong>, select the new material and add it as a layer.</li>
       </ol>
       <p>
@@ -1677,7 +1654,7 @@
         The tool uses an internal browser database for materials and saved wall build-up constructions. Use <strong>Export complete backup</strong> to save materials, constructions and comparison selections together. Use <strong>Import complete backup</strong> to restore the full data state on another computer or after updating the HTML file.
       </p>
       <p>
-        Advanced export/import options allow materials-only or constructions-only exchange. This is useful when a central material database should be distributed without overwriting user-specific constructions, or when only wall build-ups should be shared.
+        Advanced export/import options allow materials-only exchange. This is useful when a central material database should be distributed without overwriting user-specific constructions. Saved wall build-ups should normally be transferred via the complete backup.
       </p>
       <p>
         The <strong>Source / data reference</strong> field is part of the material database and is included in exports and reports. Keep it short and traceable, for example: EPD number, ÖKOBAUDAT dataset ID, database version/year or internal assumption reference.
@@ -1728,7 +1705,7 @@
       <h3>9. U-value calculation and inhomogeneous layers</h3>
       <p>
         For normal serial layers, the tool calculates:
-        <strong>U = 1 / (surface resistance + Σ d/λ)</strong>. Layers can be excluded from the U-value calculation by setting <strong>Use for U-value = No</strong>. They remain included in GWP.
+        <strong>U = 1 / (surface resistance + Σ d/λ)</strong>. Layers can be excluded from the U-value calculation by setting <strong>Use for U-value = No</strong>. They remain included in GWP. If all layers are set to No, the U-value is shown as “–” rather than being calculated from surface resistances alone.
       </p>
       <p>
         For adjacent partial-area layers with the same thickness and product shares summing approximately to 100%, the tool automatically calculates an equivalent thermal conductivity:
@@ -1806,7 +1783,7 @@
 
 
 <script>
-const APP_VERSION = "V3_2026";
+const APP_VERSION = "V4_2026";
 const STORAGE_MATERIALS = "eaaca_materials_user_database";
 const STORAGE_CONSTRUCTIONS = "eaaca_constructions_v18";
 const STORAGE_COMPARE = "eaaca_compare_selection_v18";
@@ -2113,6 +2090,10 @@ function shareFactorForGwp(layer, mat) {
 
 function getMaterialById(id) {
   return materials.find(m => m.id === id);
+}
+
+function getMaterialsSortedByName() {
+  return materials.slice().sort((a, b) => String(a.name || "").localeCompare(String(b.name || ""), undefined, { sensitivity: "base", numeric: true }));
 }
 
 function normaliseMaterial(mat) {
@@ -2441,7 +2422,7 @@ function refreshMaterialSelects() {
   materialSelect.innerHTML = "";
   editMaterialSelect.innerHTML = "";
 
-  materials.forEach(mat => {
+  getMaterialsSortedByName().forEach(mat => {
     const o1 = document.createElement("option");
     o1.value = mat.id;
     o1.textContent = mat.name;
@@ -2456,7 +2437,8 @@ function refreshMaterialSelects() {
   });
 
   if (materials.length > 0) {
-    editMaterialSelect.value = currentMaterialId && getMaterialById(currentMaterialId) ? currentMaterialId : materials[0].id;
+    const sortedMaterials = getMaterialsSortedByName();
+    editMaterialSelect.value = currentMaterialId && getMaterialById(currentMaterialId) ? currentMaterialId : sortedMaterials[0].id;
     loadMaterialForEditing();
   }
 }
@@ -2623,6 +2605,7 @@ function isPartialAreaThermalLayer(layer) {
 function buildThermalResistanceInfo(layerSet) {
   const info = layerSet.map(() => ({ r: 0, display: "excluded", lambdaEq: null, groupId: null, isGroupStart: false }));
   let rLayers = 0;
+  let includedLayerCount = 0;
   let groupCounter = 0;
   const toleranceShare = 0.5;
   const toleranceThickness = 0.001;
@@ -2671,6 +2654,7 @@ function buildThermalResistanceInfo(layerSet) {
         const lambdaEq = lambdaWeighted / (shareSum / 100);
         const rEq = d / lambdaEq;
         rLayers += rEq;
+        includedLayerCount += group.length;
         groupCounter++;
         group.forEach((g, pos) => {
           info[g.index] = {
@@ -2688,11 +2672,12 @@ function buildThermalResistanceInfo(layerSet) {
 
     const r = d / lambda;
     rLayers += r;
+    includedLayerCount++;
     info[i] = { r, display: format(r), lambdaEq: null, groupId: null, isGroupStart: false };
     i++;
   }
 
-  return { rLayers, info };
+  return { rLayers, info, includedLayerCount, hasIncludedLayers: includedLayerCount > 0 };
 }
 
 function setAllLayersForUValue(include) {
@@ -2880,7 +2865,7 @@ function calcForLayers(layerSet, options = {}) {
   });
 
   const thermal = buildThermalResistanceInfo(layerSet);
-  const u = layerSet.length ? 1 / (getSurfaceResistance() + thermal.rLayers) : null;
+  const u = thermal.hasIncludedLayers ? 1 / (getSurfaceResistance() + thermal.rLayers) : null;
   const ac = calcAC(sums);
 
   return { u, ac, d: sums.D, sums, thermal };
@@ -3076,7 +3061,7 @@ function calculate() {
     const g = calculateLayerGwp(layer, mat, b1SurfaceFactor);
 
     let opts = "";
-    materials.forEach(m => {
+    getMaterialsSortedByName().forEach(m => {
       opts += `<option value="${m.id}" ${m.id === mat.id ? "selected" : ""}>${m.name}</option>`;
     });
 
@@ -3148,12 +3133,14 @@ function calculate() {
 
   const result = calcForLayers(layers);
 
-  document.getElementById("uValue").textContent = result.u ? format(result.u) : "–";
+  document.getElementById("uValue").textContent = result.u !== null && result.u !== undefined ? format(result.u) : "–";
   document.getElementById("gwpAC").textContent = layers.length ? format(result.ac) : "–";
   document.getElementById("gwpD").textContent = layers.length ? format(result.d) : "–";
   const uNote = document.getElementById("uValueNote");
   if (uNote) {
-    uNote.textContent = "U-value surface resistance used: Rsi + Rse = " + format(getSurfaceResistance()) + " m²K/W. Adjacent partial-area layers with the same thickness and product shares summing to 100% are treated as one parallel thermal layer using λeq = Σ(share × λ). Share mode affects GWP only, not λeq. Layers marked 'Use for U-value = No' are excluded.";
+    uNote.textContent = result.thermal && result.thermal.hasIncludedLayers
+      ? "U-value surface resistance used: Rsi + Rse = " + format(getSurfaceResistance()) + " m²K/W. Adjacent partial-area layers with the same thickness and product shares summing to 100% are treated as one parallel thermal layer using λeq = Σ(share × λ). Share mode affects GWP only, not λeq. Layers marked 'Use for U-value = No' are excluded."
+      : "U-value not calculated because no layer is activated for U-value. Set at least one layer to 'Use for U-value = Yes' to calculate U.";
   }
 
   document.getElementById("moduleResults").innerHTML = moduleRowsHtml(result.sums, result.ac);
@@ -3312,7 +3299,8 @@ function newMaterialForm() {
   document.getElementById("materialStatus").textContent = "New material mode.";
 }
 
-function saveMaterial() {
+function saveMaterial(options = {}) {
+  const forceNew = options && options.forceNew === true;
   const name = document.getElementById("matName").value.trim();
   const lambda = parseUserNumber(document.getElementById("matLambda").value, NaN);
   const basis = document.getElementById("matBasis").value;
@@ -3322,8 +3310,11 @@ function saveMaterial() {
   if (!name) return alert("Please enter a material name.");
   if (!lambda || lambda <= 0) return alert("Please enter a valid lambda value.");
 
+  const duplicateNameExists = materials.some(m => m.name.trim().toLowerCase() === name.toLowerCase() && (forceNew || m.id !== currentMaterialId));
+  if (duplicateNameExists) return alert("A material with this name already exists. Please choose a different name.");
+
   const matData = {
-    id: currentMaterialId || "custom_" + Date.now(),
+    id: forceNew ? "custom_" + Date.now() : (currentMaterialId || "custom_" + Date.now()),
     name,
     lambda,
     basis,
@@ -3362,7 +3353,16 @@ function saveMaterial() {
   refreshMaterialSelects();
   document.getElementById("editMaterialSelect").value = currentMaterialId;
   calculate();
-  document.getElementById("materialStatus").textContent = "Material saved.";
+  document.getElementById("materialStatus").textContent = forceNew ? "Material saved as new material." : "Material saved.";
+}
+
+function saveMaterialAsNew() {
+  const selected = currentMaterialId ? getMaterialById(currentMaterialId) : null;
+  const name = document.getElementById("matName").value.trim();
+  if (selected && name && name.trim().toLowerCase() === selected.name.trim().toLowerCase()) {
+    return alert("Please enter a new material name before using Save as new material.");
+  }
+  saveMaterial({ forceNew: true });
 }
 
 function deleteMaterial() {
@@ -3470,7 +3470,8 @@ function saveConstruction(silent = false, addToComparison = false) {
   const applied = applyAllLayerEdits();
   if (applied === false) return;
 
-  const name = document.getElementById("constructionName").value.trim();
+  const nameElement = document.getElementById("constructionName") || document.getElementById("constructionNameTop");
+  const name = nameElement ? nameElement.value.trim() : "";
 
   if (!name) return alert("Please enter a construction name.");
   if (!layers.length) return alert("No layers to save.");
@@ -3675,7 +3676,7 @@ function refreshComparisonTable() {
     row.innerHTML = `
       <td>${htmlEscape(name)}</td>
       <td>${htmlEscape(layerNames)}</td>
-      <td>${format(result.u)}</td>
+      <td>${result.u !== null && result.u !== undefined ? format(result.u) : "–"}</td>
       <td>${htmlEscape(b1CoatingSelectionShort(saved[name].b1CoatingType, saved[name].b1CoatingSides, saved[name].b1SurfaceFactor))}</td>
       <td>${format(result.ac)}</td>
       <td>${format(result.d)}</td>
@@ -4038,9 +4039,8 @@ function getReportDownloadFilename() {
     + String(now.getHours()).padStart(2, "0") + "-"
     + String(now.getMinutes()).padStart(2, "0");
 
-  const constructionName = document.getElementById("constructionName")
-    ? document.getElementById("constructionName").value.trim()
-    : "";
+  const constructionNameEl = document.getElementById("constructionName") || document.getElementById("constructionNameTop");
+  const constructionName = constructionNameEl ? constructionNameEl.value.trim() : "";
 
   const baseName = constructionName || "EAACA_report";
   const safeName = baseName
@@ -4199,7 +4199,8 @@ function printConstructionReport() {
     return;
   }
 
-  const name = document.getElementById("constructionName").value.trim() || "Current construction";
+  const nameEl = document.getElementById("constructionName") || document.getElementById("constructionNameTop");
+  const name = nameEl && nameEl.value.trim() ? nameEl.value.trim() : "Current construction";
   const result = calcForLayers(layers);
   const layerResults = buildLayerResultsFromLayerSet(layers);
   const chartImage = document.getElementById("resultChart").toDataURL("image/png");
@@ -4211,7 +4212,7 @@ function printConstructionReport() {
     <h2>${htmlEscape(name)}</h2>
 
     <div class="report-boxes">
-      <div class="report-box">U-value [W/m²K]<strong>${format(result.u)}</strong></div>
+      <div class="report-box">U-value [W/m²K]<strong>${result.u !== null && result.u !== undefined ? format(result.u) : "–"}</strong></div>
       <div class="report-box">GWP A-C incl. B modules [kg CO₂e/m²]<strong>${format(result.ac)}</strong></div>
       <div class="report-box">Module D separately [kg CO₂e/m²]<strong>${format(result.d)}</strong></div>
     </div>
