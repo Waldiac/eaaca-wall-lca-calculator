@@ -1,0 +1,2505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EAACA Wall LCA Calculator</title>
+
+  <style>
+    :root {
+      --blue: #006fb6;
+      --blue2: #00558f;
+      --dark: #22313f;
+      --aqua: #1f9ac4;
+      --green: #6aa84f;
+      --bg: #f4f7f9;
+      --line: #d7e0e6;
+      --soft: #eef6fa;
+      --text: #25313b;
+      --red: #b42318;
+      --grey: #66727c;
+      --warn: #fff4d6;
+    }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .topbar {
+      background: #eef6fa;
+      color: #41515d;
+      font-size: 13px;
+      padding: 8px 40px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .site-nav {
+      background: white;
+      border-bottom: 1px solid var(--line);
+      padding: 16px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .brand {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.05;
+      letter-spacing: .04em;
+    }
+
+    .brand strong {
+      color: var(--blue);
+      font-size: 30px;
+      font-weight: 800;
+    }
+
+    .brand span {
+      color: var(--grey);
+      font-size: 12px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 22px;
+      flex-wrap: wrap;
+      font-size: 14px;
+      color: #405160;
+    }
+
+    .hero {
+      background:
+        linear-gradient(110deg, rgba(0,111,182,.94), rgba(31,154,196,.88)),
+        linear-gradient(45deg, #dfeff5, #ffffff);
+      color: white;
+      padding: 42px 40px;
+      border-bottom: 5px solid var(--green);
+    }
+
+    .hero-inner {
+      max-width: 1260px;
+      margin: 0 auto;
+    }
+
+    .eyebrow {
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      font-size: 13px;
+      font-weight: bold;
+      opacity: .9;
+      margin-bottom: 12px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 34px;
+      line-height: 1.15;
+      max-width: 900px;
+    }
+
+    header p {
+      margin: 12px 0 0;
+      font-size: 17px;
+      max-width: 900px;
+    }
+
+    .legal-note {
+      max-width: 1260px;
+      margin: 18px auto 0;
+      background: #ffffff;
+      border-left: 5px solid var(--green);
+      padding: 14px 18px;
+      color: #2d3b45;
+      box-shadow: 0 2px 10px rgba(34,49,63,0.06);
+      font-size: 14px;
+    }
+
+    main {
+      max-width: 1260px;
+      margin: 34px auto;
+      padding: 0 20px;
+    }
+
+    section {
+      background: white;
+      padding: 26px;
+      margin-bottom: 26px;
+      border-radius: 4px;
+      border-top: 4px solid var(--blue);
+      box-shadow: 0 2px 12px rgba(34,49,63,0.08);
+    }
+
+    h2 {
+      margin-top: 0;
+      color: var(--blue);
+      font-size: 24px;
+      letter-spacing: .01em;
+    }
+
+    h3 {
+      margin: 20px 0 8px;
+      color: var(--blue);
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+
+    select, input {
+      padding: 8px;
+      width: 100%;
+      box-sizing: border-box;
+      margin-bottom: 12px;
+      border: 1px solid #b8c2cc;
+      border-radius: 4px;
+      background: white;
+    }
+
+    button {
+      background: var(--green);
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 3px;
+      cursor: pointer;
+      font-weight: bold;
+      margin-right: 6px;
+      margin-bottom: 6px;
+    }
+
+    button:hover { background: #5b9543; }
+    .secondary { background: var(--grey); }
+    .danger { background: var(--red); }
+    .success { background: var(--green); }
+    .smallbtn { padding: 6px 9px; margin: 0; }
+
+    .applybtn {
+      background: var(--blue);
+      padding: 6px 10px;
+      margin: 0;
+      white-space: nowrap;
+    }
+
+    .refreshbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin: 14px 0 6px;
+    }
+
+    .layer-edit-cell {
+      display: grid;
+      grid-template-columns: minmax(150px, 1fr) auto;
+      gap: 6px;
+      align-items: center;
+      min-width: 245px;
+    }
+
+    .layer-edit-cell select {
+      min-width: 150px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 16px;
+      font-size: 13px;
+    }
+
+    th, td {
+      border: 1px solid var(--line);
+      padding: 7px;
+      text-align: right;
+      vertical-align: middle;
+    }
+
+    th:first-child, td:first-child { text-align: left; }
+    th {
+      background: var(--soft);
+      white-space: normal;
+      line-height: 1.15;
+      word-break: normal;
+      hyphens: auto;
+      vertical-align: bottom;
+    }
+
+    #layerTable th,
+    #layerTable td {
+      font-size: 12px;
+    }
+
+    #layerTable th:nth-child(3),
+    #layerTable td:nth-child(3),
+    #layerTable th:nth-child(4),
+    #layerTable td:nth-child(4),
+    #layerTable th:nth-child(5),
+    #layerTable td:nth-child(5),
+    #layerTable th:nth-child(6),
+    #layerTable td:nth-child(6),
+    #layerTable th:nth-child(7),
+    #layerTable td:nth-child(7),
+    #layerTable th:nth-child(8),
+    #layerTable td:nth-child(8) {
+      min-width: 70px;
+    }
+
+    td input, td select {
+      margin: 0;
+      padding: 5px;
+      font-size: 13px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 16px;
+      align-items: end;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+
+    .grid-5 {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+    }
+
+    .result-box {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .card {
+      background: linear-gradient(180deg, #ffffff, var(--soft));
+      padding: 18px;
+      border-radius: 4px;
+      text-align: center;
+      border: 1px solid var(--line);
+    }
+
+    .card strong {
+      display: block;
+      font-size: 26px;
+      margin-top: 8px;
+      color: var(--blue);
+    }
+
+    .note {
+      font-size: 13px;
+      color: #4b5563;
+      line-height: 1.45;
+    }
+
+    .warning {
+      background: var(--warn);
+      border-left: 5px solid #d18b00;
+      padding: 12px;
+      margin: 12px 0;
+      font-size: 14px;
+    }
+
+    canvas {
+      width: 100%;
+      height: 430px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      margin-top: 16px;
+      background: #fff;
+    }
+
+    .status {
+      font-size: 13px;
+      color: #1a7f37;
+      font-weight: bold;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 18px;
+      margin-top: 10px;
+      font-size: 13px;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .legend-color {
+      width: 14px;
+      height: 14px;
+      border-radius: 3px;
+      display: inline-block;
+    }
+
+    .report-actions {
+      margin-top: 18px;
+      padding-top: 14px;
+      border-top: 1px solid var(--line);
+    }
+
+    .print-report {
+      display: none;
+    }
+
+    body.report-ready #printReport.print-report {
+      display: block !important;
+      visibility: visible !important;
+      max-width: 1100px;
+      margin: 30px auto;
+      padding: 24px;
+      background: white;
+      border-top: 4px solid var(--green);
+      box-shadow: 0 2px 12px rgba(34,49,63,0.12);
+    }
+
+    .report-toolbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .print-report table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0 20px 0;
+      font-size: 13px;
+    }
+
+    .print-report th,
+    .print-report td {
+      border: 1px solid #d0d7de;
+      padding: 7px;
+      text-align: right;
+    }
+
+    .print-report th:first-child,
+    .print-report td:first-child {
+      text-align: left;
+    }
+
+    .print-report th {
+      background: #eef6fa;
+    }
+
+    .print-report img {
+      max-width: 100%;
+      height: auto;
+      border: 1px solid #d0d7de;
+      margin-top: 12px;
+    }
+
+    .print-report .report-boxes {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin: 16px 0;
+    }
+
+    .print-report .report-box {
+      background: #eef6fa;
+      border: 1px solid #d7e0e6;
+      padding: 14px;
+      text-align: center;
+    }
+
+    .print-report .report-box strong {
+      display: block;
+      color: var(--blue);
+      font-size: 22px;
+      margin-top: 8px;
+    }
+
+    .print-report .disclaimer {
+      font-size: 12px;
+      color: #4b5563;
+      border-top: 1px solid #d0d7de;
+      margin-top: 18px;
+      padding-top: 12px;
+      line-height: 1.45;
+    }
+
+
+    .manual-nav-button {
+      background: var(--blue);
+      padding: 8px 12px;
+      font-size: 13px;
+      margin: -4px 0 0 0;
+    }
+
+    .manual-overlay {
+      display: none;
+      position: fixed;
+      z-index: 9999;
+      inset: 0;
+      background: rgba(34,49,63,0.72);
+      padding: 30px 20px;
+      overflow-y: auto;
+    }
+
+    .manual-overlay.open {
+      display: block;
+    }
+
+    .manual-box {
+      max-width: 980px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 6px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+      border-top: 6px solid var(--green);
+    }
+
+    .manual-header {
+      padding: 22px 26px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 20px;
+    }
+
+    .manual-header h2 {
+      margin: 0;
+      color: var(--blue);
+    }
+
+    .manual-content {
+      padding: 24px 26px 30px;
+      max-height: 78vh;
+      overflow-y: auto;
+      line-height: 1.5;
+      font-size: 14px;
+    }
+
+    .manual-content h3 {
+      color: var(--blue);
+      margin-top: 22px;
+      margin-bottom: 8px;
+    }
+
+    .manual-content table {
+      font-size: 13px;
+      margin: 10px 0 18px;
+    }
+
+    .manual-content .manual-note {
+      background: #eef6fa;
+      border-left: 4px solid var(--blue);
+      padding: 10px 12px;
+      margin: 12px 0;
+    }
+
+    .manual-close {
+      background: var(--red);
+      white-space: nowrap;
+    }
+
+    .eaaca-footer {
+      background: var(--dark);
+      color: white;
+      padding: 26px 40px;
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    @media print {
+      body { background: white; color: #111; }
+      body.report-ready .topbar,
+      body.report-ready .site-nav,
+      body.report-ready header.hero,
+      body.report-ready .legal-note,
+      body.report-ready main,
+      body.report-ready .eaaca-footer {
+        display: none !important;
+      }
+
+      body.report-ready .report-toolbar {
+        display: none !important;
+      }
+
+      body.report-ready .print-report {
+        display: block !important;
+        box-shadow: none !important;
+        border-top: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+
+      .print-report table {
+        font-size: 9.5pt;
+      }
+
+      .print-report th,
+      .print-report td {
+        border: 0.2mm solid #999;
+        padding: 1.8mm;
+      }
+
+      @page {
+        size: A4;
+        margin: 14mm;
+      }
+    }
+
+    @media(max-width: 900px) {
+      .grid-3, .grid-4, .grid-5, .result-box {
+        grid-template-columns: 1fr;
+      }
+
+      table { font-size: 12px; }
+
+      .site-nav, .eaaca-footer {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      header h1 { font-size: 26px; }
+    }
+  </style>
+</head>
+
+<body>
+<div class="topbar">
+  +49 (0) 3382 7060 112 &nbsp;&nbsp;|&nbsp;&nbsp; info@eaaca.org
+</div>
+
+<nav class="site-nav" aria-label="EAACA navigation">
+  <div class="brand">
+    <strong>EAACA</strong>
+    <span>European Autoclaved Aerated Concrete Association</span>
+  </div>
+  <div class="nav-links">
+    <span>EAACA</span>
+    <span>AAC</span>
+    <span>NetZero</span>
+    <span>Products & Applications</span>
+    <span>Downloads</span>
+    <span>Contact</span>
+    <button class="manual-nav-button" onclick="openManual()">Manual / Handbuch</button>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="eyebrow">AAC · NetZero · Carbon accounting</div>
+    <h1>Wall LCA & Thermal Performance Calculator</h1>
+    <p>Indicative calculation of U-value and GWP per m² wall area for transparent comparison of AAC wall assemblies and alternative constructions.</p>
+  </div>
+</header>
+
+<div class="legal-note">
+  <strong>In accordance with Directive (EU) 2024/1275 (EPBD recast):</strong>
+  this tool supports transparent communication of life-cycle greenhouse gas indicators for wall constructions. Results are indicative and depend on selected datasets and scenarios.
+</div>
+
+<main>
+
+  <section>
+    <h2>Material database status</h2>
+    <p class="note" id="materialDatabaseStatus">Loading material database...</p>
+    <p class="note">Official / centrally maintained materials are loaded from <strong>materials.json</strong>. The material selector displays the English <strong>name</strong> field only; German originals may remain in hidden reference fields such as <strong>name_de</strong>. Decimal inputs accept both comma and point, e.g. 12,5 or 12.5 mm. User-defined edits are stored locally in this browser.</p>
+  </section>
+
+  <section>
+    <h2>1. Wall build-up</h2>
+
+    <div class="grid-3">
+      <div>
+        <label for="boundarySelect">U-value boundary condition</label>
+        <select id="boundarySelect" onchange="calculate()">
+          <option value="external" selected>External wall: Rsi 0.13 + Rse 0.04 = 0.17 m²K/W</option>
+          <option value="internal">Internal / adjacent space: Rsi 0.13 + Rsi 0.13 = 0.26 m²K/W</option>
+          <option value="custom">Custom surface resistance</option>
+        </select>
+      </div>
+      <div>
+        <label for="customSurfaceResistance">Custom Rsi + Rse [m²K/W]</label>
+        <input id="customSurfaceResistance" type="text" inputmode="decimal" value="0.17" step="0.01" min="0" oninput="calculate()" />
+      </div>
+      <div>
+        <label>&nbsp;</label>
+        <button class="secondary" onclick="setAllLayersForUValue(true)">All U-value ON</button>
+        <button class="secondary" onclick="setAllLayersForUValue(false)">All U-value OFF</button>
+      </div>
+    </div>
+
+    <div class="grid-3">
+      <div>
+        <label for="a4a5ScenarioFactor">A4-A5 scenario factor</label>
+        <input id="a4a5ScenarioFactor" type="text" inputmode="decimal" value="1" onchange="calculate()" />
+      </div>
+      <div>
+        <label for="b1ScenarioFactor">B1 use-stage / recarbonation factor</label>
+        <input id="b1ScenarioFactor" type="text" inputmode="decimal" value="1" onchange="calculate()" />
+      </div>
+      <div>
+        <label>&nbsp;</label>
+        <button class="secondary" onclick="setAac50YearB1Factor()">Set AAC 50-year B1 factor 80/95</button>
+        <button class="secondary" onclick="resetScenarioFactors()">Reset factors</button>
+      </div>
+    </div>
+
+    <p class="note">
+      Scenario factors are applied to the current calculation. Use the A4-A5 factor only where the underlying dataset and scenario allow adjustment.
+      For AAC recarbonation, the practical guide uses 80/95 = 0.842 as a conservative 50-year adjustment of the declared B1 value.
+    </p>
+
+    <div class="grid-3">
+      <div>
+        <label for="materialSelect">Material</label>
+        <select id="materialSelect"></select>
+      </div>
+
+      <div>
+        <label for="thickness">Thickness [mm]</label>
+        <input id="thickness" type="text" inputmode="decimal" value="300" min="1" />
+      </div>
+
+      <div>
+        <button onclick="addLayer()">Add layer</button>
+        <button class="secondary" onclick="clearLayers()">Clear</button>
+      </div>
+    </div>
+
+    <table id="layerTable">
+      <thead>
+      <tr>
+        <th>Layer</th>
+        <th>Thickness [mm]</th>
+        <th>Product share [%]</th>
+        <th>Linear amount [m/m²]</th>
+        <th>λ [W/(mK)]</th>
+        <th>R [m²K/W]</th>
+        <th>Use for U-value</th>
+        <th>Replacement cycles</th>
+        <th>GWP basis</th>
+        <th>A1-A3</th>
+        <th>A4-A5</th>
+        <th>B1</th>
+        <th>B2</th>
+        <th>B3</th>
+        <th>B4 repl.</th>
+        <th>C1</th>
+        <th>C2</th>
+        <th>C3/C4</th>
+        <th>D</th>
+        <th></th>
+      </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <div class="refreshbar">
+      <button onclick="applyAllLayerEdits()">Refresh / recalculate construction</button>
+      <span class="note">Tip: edit existing layers in the table. Click Apply directly next to the material name for one row, or Refresh / recalculate construction for all rows.</span>
+    </div>
+
+    <p class="note">
+      Module values in the layer table are shown in kg CO₂e/m² wall area. Product share [%] multiplies the environmental module values and can be used for mixed systems such as timber frame walls, e.g. timber studs 15% and insulation 85%. Linear amount [m/m²] is used for datasets entered as kg CO₂e/m, e.g. CW profiles, studs or rails.
+      “Replacement cycles” defines additional replacements within the reference period:
+      0 = no replacement, 1 = one replacement, 2 = two replacements. For example, a layer with one replacement is counted twice in the life-cycle calculation: once as the initial layer and once as replacement in module B4.
+      Note: in this prototype, product share affects GWP only. The U-value calculation remains a simplified layer-by-layer calculation and does not fully model parallel thermal paths. Linear products such as CW/UW profiles can be switched off for the U-value calculation using “Use for U-value = No”.
+    </p>
+  </section>
+
+  <section>
+    <h2>2. Results for current construction</h2>
+
+    <div class="result-box">
+      <div class="card">U-value [W/m²K]<strong id="uValue">–</strong></div>
+      <div class="card">GWP A-C incl. B modules [kg CO₂e/m²]<strong id="gwpAC">–</strong></div>
+      <div class="card">Module D separately [kg CO₂e/m²]<strong id="gwpD">–</strong></div>
+    </div>
+
+    <p class="note" id="uValueNote"></p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Module</th>
+          <th>kg CO₂e/m² wall</th>
+        </tr>
+      </thead>
+      <tbody id="moduleResults"></tbody>
+    </table>
+
+    <h3>Layer-resolved module diagram</h3>
+    <canvas id="resultChart" width="1150" height="430"></canvas>
+    <div class="legend" id="layerLegend"></div>
+
+    <div class="report-actions">
+      <button onclick="printConstructionReport()">Generate construction report preview / PDF</button>
+    </div>
+  </section>
+
+  <section>
+    <h2>3. Save / load comparison constructions</h2>
+
+    <div class="grid-3">
+      <div>
+        <label for="constructionName">Construction name</label>
+        <input id="constructionName" type="text" placeholder="e.g. AAC 365 + render + EPS 40" />
+      </div>
+
+      <div>
+        <label for="savedConstructions">Saved constructions</label>
+        <select id="savedConstructions"></select>
+      </div>
+
+      <div>
+        <button class="success" onclick="saveConstruction()">Save current construction</button>
+        <button onclick="loadConstruction()">Load</button>
+        <button class="danger" onclick="deleteConstruction()">Delete</button>
+      </div>
+    </div>
+
+    <h3>Comparison library</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Construction</th>
+          <th>Layers</th>
+          <th>U-value [W/m²K]</th>
+          <th>A-C [kg CO₂e/m²]</th>
+          <th>D [kg CO₂e/m²]</th>
+          <th>Select for diagram</th>
+        </tr>
+      </thead>
+      <tbody id="comparisonTable"></tbody>
+    </table>
+
+    <h3>Comparison diagram, max. 5 constructions</h3>
+    <canvas id="comparisonChart" width="1150" height="420"></canvas>
+
+    <div class="report-actions">
+      <button onclick="printComparisonReport()">Generate comparison report preview / PDF</button>
+    </div>
+
+    <p class="note">
+      Up to five saved constructions can be selected for comparison. Saved constructions are stored locally in this browser.
+    </p>
+  </section>
+
+  <section>
+    <h2>4. Add or edit material</h2>
+
+    <div class="warning">
+      The material editor supports both options:
+      <strong>kg CO₂e/m³ material</strong>, <strong>kg CO₂e/m² wall area</strong> and <strong>kg CO₂e/m linear product</strong>.
+      If kg CO₂e/m³ is selected, the GWP result is multiplied by layer thickness in metres.
+      If kg CO₂e/m² is selected, the GWP values are used directly. If kg CO₂e/m is selected, the GWP values are multiplied by the layer's linear amount in m/m². B4 is calculated from the replacement cycles of each layer.
+    </div>
+
+    <div class="grid-4">
+      <div>
+        <label for="editMaterialSelect">Select material to edit</label>
+        <select id="editMaterialSelect" onchange="loadMaterialForEditing()"></select>
+      </div>
+
+      <div>
+        <label for="matName">Material name</label>
+        <input id="matName" type="text" />
+      </div>
+
+      <div>
+        <label for="matLambda">λ [W/(mK)]</label>
+        <input id="matLambda" type="text" inputmode="decimal" step="0.001" value="0.10" />
+      </div>
+
+      <div>
+        <label for="matBasis">GWP input basis</label>
+        <select id="matBasis">
+          <option value="per_m3">kg CO₂e/m³ material</option>
+          <option value="per_m2">kg CO₂e/m² wall area</option>
+          <option value="per_m">kg CO₂e/m linear product</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="grid-5">
+      <div><label for="matA1A3">A1-A3</label><input id="matA1A3" type="text" inputmode="decimal" step="0.01" value="0" /></div>
+      <div><label for="matA4A5">A4-A5</label><input id="matA4A5" type="text" inputmode="decimal" step="0.01" value="0" /></div>
+      <div><label for="matB1">B1</label><input id="matB1" type="text" inputmode="decimal" step="0.01" value="0" /></div>
+      <div><label for="matB2">B2 Maintenance</label><input id="matB2" type="text" inputmode="decimal" step="0.01" value="0" /></div>
+      <div><label for="matB3">B3 Repair</label><input id="matB3" type="text" inputmode="decimal" step="0.01" value="0" /></div>
+      <div><label for="matC1">C1 Deconstruction</label><input id="matC1" type="text" inputmode="decimal" step="0.01" value="0" /></div>
+      <div><label for="matC2">C2 Transport</label><input id="matC2" type="text" inputmode="decimal" step="0.01" value="0" /></div>
+      <div><label for="matC3C4">C3/C4 Recovery or disposal</label><input id="matC3C4" type="text" inputmode="decimal" step="0.01" value="0" /></div>
+      <div><label for="matD">D</label><input id="matD" type="text" inputmode="decimal" step="0.01" value="0" /></div>
+    </div>
+
+    <button class="success" onclick="saveMaterial()">Save material</button>
+    <button class="secondary" onclick="newMaterialForm()">New material</button>
+    <button class="danger" onclick="deleteMaterial()">Delete selected material</button>
+    <span class="status" id="materialStatus"></span>
+  </section>
+
+
+  <section>
+    <h2>5. EPD guidance checks</h2>
+    <p class="note">
+      This tool follows the basic practical principle: EPD value × actual product quantity × applicable scenario.
+      Before using an EPD dataset in a wall calculation, check the declared unit, product characteristics, declared modules,
+      scenario assumptions and applicable national methodology.
+    </p>
+
+    <table>
+      <thead>
+        <tr><th>Check</th><th>Meaning for this tool</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Declared unit</td><td>Confirm whether the EPD value is per m³, m², m, kg, tonne or another unit. Select the matching basis in the material editor.</td></tr>
+        <tr><td>Actual quantity</td><td>Use actual layer thickness, product share or linear amount to convert to kg CO₂e/m² wall area.</td></tr>
+        <tr><td>Scenario assumptions</td><td>Check whether transport distance, installation assumptions, replacement cycles and end-of-life route match the building case.</td></tr>
+        <tr><td>Missing modules</td><td>Do not automatically treat “not declared” as zero in formal assessments. Apply national rules or justified assumptions where required.</td></tr>
+        <tr><td>Module D</td><td>Report D separately. It is not deducted from the A-C total in this tool.</td></tr>
+      </tbody>
+    </table>
+
+    <p class="note">
+      For AAC, particular attention should be given to density conversion, recarbonation in B1, mortar and finishes,
+      surface conditions and the selected end-of-life scenario.
+    </p>
+  </section>
+
+  <section>
+    <h2>6. Methodology / Disclaimer</h2>
+
+    <p class="note">
+      For standard materials with the input basis kg CO₂e/m³ material, module results are converted to kg CO₂e/m² wall area by multiplication with layer thickness in metres.
+    </p>
+
+    <p class="note">
+      Product share [%] can be used for products that cover only part of the wall area, such as timber studs in a timber-frame wall. The share factor multiplies the environmental module values of the layer. For linear products with input basis kg CO₂e/m, the values are multiplied by the layer's Linear amount [m/m²].
+      Replacement cycles are shown in module B4. In this prototype, B4 is calculated as the additional product, transport/construction and end-of-life impacts of the replaced layer:
+      B4 = replacement cycles × (A1-A3 + A4-A5 + C1 + C2 + C3/C4). Module D is shown separately and is multiplied by the total number of layer occurrences.
+      Product share affects GWP results. The U-value calculation remains a simplified layer-by-layer calculation and does not fully model parallel heat flow paths.
+    </p>
+
+    <p class="note">
+      C1 and C2 are shown separately. C3/C4 is combined because a layer is normally either routed to recovery/recycling or to disposal in a scenario, not both as independent alternatives.
+    </p>
+
+    <p class="note">
+      U-value calculation uses: U = 1 / (surface resistance + Σ d/λ). For external walls, the default is Rsi + Rse = 0.13 + 0.04 = 0.17 m²K/W. For internal or adjacent-space situations, the selectable default is 0.13 + 0.13 = 0.26 m²K/W. Layers such as CW/UW profiles may be excluded from the simplified U-value calculation while remaining included in GWP.
+      This tool does not replace a verified EPD according to EN 15804 or a project-specific building LCA according to EN 15978. EPD values must be interpreted with their declared unit, product characteristics, declared modules and scenario assumptions. Missing modules require national rules or justified assumptions and should not automatically be treated as zero in formal assessments.
+    </p>
+  </section>
+
+</main>
+
+<div id="printReport" class="print-report"></div>
+
+<footer class="eaaca-footer">
+  <div>
+    <strong>EAACA</strong><br>
+    Hohes Steinfeld 1 · 14797 Kloster Lehnin · Germany
+  </div>
+  <div>
+    Indicative tool for technical communication. Module D is reported separately.
+  </div>
+</footer>
+
+
+<div id="manualOverlay" class="manual-overlay" role="dialog" aria-modal="true" aria-labelledby="manualTitle">
+  <div class="manual-box">
+    <div class="manual-header">
+      <div>
+        <h2 id="manualTitle">User Manual / Kurzanleitung</h2>
+        <div class="note">EAACA Wall LCA & Thermal Performance Calculator</div>
+      </div>
+      <button class="manual-close" onclick="closeManual()">Close / Schließen</button>
+    </div>
+
+    <div class="manual-content">
+      <h3>1. Zweck des Tools</h3>
+      <p>
+        Das Tool berechnet orientierende Kennwerte für Wandaufbauten:
+        U-Wert, GWP je m² Wandfläche und Lebenszyklusmodule A1-A3, A4-A5, B1, B2, B3, B4, C1, C2, C3/C4 sowie D.
+        Es dient der technischen Kommunikation und dem Vergleich von Konstruktionen.
+      </p>
+      <div class="manual-note">
+        Das Tool ersetzt keine verifizierte EPD nach EN 15804 und keine projektspezifische Gebäudeökobilanz nach EN 15978.
+        Die Ergebnisse hängen von den gewählten Materialdaten, Szenarien und Austauschzyklen ab.
+      </div>
+
+      <h3>2. Grundprinzip der Eingabe</h3>
+      <ol>
+        <li>Im Abschnitt <strong>Wall build-up</strong> ein Material auswählen.</li>
+        <li>Die Schichtdicke in <strong>mm</strong> eingeben.</li>
+        <li>Mit <strong>Add layer</strong> die Schicht zum Aufbau hinzufügen.</li>
+        <li>Weitere Schichten in der Reihenfolge des Wandaufbaus ergänzen.</li>
+      </ol>
+      <p>
+        Die Schichtdicke kann später direkt in der Tabelle geändert werden. Der U-Wert und die GWP-Ergebnisse werden automatisch aktualisiert. Dezimalzahlen können mit Komma oder Punkt eingegeben werden, z. B. 12,5 mm oder 12.5 mm. Änderungen in der Schichttabelle werden bewusst erst nach Klick auf Apply oder Refresh / recalculate construction übernommen.
+      </p>
+
+      <h3>3. Bedeutung der wichtigsten Spalten</h3>
+      <table>
+        <thead>
+          <tr><th>Spalte</th><th>Bedeutung</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Thickness [mm]</td><td>Schichtdicke der jeweiligen Lage.</td></tr>
+          <tr><td>λ [W/(mK)]</td><td>Wärmeleitfähigkeit des Materials.</td></tr>
+          <tr><td>R [m²K/W]</td><td>Wärmedurchlasswiderstand der Schicht, berechnet aus d/λ.</td></tr>
+          <tr><td>Product share [%]</td><td>Flächenanteil des Produktes am Gesamtaufbau. 100% bedeutet vollflächig, 15% kann z. B. für Holzständer stehen.</td></tr>
+          <tr><td>Linear amount [m/m²]</td><td>Laufmeter eines linearen Produktes je m² Wandfläche. Wird für kg CO₂e/m-Datensätze verwendet, z. B. CW-Profile.</td></tr>
+          <tr><td>Use for U-value</td><td>Legt fest, ob die Schicht in der vereinfachten U-Wert-Berechnung berücksichtigt wird. CW-/UW-Profile können meist auf No gesetzt werden.</td></tr>
+          <tr><td>Replacement cycles</td><td>Anzahl zusätzlicher Austausche innerhalb des Betrachtungszeitraums.</td></tr>
+          <tr><td>GWP basis</td><td>Zeigt, ob der Datensatz als kg CO₂e/m³ Material oder direkt als kg CO₂e/m² Wandfläche eingegeben wurde.</td></tr>
+          <tr><td>A1-A3 bis D</td><td>Ergebnisse je Modul in kg CO₂e/m² Wandfläche.</td></tr>
+        </tbody>
+      </table>
+
+      <h3>4. U-Wert-Randbedingungen und Profile</h3>
+      <p>
+        Oben im Abschnitt <strong>Wall build-up</strong> kann die Randbedingung für den U-Wert gewählt werden:
+      </p>
+      <table>
+        <thead><tr><th>Auswahl</th><th>Ansatz</th><th>Anwendung</th></tr></thead>
+        <tbody>
+          <tr><td>External wall</td><td>Rsi 0.13 + Rse 0.04 = 0.17 m²K/W</td><td>Außenwand gegen Außenluft.</td></tr>
+          <tr><td>Internal / adjacent space</td><td>Rsi 0.13 + Rsi 0.13 = 0.26 m²K/W</td><td>Innenbauteile oder Bauteile zu Bereichen mit ähnlichen Randbedingungen.</td></tr>
+          <tr><td>Custom</td><td>frei einstellbarer Oberflächenwiderstand</td><td>Sonderfälle.</td></tr>
+        </tbody>
+      </table>
+      <p>
+        Lineare Profile wie CW-/UW-Profile können über <strong>Use for U-value = No</strong> aus der U-Wert-Berechnung herausgenommen werden.
+        Sie bleiben dann in der GWP-Berechnung enthalten.
+      </p>
+
+      <h3>5. Produktanteile / Product share</h3>
+      <p>
+        Mit <strong>Product share [%]</strong> können Produkte angesetzt werden, die nur einen Anteil der Fläche einnehmen.
+        Das ist besonders hilfreich für Holzrahmen- oder Ständerwände.
+      </p>
+      <p>
+        Beispiel: Eine Holzrahmenwand kann in der gleichen Schichtebene vereinfacht mit zwei Produktzeilen eingegeben werden:
+        Holzständer 15% und Gefachdämmung 85%. Die Modulwerte werden entsprechend gewichtet.
+      </p>
+      <p>
+        Für lineare Produkte wie CW-Profile kann im Materialeditor die Eingabebasis <strong>kg CO₂e/m linear product</strong> gewählt werden.
+        In der Schichttabelle wird dann über <strong>Linear amount [m/m²]</strong> angegeben, wie viele laufende Meter je m² Wandfläche enthalten sind.
+      </p>
+      <div class="manual-note">
+        Der Produktanteil beeinflusst in dieser Version die GWP-Berechnung. Die U-Wert-Berechnung bleibt eine vereinfachte Schichtrechnung und bildet parallele Wärmewege nicht vollständig ab.
+        Für eine genauere thermische Bewertung sollte eine äquivalente Wärmeleitfähigkeit der gemischten Schicht verwendet werden.
+      </div>
+
+      <h3>6. Austauschzyklen / Replacement cycles</h3>
+      <p>Für jede Schicht kann ein Austauschzyklus gewählt werden:</p>
+      <table>
+        <thead>
+          <tr><th>Auswahl</th><th>Interpretation</th><th>Typische Anwendung</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>0</td><td>kein Austausch</td><td>Lebensdauer etwa 50 Jahre oder länger</td></tr>
+          <tr><td>1</td><td>ein Austausch</td><td>Lebensdauer unter 50 Jahre, z. B. 40 Jahre</td></tr>
+          <tr><td>2</td><td>zwei Austausche</td><td>Lebensdauer bis etwa 25 Jahre</td></tr>
+        </tbody>
+      </table>
+      <p>
+        Im Tool wird B4 vereinfacht berechnet als:
+        <strong>B4 = Austauschzyklen × (A1-A3 + A4-A5 + C1 + C2 + C3/C4)</strong>.
+        Modul D wird separat ausgewiesen und mit der Anzahl der Materialvorkommen berücksichtigt.
+      </p>
+
+      <h3>7. Lebenszyklusmodule</h3>
+      <table>
+        <thead>
+          <tr><th>Modul</th><th>Bedeutung im Tool</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>A1-A3</td><td>Herstellung / Product stage.</td></tr>
+          <tr><td>A4-A5</td><td>Transport zur Baustelle und Einbau.</td></tr>
+          <tr><td>B1</td><td>Nutzungsphase, z. B. Rekarbonatisierung bei calciumhaltigen Baustoffen.</td></tr>
+          <tr><td>B2</td><td>Instandhaltung / Maintenance.</td></tr>
+          <tr><td>B3</td><td>Instandsetzung / Repair.</td></tr>
+          <tr><td>B4</td><td>Austausch / Replacement, berechnet aus den Austauschzyklen.</td></tr>
+          <tr><td>C1</td><td>Rückbau / Deconstruction.</td></tr>
+          <tr><td>C2</td><td>Transport im End-of-Life-Szenario.</td></tr>
+          <tr><td>C3/C4</td><td>Wiederverwertung oder Entsorgung. Im Tool kombiniert, weil für eine konkrete Schicht ein Szenario gewählt wird.</td></tr>
+          <tr><td>D</td><td>Nutzen und Lasten außerhalb der Systemgrenze. D wird separat ausgewiesen.</td></tr>
+        </tbody>
+      </table>
+
+      <h3>8. Materialdaten hinzufügen oder bearbeiten</h3>
+      <p>
+        Im Abschnitt <strong>Add or edit material</strong> können vorhandene Materialien angepasst oder neue Materialien angelegt werden.
+      </p>
+      <ol>
+        <li>Für ein neues Material <strong>New material</strong> anklicken.</li>
+        <li>Name, λ-Wert und Eingabebasis auswählen.</li>
+        <li>Modulwerte A1-A3 bis D eingeben.</li>
+        <li>Mit <strong>Save material</strong> speichern.</li>
+      </ol>
+      <div class="manual-note">
+        Wird <strong>kg CO₂e/m³ material</strong> gewählt, rechnet das Tool über die Schichtdicke auf kg CO₂e/m² um.
+        Wird <strong>kg CO₂e/m² wall area</strong> gewählt, werden die Werte direkt verwendet. Wird <strong>kg CO₂e/m linear product</strong> gewählt, werden die Werte mit den laufenden Metern je m² Wandfläche multipliziert.
+      </div>
+
+      <h3>9. Ergebnisse verstehen</h3>
+      <p>
+        Im Abschnitt <strong>Results for current construction</strong> werden U-Wert, A-C-Gesamtwert und Modul D separat angezeigt.
+        Das Diagramm zeigt die Beiträge der einzelnen Schichten je Modul. Die Farben stehen für die jeweiligen Layer.
+      </p>
+
+      <h3>10. Konstruktionen speichern und vergleichen</h3>
+      <ol>
+        <li>Der Konstruktion einen Namen geben.</li>
+        <li>Mit <strong>Save current construction</strong> lokal speichern.</li>
+        <li>Gespeicherte Konstruktionen können später geladen oder gelöscht werden.</li>
+        <li>Bis zu fünf Konstruktionen können für das Vergleichsdiagramm ausgewählt werden.</li>
+      </ol>
+      <p>Die Speicherung erfolgt lokal im Browser. Andere Nutzer sehen diese gespeicherten Konstruktionen nicht. Die zentrale Materialdatenbank wird aus der Datei materials.json geladen, wenn diese im gleichen Verzeichnis wie index.html liegt.</p>
+
+      <h3>11. Bericht, PDF und HTML-Export</h3>
+      <ul>
+        <li><strong>Generate construction report preview / PDF</strong> erzeugt einen Bericht zur aktuellen Konstruktion.</li>
+        <li><strong>Generate comparison report preview / PDF</strong> erzeugt einen Vergleichsbericht.</li>
+        <li>Im Bericht kann der Druckdialog geöffnet oder der Bericht als HTML-Datei heruntergeladen werden.</li>
+      </ul>
+      <p>Für die PDF-Ausgabe werden Microsoft Edge oder Google Chrome empfohlen. Einige Sicherheitsbrowser können die Druckfunktion blockieren.</p>
+
+      <h3>12. Typischer Arbeitsablauf</h3>
+      <ol>
+        <li>Materialdaten prüfen oder ergänzen.</li>
+        <li>Wandaufbau schichtweise eingeben.</li>
+        <li>Austauschzyklen je Schicht festlegen.</li>
+        <li>U-Wert und GWP-Ergebnisse prüfen.</li>
+        <li>Konstruktion speichern.</li>
+        <li>Weitere Varianten anlegen und vergleichen.</li>
+        <li>Bericht als PDF oder HTML sichern.</li>
+      </ol>
+
+
+      <h3>13. EPD practical guidance</h3>
+      <p>
+        The practical guide behind this tool emphasises that an EPD is product-level environmental data,
+        not automatically a building LCA. Values must be converted to the actual product quantity and combined
+        with applicable scenarios and national rules.
+      </p>
+      <ul>
+        <li>Start with the declared unit: m³, m², m, kg, tonne or another unit.</li>
+        <li>Check whether density, thickness and product composition correspond to the actual layer.</li>
+        <li>Do not automatically treat not-declared modules as zero in formal assessments.</li>
+        <li>Check transport, installation, replacement and end-of-life scenarios.</li>
+        <li>For AAC B1 recarbonation, the tool provides a shortcut for the conservative 50-year factor 80/95.</li>
+        <li>Do not deduct Module D from the A-C total; D is reported separately.</li>
+      </ul>
+
+      <h3>14. Short English summary</h3>
+      <p>
+        Add layers, define thickness and replacement cycles, check U-value and GWP modules, save constructions locally,
+        compare up to five variants, and generate a report as PDF or HTML. Module D is reported separately and is not included in the A-C total.
+      </p>
+    </div>
+  </div>
+</div>
+
+
+<script>
+const STORAGE_MATERIALS = "eaaca_materials_v18";
+const STORAGE_CONSTRUCTIONS = "eaaca_constructions_v18";
+const STORAGE_COMPARE = "eaaca_compare_selection_v18";
+
+const layerColors = ["#006fb6", "#6aa84f", "#f2b705", "#7b4fa3", "#c56b2c", "#2c7f8f", "#607d8b", "#a33"];
+
+const moduleKeys = ["A1_A3", "A4_A5", "B1", "B2", "B3", "B4", "C1", "C2", "C3_C4", "D"];
+const chartModules = [
+  { key:"A1_A3", label:"A1-A3" },
+  { key:"A4_A5", label:"A4-A5" },
+  { key:"B1", label:"B1" },
+  { key:"B2", label:"B2" },
+  { key:"B3", label:"B3" },
+  { key:"B4", label:"B4 repl." },
+  { key:"C1", label:"C1" },
+  { key:"C2", label:"C2" },
+  { key:"C3_C4", label:"C3/C4" },
+  { key:"D", label:"D" },
+  { key:"AC", label:"A-C total" }
+];
+
+const defaultMaterials = [
+  {id:"aac_300",name:"AAC 300 kg/m³",lambda:0.075,basis:"per_m3",gwp:{A1_A3:147,A4_A5:8.75,B1:-60.3,B2:0,B3:0,C1:0,C2:0,C3_C4:0,D:-1.19}},
+  {id:"aac_400",name:"AAC 400 kg/m³",lambda:0.10,basis:"per_m3",gwp:{A1_A3:160,A4_A5:9.4,B1:-68.0,B2:0,B3:0,C1:0,C2:0,C3_C4:2.5,D:-4.0}},
+  {id:"aac_500",name:"AAC 500 kg/m³",lambda:0.14,basis:"per_m3",gwp:{A1_A3:170,A4_A5:9.99,B1:-76.2,B2:0,B3:0,C1:0,C2:0,C3_C4:0,D:-0.23}},
+  {id:"csu_1400",name:"Calcium silicate unit 1400 kg/m³",lambda:0.80,basis:"per_m3",gwp:{A1_A3:189,A4_A5:26.4,B1:-83.9,B2:0,B3:0,C1:0,C2:0,C3_C4:0,D:-3.34}},
+  {id:"ceramic_block",name:"Ceramic block",lambda:0.18,basis:"per_m3",gwp:{A1_A3:113,A4_A5:4.97,B1:0,B2:0,B3:0,C1:0,C2:0,C3_C4:0,D:-10.1}},
+  {id:"eps",name:"EPS insulation",lambda:0.038,basis:"per_m3",gwp:{A1_A3:45,A4_A5:4,B1:0,B2:0,B3:0,C1:0,C2:0,C3_C4:0,D:15}},
+  {id:"mineral_wool",name:"Mineral wool insulation",lambda:0.036,basis:"per_m3",gwp:{A1_A3:67,A4_A5:6,B1:0,B2:0,B3:0,C1:0,C2:0,C3_C4:0,D:5}},
+  {id:"external_render",name:"External render / plaster",lambda:0.70,basis:"per_m3",gwp:{A1_A3:250,A4_A5:15,B1:0,B2:0,B3:0,C1:0,C2:0,C3_C4:5,D:0}},
+  {id:"gypsum_plaster",name:"Gypsum plaster",lambda:0.35,basis:"per_m3",gwp:{A1_A3:180,A4_A5:10,B1:0,B2:0,B3:0,C1:0,C2:0,C3_C4:5,D:0}}
+];
+
+let materials = [];
+let layers = [];
+let currentMaterialId = null;
+
+
+function parseUserNumber(value, defaultValue = 0) {
+  if (value === null || value === undefined) return defaultValue;
+  if (typeof value === "number") return isFinite(value) ? value : defaultValue;
+
+  let s = String(value).trim();
+  if (s === "") return defaultValue;
+
+  // Accept German decimal comma and English decimal point.
+  // Remove normal spaces and non-breaking spaces, then convert decimal comma to point.
+  s = s.replace(/\s/g, "").replace(/\u00A0/g, "").replace(",", ".");
+
+  const n = Number(s);
+  return isFinite(n) ? n : defaultValue;
+}
+
+function clone(obj) { return JSON.parse(JSON.stringify(obj)); }
+
+function format(v) {
+  return (isFinite(v) && v !== null && v !== undefined) ? Number(v).toFixed(2) : "0.00";
+}
+
+function shortBasis(basis) {
+  if (basis === "per_m2") return "input kg/m²";
+  if (basis === "per_m") return "input kg/m";
+  return "input kg/m³";
+}
+
+function getMaterialById(id) {
+  return materials.find(m => m.id === id);
+}
+
+function normaliseMaterial(mat) {
+  const old = mat.gwp || {};
+  mat.gwp = {
+    A1_A3: Number(old.A1_A3 || 0),
+    A4_A5: Number(old.A4_A5 || 0),
+    B1: Number(old.B1 || 0),
+    B2: Number(old.B2 || 0),
+    B3: Number(old.B3 || 0),
+    C1: Number(old.C1 || 0),
+    C2: Number(old.C2 || 0),
+    C3_C4: Number(old.C3_C4 ?? old.C1_C4 ?? 0),
+    D: Number(old.D || 0)
+  };
+  return mat;
+}
+
+async function loadInitialData() {
+  const status = document.getElementById("materialDatabaseStatus");
+
+  try {
+    const response = await fetch("materials.json", { cache: "no-store" });
+
+    if (!response.ok) {
+      throw new Error("materials.json not found or not accessible");
+    }
+
+    const externalMaterials = await response.json();
+
+    if (!Array.isArray(externalMaterials) || externalMaterials.length === 0) {
+      throw new Error("materials.json is empty or invalid");
+    }
+
+    materials = externalMaterials.map(normaliseMaterial);
+
+    if (status) {
+      status.textContent = "Loaded " + materials.length + " English materials from external materials.json. Editing mode v23: EPD guidance checks and scenario factors included; row changes require Apply or Refresh.";
+    }
+  } catch (error) {
+    console.warn("Using embedded fallback materials:", error);
+    const stored = localStorage.getItem(STORAGE_MATERIALS);
+
+    if (stored) {
+      materials = JSON.parse(stored).map(normaliseMaterial);
+      if (status) {
+        status.textContent = "materials.json could not be loaded. Using locally stored material database.";
+      }
+    } else {
+      materials = clone(defaultMaterials).map(normaliseMaterial);
+      if (status) {
+        status.textContent = "materials.json could not be loaded. Using embedded fallback materials.";
+      }
+    }
+  }
+
+  saveMaterialsToStorage();
+  refreshMaterialSelects();
+  refreshSavedConstructions();
+  calculate();
+}
+
+function saveMaterialsToStorage() {
+  localStorage.setItem(STORAGE_MATERIALS, JSON.stringify(materials));
+}
+
+function refreshMaterialSelects() {
+  const materialSelect = document.getElementById("materialSelect");
+  const editMaterialSelect = document.getElementById("editMaterialSelect");
+
+  materialSelect.innerHTML = "";
+  editMaterialSelect.innerHTML = "";
+
+  materials.forEach(mat => {
+    const o1 = document.createElement("option");
+    o1.value = mat.id;
+    o1.textContent = mat.name;
+    materialSelect.appendChild(o1);
+
+    const o2 = document.createElement("option");
+    o2.value = mat.id;
+    o2.textContent = mat.name;
+    editMaterialSelect.appendChild(o2);
+  });
+
+  if (materials.length > 0) {
+    editMaterialSelect.value = currentMaterialId && getMaterialById(currentMaterialId) ? currentMaterialId : materials[0].id;
+    loadMaterialForEditing();
+  }
+}
+
+function addLayer() {
+  const materialId = document.getElementById("materialSelect").value;
+  const thicknessMm = parseUserNumber(document.getElementById("thickness").value, NaN);
+
+  if (!materialId) return alert("Please select a material.");
+  if (!thicknessMm || thicknessMm <= 0) return alert("Please enter a valid thickness.");
+
+  const mat = getMaterialById(materialId);
+  const includeInU = mat && mat.basis === "per_m" ? false : true;
+  layers.push({ materialId, thicknessMm, share: 100, linearAmount: 1, includeInU, replacements: 0 });
+  calculate();
+}
+
+function clearLayers() {
+  if (layers.length && !confirm("Clear current construction?")) return;
+  layers = [];
+  calculate();
+}
+
+function removeLayer(index) {
+  layers.splice(index, 1);
+  calculate();
+}
+
+function updateLayerThickness(index, value) {
+  const t = parseUserNumber(value, NaN);
+  if (!t || t <= 0) return;
+  layers[index].thicknessMm = t;
+  calculate();
+}
+
+function updateLayerShare(index, value) {
+  let s = parseUserNumber(value, NaN);
+  if (isNaN(s)) return;
+  if (s < 0) s = 0;
+  if (s > 100) s = 100;
+  layers[index].share = s;
+  calculate();
+}
+
+function updateLayerLinearAmount(index, value) {
+  let a = parseUserNumber(value, NaN);
+  if (isNaN(a)) return;
+  if (a < 0) a = 0;
+  layers[index].linearAmount = a;
+  calculate();
+}
+
+function updateLayerMaterial(index, materialId) {
+  layers[index].materialId = materialId;
+  calculate();
+}
+
+function updateLayerReplacements(index, value) {
+  layers[index].replacements = Number(value) || 0;
+  calculate();
+}
+
+
+function getA4A5ScenarioFactor() {
+  const el = document.getElementById("a4a5ScenarioFactor");
+  const f = el ? parseUserNumber(el.value, 1) : 1;
+  return isFinite(f) && f >= 0 ? f : 1;
+}
+
+function getB1ScenarioFactor() {
+  const el = document.getElementById("b1ScenarioFactor");
+  const f = el ? parseUserNumber(el.value, 1) : 1;
+  return isFinite(f) && f >= 0 ? f : 1;
+}
+
+function setAac50YearB1Factor() {
+  const el = document.getElementById("b1ScenarioFactor");
+  if (el) el.value = (80 / 95).toFixed(3);
+  calculate();
+}
+
+function resetScenarioFactors() {
+  const a4 = document.getElementById("a4a5ScenarioFactor");
+  const b1 = document.getElementById("b1ScenarioFactor");
+  if (a4) a4.value = "1";
+  if (b1) b1.value = "1";
+  calculate();
+}
+
+function baseLayerGwp(layer, mat) {
+  const d = layer.thicknessMm / 1000;
+  const shareFactor = (layer.share === undefined ? 100 : Number(layer.share)) / 100;
+  const linearAmount = layer.linearAmount === undefined ? 1 : Number(layer.linearAmount);
+  const out = {};
+
+  Object.keys(mat.gwp).forEach(mod => {
+    let valuePerFullArea;
+
+    if (mat.basis === "per_m2") {
+      valuePerFullArea = Number(mat.gwp[mod]);
+    } else if (mat.basis === "per_m") {
+      valuePerFullArea = Number(mat.gwp[mod]) * linearAmount;
+    } else {
+      valuePerFullArea = d * Number(mat.gwp[mod]);
+    }
+
+    out[mod] = valuePerFullArea * shareFactor;
+  });
+
+  return out;
+}
+
+function calculateLayerGwp(layer, mat) {
+  const base = baseLayerGwp(layer, mat);
+  const repl = Number(layer.replacements || 0);
+
+  const out = {
+    A1_A3: base.A1_A3,
+    A4_A5: base.A4_A5 * getA4A5ScenarioFactor(),
+    B1: base.B1 * getB1ScenarioFactor(),
+    B2: base.B2,
+    B3: base.B3,
+    B4: repl * (base.A1_A3 + (base.A4_A5 * getA4A5ScenarioFactor()) + base.C1 + base.C2 + base.C3_C4),
+    C1: base.C1,
+    C2: base.C2,
+    C3_C4: base.C3_C4,
+    D: (1 + repl) * base.D
+  };
+
+  return out;
+}
+
+function calcAC(sums) {
+  return sums.A1_A3 + sums.A4_A5 + sums.B1 + sums.B2 + sums.B3 + sums.B4 + sums.C1 + sums.C2 + sums.C3_C4;
+}
+
+
+function getSurfaceResistance() {
+  const boundary = document.getElementById("boundarySelect") ? document.getElementById("boundarySelect").value : "external";
+  if (boundary === "internal") return 0.26;
+  if (boundary === "custom") {
+    const custom = parseUserNumber(document.getElementById("customSurfaceResistance").value, NaN);
+    return isFinite(custom) && custom >= 0 ? custom : 0.17;
+  }
+  return 0.17;
+}
+
+function setAllLayersForUValue(include) {
+  layers.forEach(layer => layer.includeInU = include);
+  calculate();
+}
+
+function updateLayerIncludeInU(index, value) {
+  layers[index].includeInU = value === "yes";
+  calculate();
+}
+
+function applyLayerEdit(index) {
+  const matEl = document.getElementById("layerMat_" + index);
+  const thicknessEl = document.getElementById("layerThickness_" + index);
+  const shareEl = document.getElementById("layerShare_" + index);
+  const linearEl = document.getElementById("layerLinear_" + index);
+  const includeEl = document.getElementById("layerIncludeU_" + index);
+  const replEl = document.getElementById("layerRepl_" + index);
+
+  if (!layers[index]) return;
+
+  if (matEl) layers[index].materialId = matEl.value;
+
+  if (thicknessEl) {
+    const t = parseUserNumber(thicknessEl.value, NaN);
+    if (!isFinite(t) || t <= 0) {
+      alert("Please enter a valid thickness.");
+      return;
+    }
+    layers[index].thicknessMm = t;
+  }
+
+  if (shareEl) {
+    let s = parseUserNumber(shareEl.value, NaN);
+    if (!isFinite(s)) {
+      alert("Please enter a valid product share.");
+      return;
+    }
+    if (s < 0) s = 0;
+    if (s > 100) s = 100;
+    layers[index].share = s;
+  }
+
+  if (linearEl) {
+    let a = parseUserNumber(linearEl.value, NaN);
+    if (!isFinite(a) || a < 0) {
+      alert("Please enter a valid linear amount.");
+      return;
+    }
+    layers[index].linearAmount = a;
+  }
+
+  if (includeEl) layers[index].includeInU = includeEl.value === "yes";
+  if (replEl) layers[index].replacements = Number(replEl.value) || 0;
+
+  calculate();
+}
+
+function applyAllLayerEdits() {
+  for (let i = 0; i < layers.length; i++) {
+    const matEl = document.getElementById("layerMat_" + i);
+    if (!matEl) continue;
+
+    const thicknessEl = document.getElementById("layerThickness_" + i);
+    const shareEl = document.getElementById("layerShare_" + i);
+    const linearEl = document.getElementById("layerLinear_" + i);
+    const includeEl = document.getElementById("layerIncludeU_" + i);
+    const replEl = document.getElementById("layerRepl_" + i);
+
+    layers[i].materialId = matEl.value;
+
+    const t = parseUserNumber(thicknessEl.value, NaN);
+    if (!isFinite(t) || t <= 0) {
+      alert("Please enter a valid thickness in row " + (i + 1) + ".");
+      return;
+    }
+    layers[i].thicknessMm = t;
+
+    let s = parseUserNumber(shareEl.value, NaN);
+    if (!isFinite(s)) {
+      alert("Please enter a valid product share in row " + (i + 1) + ".");
+      return;
+    }
+    if (s < 0) s = 0;
+    if (s > 100) s = 100;
+    layers[i].share = s;
+
+    let a = parseUserNumber(linearEl.value, NaN);
+    if (!isFinite(a) || a < 0) {
+      alert("Please enter a valid linear amount in row " + (i + 1) + ".");
+      return;
+    }
+    layers[i].linearAmount = a;
+
+    layers[i].includeInU = includeEl.value === "yes";
+    layers[i].replacements = Number(replEl.value) || 0;
+  }
+
+  calculate();
+}
+
+function calcForLayers(layerSet) {
+  let rLayers = 0;
+  let sums = { A1_A3:0, A4_A5:0, B1:0, B2:0, B3:0, B4:0, C1:0, C2:0, C3_C4:0, D:0 };
+
+  layerSet.forEach(layer => {
+    if (layer.replacements === undefined) layer.replacements = 0;
+    if (layer.share === undefined) layer.share = 100;
+    if (layer.linearAmount === undefined) layer.linearAmount = 1;
+    if (layer.includeInU === undefined) {
+      const mForU = getMaterialById(layer.materialId);
+      layer.includeInU = !(mForU && mForU.basis === "per_m");
+    }
+    const mat = getMaterialById(layer.materialId);
+    if (!mat) return;
+
+    const d = layer.thicknessMm / 1000;
+    if (layer.includeInU !== false) {
+      rLayers += d / Number(mat.lambda);
+    }
+
+    const g = calculateLayerGwp(layer, mat);
+    Object.keys(sums).forEach(k => sums[k] += Number(g[k] || 0));
+  });
+
+  const u = layerSet.length ? 1 / (getSurfaceResistance() + rLayers) : null;
+  const ac = calcAC(sums);
+
+  return { u, ac, d: sums.D, sums };
+}
+
+function calculate() {
+  const tbody = document.querySelector("#layerTable tbody");
+  tbody.innerHTML = "";
+
+  let layerResults = [];
+
+  layers.forEach((layer, index) => {
+    if (layer.replacements === undefined) layer.replacements = 0;
+    if (layer.share === undefined) layer.share = 100;
+    if (layer.linearAmount === undefined) layer.linearAmount = 1;
+    if (layer.includeInU === undefined) {
+      const mForU = getMaterialById(layer.materialId);
+      layer.includeInU = !(mForU && mForU.basis === "per_m");
+    }
+    const mat = getMaterialById(layer.materialId);
+    if (!mat) return;
+
+    const d = layer.thicknessMm / 1000;
+    const r = layer.includeInU === false ? 0 : d / Number(mat.lambda);
+    const g = calculateLayerGwp(layer, mat);
+
+    layerResults.push({
+      layerName: mat.name,
+      thicknessMm: layer.thicknessMm,
+      share: Number(layer.share === undefined ? 100 : layer.share),
+      linearAmount: Number(layer.linearAmount === undefined ? 1 : layer.linearAmount),
+      includeInU: layer.includeInU !== false,
+      replacements: Number(layer.replacements || 0),
+      gwp: g
+    });
+
+    let opts = "";
+    materials.forEach(m => {
+      opts += `<option value="${m.id}" ${m.id === mat.id ? "selected" : ""}>${m.name}</option>`;
+    });
+
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>
+        <div class="layer-edit-cell">
+          <select id="layerMat_${index}">${opts}</select>
+          <button class="applybtn smallbtn" onclick="applyLayerEdit(${index})">Apply</button>
+        </div>
+      </td>
+      <td><input id="layerThickness_${index}" type="text" inputmode="decimal" value="${layer.thicknessMm}" /></td>
+      <td><input id="layerShare_${index}" type="text" inputmode="decimal" value="${layer.share === undefined ? 100 : layer.share}" /></td>
+      <td><input id="layerLinear_${index}" type="text" inputmode="decimal" value="${layer.linearAmount === undefined ? 1 : layer.linearAmount}" /></td>
+      <td>${format(mat.lambda)}</td>
+      <td>${layer.includeInU === false ? "excluded" : format(r)}</td>
+      <td>
+        <select id="layerIncludeU_${index}">
+          <option value="yes" ${layer.includeInU !== false ? "selected" : ""}>Yes</option>
+          <option value="no" ${layer.includeInU === false ? "selected" : ""}>No</option>
+        </select>
+      </td>
+      <td>
+        <select id="layerRepl_${index}">
+          <option value="0" ${Number(layer.replacements) === 0 ? "selected" : ""}>0</option>
+          <option value="1" ${Number(layer.replacements) === 1 ? "selected" : ""}>1</option>
+          <option value="2" ${Number(layer.replacements) === 2 ? "selected" : ""}>2</option>
+        </select>
+      </td>
+      <td>${shortBasis(mat.basis)}</td>
+      <td>${format(g.A1_A3)}</td>
+      <td>${format(g.A4_A5)}</td>
+      <td>${format(g.B1)}</td>
+      <td>${format(g.B2)}</td>
+      <td>${format(g.B3)}</td>
+      <td>${format(g.B4)}</td>
+      <td>${format(g.C1)}</td>
+      <td>${format(g.C2)}</td>
+      <td>${format(g.C3_C4)}</td>
+      <td>${format(g.D)}</td>
+      <td><button class="danger smallbtn" onclick="removeLayer(${index})">X</button></td>
+    `;
+
+    tbody.appendChild(row);
+  });
+
+  const result = calcForLayers(layers);
+
+  document.getElementById("uValue").textContent = result.u ? format(result.u) : "–";
+  document.getElementById("gwpAC").textContent = layers.length ? format(result.ac) : "–";
+  document.getElementById("gwpD").textContent = layers.length ? format(result.d) : "–";
+  const uNote = document.getElementById("uValueNote");
+  if (uNote) {
+    uNote.textContent = "U-value surface resistance used: Rsi + Rse = " + format(getSurfaceResistance()) + " m²K/W. Layers marked 'Use for U-value = No' are excluded from the U-value calculation. Scenario factors used: A4-A5 × " + format(getA4A5ScenarioFactor()) + ", B1 × " + format(getB1ScenarioFactor()) + ".";
+  }
+
+  document.getElementById("moduleResults").innerHTML = moduleRowsHtml(result.sums, result.ac);
+
+  drawLayerChart(layerResults, result.ac);
+  refreshComparisonTable();
+  drawComparisonChart();
+}
+
+function moduleRowsHtml(sums, ac) {
+  return `
+    <tr><td>A1-A3 Product stage</td><td>${format(sums.A1_A3)}</td></tr>
+    <tr><td>A4-A5 Transport and construction</td><td>${format(sums.A4_A5)}</td></tr>
+    <tr><td>B1 Use stage / recarbonation</td><td>${format(sums.B1)}</td></tr>
+    <tr><td>B2 Maintenance / Instandhaltung</td><td>${format(sums.B2)}</td></tr>
+    <tr><td>B3 Repair / Instandsetzung</td><td>${format(sums.B3)}</td></tr>
+    <tr><td>B4 Replacement / Austausch</td><td>${format(sums.B4)}</td></tr>
+    <tr><td>C1 Deconstruction</td><td>${format(sums.C1)}</td></tr>
+    <tr><td>C2 Transport</td><td>${format(sums.C2)}</td></tr>
+    <tr><td>C3/C4 Recovery or disposal</td><td>${format(sums.C3_C4)}</td></tr>
+    <tr><td>D Beyond system boundary, separately reported</td><td>${format(sums.D)}</td></tr>
+    <tr><td><strong>A-C total, without D</strong></td><td><strong>${format(ac)}</strong></td></tr>
+  `;
+}
+
+function drawLayerChart(layerResults, acTotal) {
+  const canvas = document.getElementById("resultChart");
+  const ctx = canvas.getContext("2d");
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  const totals = chartModules.map(m => {
+    if (m.key === "AC") return acTotal;
+    return layerResults.reduce((sum, l) => sum + Number(l.gwp[m.key] || 0), 0);
+  });
+
+  const maxAbs = Math.max(10, ...totals.map(v => Math.abs(v)));
+  const left = 80;
+  const right = canvas.width - 40;
+  const top = 38;
+  const bottom = canvas.height - 82;
+  const h = bottom - top;
+  const zeroY = top + h / 2;
+
+  ctx.font = "15px Arial";
+  ctx.fillStyle = "#1f2933";
+  ctx.textAlign = "left";
+  ctx.fillText("Layer contributions by life-cycle module [kg CO₂e/m² wall]", left, 24);
+
+  ctx.strokeStyle = "#333";
+  ctx.beginPath();
+  ctx.moveTo(left, zeroY);
+  ctx.lineTo(right, zeroY);
+  ctx.stroke();
+
+  ctx.fillStyle = "#555";
+  ctx.textAlign = "right";
+  ctx.fillText("0", left - 8, zeroY + 4);
+
+  const step = (right - left) / chartModules.length;
+  const groupWidth = Math.min(78, step * 0.70);
+
+  chartModules.forEach((module, i) => {
+    const groupX = left + step * i + step / 2 - groupWidth / 2;
+
+    if (module.key === "AC") {
+      const totalValue = acTotal;
+      const bh = Math.abs(totalValue) / maxAbs * (h / 2 - 26);
+      const y = totalValue >= 0 ? zeroY - bh : zeroY;
+      ctx.fillStyle = "#111827";
+      ctx.fillRect(groupX, y, groupWidth, bh);
+      ctx.fillStyle = "#1f2933";
+      ctx.textAlign = "center";
+      ctx.font = "11px Arial";
+      ctx.fillText(format(totalValue), groupX + groupWidth / 2, totalValue >= 0 ? y - 6 : y + bh + 16);
+    } else {
+      const subWidth = groupWidth / Math.max(layerResults.length, 1);
+
+      layerResults.forEach((layer, li) => {
+        const value = Number(layer.gwp[module.key] || 0);
+        const bh = Math.abs(value) / maxAbs * (h / 2 - 26);
+        const x = groupX + li * subWidth;
+        const y = value >= 0 ? zeroY - bh : zeroY;
+
+        ctx.fillStyle = layerColors[li % layerColors.length];
+        ctx.fillRect(x, y, Math.max(3, subWidth - 2), bh);
+
+        if (Math.abs(value) > maxAbs * 0.045) {
+          ctx.fillStyle = "#1f2933";
+          ctx.textAlign = "center";
+          ctx.font = "10px Arial";
+          ctx.fillText(format(value), x + subWidth / 2, value >= 0 ? y - 5 : y + bh + 13);
+        }
+      });
+    }
+
+    ctx.fillStyle = "#1f2933";
+    ctx.textAlign = "center";
+    ctx.font = "11px Arial";
+    ctx.fillText(module.label, left + step * i + step / 2, bottom + 22);
+    if (module.key !== "AC") {
+      ctx.fillText("Σ " + format(totals[i]), left + step * i + step / 2, bottom + 40);
+    }
+  });
+
+  const legend = document.getElementById("layerLegend");
+  legend.innerHTML = "";
+  layerResults.forEach((layer, i) => {
+    const div = document.createElement("div");
+    div.className = "legend-item";
+    div.innerHTML = `<span class="legend-color" style="background:${layerColors[i % layerColors.length]}"></span>${i + 1}. ${layer.layerName} (${format(layer.thicknessMm)} mm, share ${format(layer.share)}%, lin. ${format(layer.linearAmount)} m/m², repl. ${layer.replacements})`;
+    legend.appendChild(div);
+  });
+
+  const totalLegend = document.createElement("div");
+  totalLegend.className = "legend-item";
+  totalLegend.innerHTML = `<span class="legend-color" style="background:#111827"></span>A-C total`;
+  legend.appendChild(totalLegend);
+}
+
+function loadMaterialForEditing() {
+  const id = document.getElementById("editMaterialSelect").value;
+  const mat = getMaterialById(id);
+  if (!mat) return;
+
+  normaliseMaterial(mat);
+  currentMaterialId = mat.id;
+
+  document.getElementById("matName").value = mat.name;
+  document.getElementById("matLambda").value = mat.lambda;
+  document.getElementById("matBasis").value = mat.basis;
+  document.getElementById("matA1A3").value = mat.gwp.A1_A3;
+  document.getElementById("matA4A5").value = mat.gwp.A4_A5;
+  document.getElementById("matB1").value = mat.gwp.B1;
+  document.getElementById("matB2").value = mat.gwp.B2;
+  document.getElementById("matB3").value = mat.gwp.B3;
+  document.getElementById("matC1").value = mat.gwp.C1;
+  document.getElementById("matC2").value = mat.gwp.C2;
+  document.getElementById("matC3C4").value = mat.gwp.C3_C4;
+  document.getElementById("matD").value = mat.gwp.D;
+  document.getElementById("materialStatus").textContent = "";
+}
+
+function newMaterialForm() {
+  currentMaterialId = null;
+  document.getElementById("editMaterialSelect").value = "";
+  document.getElementById("matName").value = "";
+  document.getElementById("matLambda").value = 0.10;
+  document.getElementById("matBasis").value = "per_m2";
+  ["matA1A3","matA4A5","matB1","matB2","matB3","matC1","matC2","matC3C4","matD"].forEach(id => document.getElementById(id).value = 0);
+  document.getElementById("materialStatus").textContent = "New material mode.";
+}
+
+function saveMaterial() {
+  const name = document.getElementById("matName").value.trim();
+  const lambda = parseUserNumber(document.getElementById("matLambda").value, NaN);
+  const basis = document.getElementById("matBasis").value;
+
+  if (!name) return alert("Please enter a material name.");
+  if (!lambda || lambda <= 0) return alert("Please enter a valid lambda value.");
+
+  const matData = {
+    id: currentMaterialId || "custom_" + Date.now(),
+    name,
+    lambda,
+    basis,
+    gwp: {
+      A1_A3: parseUserNumber(document.getElementById("matA1A3").value, 0),
+      A4_A5: parseUserNumber(document.getElementById("matA4A5").value, 0),
+      B1: parseUserNumber(document.getElementById("matB1").value, 0),
+      B2: parseUserNumber(document.getElementById("matB2").value, 0),
+      B3: parseUserNumber(document.getElementById("matB3").value, 0),
+      C1: parseUserNumber(document.getElementById("matC1").value, 0),
+      C2: parseUserNumber(document.getElementById("matC2").value, 0),
+      C3_C4: parseUserNumber(document.getElementById("matC3C4").value, 0),
+      D: parseUserNumber(document.getElementById("matD").value, 0)
+    }
+  };
+
+  const index = materials.findIndex(m => m.id === matData.id);
+  if (index >= 0) {
+    materials[index] = matData;
+  } else {
+    materials.push(matData);
+  }
+
+  currentMaterialId = matData.id;
+  saveMaterialsToStorage();
+  refreshMaterialSelects();
+  document.getElementById("editMaterialSelect").value = currentMaterialId;
+  calculate();
+  document.getElementById("materialStatus").textContent = "Material saved.";
+}
+
+function deleteMaterial() {
+  const id = document.getElementById("editMaterialSelect").value;
+  if (!id) return;
+
+  if (layers.some(l => l.materialId === id)) {
+    return alert("This material is used in the current construction. Remove the layer first.");
+  }
+
+  if (!confirm("Delete selected material?")) return;
+
+  materials = materials.filter(m => m.id !== id);
+  currentMaterialId = null;
+  saveMaterialsToStorage();
+  refreshMaterialSelects();
+  calculate();
+}
+
+function getSavedConstructions() {
+  const stored = localStorage.getItem(STORAGE_CONSTRUCTIONS);
+  return stored ? JSON.parse(stored) : {};
+}
+
+function setSavedConstructions(data) {
+  localStorage.setItem(STORAGE_CONSTRUCTIONS, JSON.stringify(data));
+}
+
+function getCompareSelection() {
+  const stored = localStorage.getItem(STORAGE_COMPARE);
+  return stored ? JSON.parse(stored) : [];
+}
+
+function setCompareSelection(selection) {
+  localStorage.setItem(STORAGE_COMPARE, JSON.stringify(selection));
+}
+
+function refreshSavedConstructions() {
+  const saved = getSavedConstructions();
+  const select = document.getElementById("savedConstructions");
+
+  select.innerHTML = "";
+
+  Object.keys(saved).sort().forEach(name => {
+    const option = document.createElement("option");
+    option.value = name;
+    option.textContent = name;
+    select.appendChild(option);
+  });
+
+  refreshComparisonTable();
+  drawComparisonChart();
+}
+
+function saveConstruction() {
+  const name = document.getElementById("constructionName").value.trim();
+
+  if (!name) return alert("Please enter a construction name.");
+  if (!layers.length) return alert("No layers to save.");
+
+  const saved = getSavedConstructions();
+  saved[name] = {
+    name,
+    layers: clone(layers),
+    savedAt: new Date().toISOString()
+  };
+
+  setSavedConstructions(saved);
+
+  let selection = getCompareSelection();
+  if (!selection.includes(name)) {
+    if (selection.length < 5) selection.push(name);
+  }
+  setCompareSelection(selection);
+
+  refreshSavedConstructions();
+  document.getElementById("savedConstructions").value = name;
+  alert("Construction saved.");
+}
+
+function loadConstruction() {
+  const name = document.getElementById("savedConstructions").value;
+  const saved = getSavedConstructions();
+
+  if (!saved[name]) return alert("No construction selected.");
+
+  layers = clone(saved[name].layers).map(l => {
+    if (l.replacements === undefined) l.replacements = 0;
+    return l;
+  });
+  document.getElementById("constructionName").value = name;
+  calculate();
+}
+
+function deleteConstruction() {
+  const name = document.getElementById("savedConstructions").value;
+  const saved = getSavedConstructions();
+
+  if (!saved[name]) return;
+  if (!confirm("Delete selected construction?")) return;
+
+  delete saved[name];
+  setSavedConstructions(saved);
+
+  let selection = getCompareSelection().filter(x => x !== name);
+  setCompareSelection(selection);
+
+  refreshSavedConstructions();
+}
+
+function toggleComparison(name, checked) {
+  let selection = getCompareSelection();
+
+  if (checked) {
+    if (selection.length >= 5) {
+      alert("Maximum 5 constructions can be compared.");
+      refreshComparisonTable();
+      return;
+    }
+    if (!selection.includes(name)) selection.push(name);
+  } else {
+    selection = selection.filter(x => x !== name);
+  }
+
+  setCompareSelection(selection);
+  refreshComparisonTable();
+  drawComparisonChart();
+}
+
+function refreshComparisonTable() {
+  const tbody = document.getElementById("comparisonTable");
+  if (!tbody) return;
+
+  const saved = getSavedConstructions();
+  const selection = getCompareSelection();
+
+  tbody.innerHTML = "";
+
+  const names = Object.keys(saved).sort();
+
+  if (!names.length) {
+    tbody.innerHTML = `<tr><td colspan="6">No saved constructions yet.</td></tr>`;
+    return;
+  }
+
+  names.forEach(name => {
+    const constructionLayers = clone(saved[name].layers || []).map(l => {
+      if (l.replacements === undefined) l.replacements = 0;
+      return l;
+    });
+    const result = calcForLayers(constructionLayers);
+    const layerNames = constructionLayers.map(l => {
+      const m = getMaterialById(l.materialId);
+      return `${m ? m.name : "unknown"} ${format(l.thicknessMm)} mm, share ${format(l.share === undefined ? 100 : l.share)}%, lin. ${format(l.linearAmount === undefined ? 1 : l.linearAmount)} m/m², repl. ${l.replacements}`;
+    }).join(" / ");
+
+    const checked = selection.includes(name) ? "checked" : "";
+
+    const safe = name.replace(/'/g, "\\'");
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${name}</td>
+      <td>${layerNames}</td>
+      <td>${format(result.u)}</td>
+      <td>${format(result.ac)}</td>
+      <td>${format(result.d)}</td>
+      <td style="text-align:center;"><input type="checkbox" ${checked} onchange="toggleComparison('${safe}', this.checked)" /></td>
+    `;
+    tbody.appendChild(row);
+  });
+}
+
+function drawComparisonChart() {
+  const canvas = document.getElementById("comparisonChart");
+  const ctx = canvas.getContext("2d");
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  const saved = getSavedConstructions();
+  const selection = getCompareSelection().filter(name => saved[name]).slice(0, 5);
+
+  if (!selection.length) {
+    ctx.font = "16px Arial";
+    ctx.fillStyle = "#4b5563";
+    ctx.fillText("Select up to five saved constructions for comparison.", 40, 50);
+    return;
+  }
+
+  const data = selection.map(name => {
+    const l = clone(saved[name].layers || []).map(layer => {
+      if (layer.replacements === undefined) layer.replacements = 0;
+    if (layer.share === undefined) layer.share = 100;
+    if (layer.linearAmount === undefined) layer.linearAmount = 1;
+    if (layer.includeInU === undefined) {
+      const mForU = getMaterialById(layer.materialId);
+      layer.includeInU = !(mForU && mForU.basis === "per_m");
+    }
+      return layer;
+    });
+    const r = calcForLayers(l);
+    return { name, ac: r.ac, d: r.d, u: r.u };
+  });
+
+  const maxValue = Math.max(10, ...data.map(d => Math.max(Math.abs(d.ac), Math.abs(d.d))));
+  const left = 80;
+  const right = canvas.width - 40;
+  const top = 42;
+  const bottom = canvas.height - 92;
+  const h = bottom - top;
+  const zeroY = top + h / 2;
+
+  ctx.font = "15px Arial";
+  ctx.fillStyle = "#1f2933";
+  ctx.textAlign = "left";
+  ctx.fillText("Comparison of saved constructions: A-C and D [kg CO₂e/m² wall]", left, 24);
+
+  ctx.strokeStyle = "#333";
+  ctx.beginPath();
+  ctx.moveTo(left, zeroY);
+  ctx.lineTo(right, zeroY);
+  ctx.stroke();
+
+  ctx.fillStyle = "#555";
+  ctx.textAlign = "right";
+  ctx.fillText("0", left - 8, zeroY + 4);
+
+  const step = (right - left) / data.length;
+  const barW = Math.min(54, step * 0.22);
+
+  data.forEach((item, i) => {
+    const cx = left + step * i + step / 2;
+
+    const bars = [
+      { label: "A-C", value: item.ac, color: "#006fb6", xOffset: -barW - 3 },
+      { label: "D", value: item.d, color: "#8a2d2d", xOffset: 3 }
+    ];
+
+    bars.forEach(bar => {
+      const bh = Math.abs(bar.value) / maxValue * (h / 2 - 26);
+      const x = cx + bar.xOffset;
+      const y = bar.value >= 0 ? zeroY - bh : zeroY;
+
+      ctx.fillStyle = bar.color;
+      ctx.fillRect(x, y, barW, bh);
+
+      ctx.fillStyle = "#1f2933";
+      ctx.textAlign = "center";
+      ctx.font = "11px Arial";
+      ctx.fillText(format(bar.value), x + barW / 2, bar.value >= 0 ? y - 5 : y + bh + 14);
+    });
+
+    ctx.fillStyle = "#1f2933";
+    ctx.textAlign = "center";
+    ctx.font = "12px Arial";
+    const shortName = item.name.length > 22 ? item.name.substring(0, 22) + "…" : item.name;
+    ctx.fillText(shortName, cx, bottom + 24);
+    ctx.fillText("U = " + format(item.u), cx, bottom + 42);
+  });
+
+  ctx.fillStyle = "#006fb6";
+  ctx.fillRect(right - 170, 20, 14, 14);
+  ctx.fillStyle = "#1f2933";
+  ctx.textAlign = "left";
+  ctx.fillText("A-C", right - 150, 32);
+
+  ctx.fillStyle = "#8a2d2d";
+  ctx.fillRect(right - 100, 20, 14, 14);
+  ctx.fillStyle = "#1f2933";
+  ctx.fillText("D", right - 80, 32);
+}
+
+function htmlEscape(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function currentDateString() {
+  return new Date().toLocaleString(undefined, {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+}
+
+function buildCurrentLayerRowsForReport() {
+  return layers.map((layer, index) => {
+    if (layer.replacements === undefined) layer.replacements = 0;
+    if (layer.share === undefined) layer.share = 100;
+    if (layer.linearAmount === undefined) layer.linearAmount = 1;
+    if (layer.includeInU === undefined) {
+      const mForU = getMaterialById(layer.materialId);
+      layer.includeInU = !(mForU && mForU.basis === "per_m");
+    }
+    const mat = getMaterialById(layer.materialId);
+    if (!mat) return "";
+    const d = layer.thicknessMm / 1000;
+    const r = layer.includeInU === false ? 0 : d / Number(mat.lambda);
+    const g = calculateLayerGwp(layer, mat);
+
+    return `
+      <tr>
+        <td>${index + 1}. ${htmlEscape(mat.name)}</td>
+        <td>${format(layer.thicknessMm)}</td>
+        <td>${format(layer.share)}</td>
+        <td>${format(layer.linearAmount)}</td>
+        <td>${format(mat.lambda)}</td>
+        <td>${layer.includeInU === false ? "excluded" : format(r)}</td>
+        <td>${layer.includeInU === false ? "No" : "Yes"}</td>
+        <td>${layer.replacements}</td>
+        <td>${shortBasis(mat.basis)}</td>
+        <td>${format(g.A1_A3)}</td>
+        <td>${format(g.A4_A5)}</td>
+        <td>${format(g.B1)}</td>
+        <td>${format(g.B2)}</td>
+        <td>${format(g.B3)}</td>
+        <td>${format(g.B4)}</td>
+        <td>${format(g.C1)}</td>
+        <td>${format(g.C2)}</td>
+        <td>${format(g.C3_C4)}</td>
+        <td>${format(g.D)}</td>
+      </tr>
+    `;
+  }).join("");
+}
+
+function doPrintReport(html) {
+  let report = document.getElementById("printReport");
+
+  if (!report) {
+    report = document.createElement("div");
+    report.id = "printReport";
+    report.className = "print-report";
+    document.body.appendChild(report);
+  }
+
+  report.innerHTML = `
+    <div class="report-toolbar">
+      <button type="button" onclick="printVisibleReport()">Open browser print dialog / Save as PDF</button>
+      <button type="button" onclick="downloadVisibleReportHtml()">Download report as HTML</button>
+      <button type="button" class="secondary" onclick="closeVisibleReport()">Close report preview</button>
+    </div>
+    ${html}
+  `;
+
+  report.style.display = "block";
+  report.style.visibility = "visible";
+  report.style.maxWidth = "1100px";
+  report.style.margin = "30px auto";
+  report.style.padding = "24px";
+  report.style.background = "white";
+  report.style.borderTop = "4px solid #6aa84f";
+  report.style.boxShadow = "0 2px 12px rgba(34,49,63,0.12)";
+
+  document.body.classList.add("report-ready");
+
+  setTimeout(() => {
+    report.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, 50);
+}
+
+function printVisibleReport() {
+  const report = document.getElementById("printReport");
+
+  if (!report || report.innerHTML.trim() === "") {
+    alert("No report preview is available. Please create a report first.");
+    return;
+  }
+
+  document.body.classList.add("report-ready");
+  document.body.classList.add("print-mode");
+
+  setTimeout(() => {
+    window.print();
+    setTimeout(() => {
+      document.body.classList.remove("print-mode");
+    }, 500);
+  }, 100);
+}
+
+function closeVisibleReport() {
+  const report = document.getElementById("printReport");
+  document.body.classList.remove("report-ready");
+  document.body.classList.remove("print-mode");
+
+  if (report) {
+    report.innerHTML = "";
+    report.style.display = "none";
+  }
+}
+
+function getReportDownloadFilename() {
+  const now = new Date();
+  const stamp = now.getFullYear() + "-"
+    + String(now.getMonth() + 1).padStart(2, "0") + "-"
+    + String(now.getDate()).padStart(2, "0") + "_"
+    + String(now.getHours()).padStart(2, "0") + "-"
+    + String(now.getMinutes()).padStart(2, "0");
+
+  const constructionName = document.getElementById("constructionName")
+    ? document.getElementById("constructionName").value.trim()
+    : "";
+
+  const baseName = constructionName || "EAACA_report";
+  const safeName = baseName
+    .replace(/[^a-zA-Z0-9äöüÄÖÜß_\- ]/g, "")
+    .replace(/\s+/g, "_")
+    .substring(0, 60);
+
+  return safeName + "_" + stamp + ".html";
+}
+
+function downloadVisibleReportHtml() {
+  const report = document.getElementById("printReport");
+
+  if (!report || report.innerHTML.trim() === "") {
+    alert("No report preview is available. Please create a report first.");
+    return;
+  }
+
+  const reportClone = report.cloneNode(true);
+  const toolbar = reportClone.querySelector(".report-toolbar");
+  if (toolbar) toolbar.remove();
+
+  const fullHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>EAACA Calculator Report</title>
+<style>
+  body { font-family: Arial, Helvetica, sans-serif; color: #111; margin: 22px; font-size: 10.5pt; line-height: 1.35; }
+  h1 { font-size: 20pt; color: #006fb6; margin: 0 0 6mm 0; }
+  h2 { font-size: 14pt; color: #006fb6; margin: 8mm 0 3mm 0; }
+  h3 { font-size: 11.5pt; color: #22313f; margin: 5mm 0 2mm 0; }
+  table { width: 100%; border-collapse: collapse; margin: 3mm 0 6mm 0; font-size: 9.5pt; }
+  th, td { border: 0.2mm solid #999; padding: 1.8mm; text-align: right; vertical-align: top; }
+  th:first-child, td:first-child { text-align: left; }
+  th { background: #eaf4f9; }
+  .report-meta { color: #4b5563; font-size: 10pt; margin-bottom: 16px; }
+  .report-boxes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5mm; margin: 5mm 0; }
+  .report-box { border: 0.3mm solid #b8c2cc; padding: 4mm; text-align: center; background: #f4f7f9; }
+  .report-box strong { display: block; font-size: 15pt; color: #006fb6; margin-top: 2mm; }
+  img { max-width: 100%; height: auto; border: 0.2mm solid #ccc; margin-top: 3mm; }
+  .disclaimer { font-size: 9pt; color: #333; border-top: 0.3mm solid #999; margin-top: 8mm; padding-top: 3mm; }
+  .printbar { padding: 10px 0 14px 0; margin-bottom: 12px; border-bottom: 1px solid #ddd; }
+  .printbar button { background: #6aa84f; color: white; border: 0; padding: 10px 16px; border-radius: 3px; font-weight: bold; cursor: pointer; }
+  @media print { .printbar { display: none; } @page { size: A4; margin: 14mm; } }
+</style>
+</head>
+<body>
+<div class="printbar">
+  <button onclick="window.print()">Print / save as PDF</button>
+</div>
+${reportClone.innerHTML}
+</body>
+</html>`;
+
+  const blob = new Blob([fullHtml], { type: "text/html;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = getReportDownloadFilename();
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function printConstructionReport() {
+  if (!layers.length) {
+    alert("No current construction available for report.");
+    return;
+  }
+
+  const name = document.getElementById("constructionName").value.trim() || "Current construction";
+  const result = calcForLayers(layers);
+  const chartImage = document.getElementById("resultChart").toDataURL("image/png");
+
+  const html = `
+    <h1>EAACA Wall LCA & Thermal Performance Calculator</h1>
+    <div class="report-meta">Construction report · ${htmlEscape(currentDateString())}</div>
+
+    <h2>${htmlEscape(name)}</h2>
+
+    <div class="report-boxes">
+      <div class="report-box">U-value [W/m²K]<strong>${format(result.u)}</strong></div>
+      <div class="report-box">GWP A-C incl. B modules [kg CO₂e/m²]<strong>${format(result.ac)}</strong></div>
+      <div class="report-box">Module D separately [kg CO₂e/m²]<strong>${format(result.d)}</strong></div>
+    </div>
+    <p class="report-meta">U-value surface resistance: Rsi + Rse = ${format(getSurfaceResistance())} m²K/W. Layers marked “No” are excluded from U-value calculation. Scenario factors: A4-A5 × ${format(getA4A5ScenarioFactor())}, B1 × ${format(getB1ScenarioFactor())}.</p>
+
+    <h2>Layer table</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Layer</th>
+          <th>Thickness [mm]</th>
+          <th>Share [%]</th>
+          <th>Linear [m/m²]</th>
+          <th>λ [W/(mK)]</th>
+          <th>R [m²K/W]</th>
+          <th>Use for U</th>
+          <th>Repl.</th>
+          <th>GWP basis</th>
+          <th>A1-A3</th>
+          <th>A4-A5</th>
+          <th>B1</th>
+          <th>B2</th>
+          <th>B3</th>
+          <th>B4</th>
+          <th>C1</th>
+          <th>C2</th>
+          <th>C3/C4</th>
+          <th>D</th>
+        </tr>
+      </thead>
+      <tbody>${buildCurrentLayerRowsForReport()}</tbody>
+    </table>
+
+    <h2>Module results</h2>
+    <table>
+      <thead><tr><th>Module</th><th>kg CO₂e/m² wall</th></tr></thead>
+      <tbody>${moduleRowsHtml(result.sums, result.ac)}</tbody>
+    </table>
+
+    <h2>Layer-resolved module diagram</h2>
+    <img src="${chartImage}" alt="Layer-resolved module diagram">
+
+    <div class="disclaimer">
+      <strong>Methodology / Disclaimer:</strong>
+      The calculation is provided in accordance with Directive (EU) 2024/1275 for transparent communication of life-cycle greenhouse gas indicators.
+      For datasets with input basis kg CO₂e/m³ material, module results are converted to kg CO₂e/m² wall area by multiplication with layer thickness in metres and the selected product share. For kg CO₂e/m datasets, values are multiplied by the selected linear amount [m/m²] and product share.
+      B4 is calculated as replacement cycles × (A1-A3 + A4-A5 + C1 + C2 + C3/C4). Module D is shown separately and multiplied by the total number of layer occurrences. Product share affects GWP results but does not fully model parallel thermal paths.
+      This tool does not replace a verified EPD according to EN 15804 or a project-specific building LCA according to EN 15978.
+    </div>
+  `;
+
+  doPrintReport(html);
+}
+
+function selectedComparisonNames() {
+  const saved = getSavedConstructions();
+  return getCompareSelection().filter(name => saved[name]).slice(0, 5);
+}
+
+function printComparisonReport() {
+  const saved = getSavedConstructions();
+  const names = selectedComparisonNames();
+
+  if (!names.length) {
+    alert("Please select at least one saved construction for comparison.");
+    return;
+  }
+
+  const chartImage = document.getElementById("comparisonChart").toDataURL("image/png");
+
+  const rows = names.map(name => {
+    const c = saved[name];
+    const constructionLayers = clone(c.layers || []).map(l => {
+      if (l.replacements === undefined) l.replacements = 0;
+      return l;
+    });
+    const r = calcForLayers(constructionLayers);
+    const layerText = constructionLayers.map(l => {
+      const m = getMaterialById(l.materialId);
+      return `${m ? m.name : "unknown"} ${format(l.thicknessMm)} mm, share ${format(l.share === undefined ? 100 : l.share)}%, lin. ${format(l.linearAmount === undefined ? 1 : l.linearAmount)} m/m², repl. ${l.replacements}`;
+    }).join(" / ");
+
+    return `
+      <tr>
+        <td>${htmlEscape(name)}</td>
+        <td>${htmlEscape(layerText)}</td>
+        <td>${format(r.u)}</td>
+        <td>${format(r.sums.A1_A3)}</td>
+        <td>${format(r.sums.A4_A5)}</td>
+        <td>${format(r.sums.B1)}</td>
+        <td>${format(r.sums.B2)}</td>
+        <td>${format(r.sums.B3)}</td>
+        <td>${format(r.sums.B4)}</td>
+        <td>${format(r.sums.C1)}</td>
+        <td>${format(r.sums.C2)}</td>
+        <td>${format(r.sums.C3_C4)}</td>
+        <td>${format(r.ac)}</td>
+        <td>${format(r.d)}</td>
+      </tr>
+    `;
+  }).join("");
+
+  const html = `
+    <h1>EAACA Wall LCA & Thermal Performance Calculator</h1>
+    <div class="report-meta">Comparison report · ${htmlEscape(currentDateString())}</div>
+
+    <h2>Comparison of selected constructions</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Construction</th>
+          <th>Layers</th>
+          <th>U-value [W/m²K]</th>
+          <th>A1-A3</th>
+          <th>A4-A5</th>
+          <th>B1</th>
+          <th>B2</th>
+          <th>B3</th>
+          <th>B4</th>
+          <th>C1</th>
+          <th>C2</th>
+          <th>C3/C4</th>
+          <th>A-C total</th>
+          <th>D separately</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
+
+    <h2>Comparison diagram</h2>
+    <img src="${chartImage}" alt="Comparison diagram">
+
+    <div class="disclaimer">
+      <strong>Methodology / Disclaimer:</strong>
+      Up to five locally saved constructions are compared. A-C total excludes Module D.
+      Module D is shown separately and is not automatically included in the A-C result.
+      Saved constructions are stored locally in the user's browser.
+      This tool provides indicative results and does not replace a verified EPD according to EN 15804 or a project-specific building LCA according to EN 15978.
+    </div>
+  `;
+
+  doPrintReport(html);
+}
+
+
+function openManual() {
+  const manual = document.getElementById("manualOverlay");
+  if (manual) {
+    manual.classList.add("open");
+  }
+}
+
+function closeManual() {
+  const manual = document.getElementById("manualOverlay");
+  if (manual) {
+    manual.classList.remove("open");
+  }
+}
+
+document.addEventListener("keydown", function(event) {
+  if (event.key === "Escape") {
+    closeManual();
+  }
+});
+
+document.addEventListener("click", function(event) {
+  const manual = document.getElementById("manualOverlay");
+  if (manual && event.target === manual) {
+    closeManual();
+  }
+});
+
+loadInitialData();
+</script>
+</body>
+</html>
