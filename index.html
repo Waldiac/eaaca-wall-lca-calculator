@@ -1153,7 +1153,7 @@
 
 <body>
 <div class="topbar">
-  +49 (0) 3382 7060 112 &nbsp;&nbsp;|&nbsp;&nbsp; info@eaaca.org &nbsp;&nbsp;|&nbsp;&nbsp; Tool version <strong><span class="app-version">V6_2026</span></strong>
+  +49 (0) 3382 7060 112 &nbsp;&nbsp;|&nbsp;&nbsp; info@eaaca.org &nbsp;&nbsp;|&nbsp;&nbsp; Tool version <strong><span class="app-version">V7_2026</span></strong>
 </div>
 
 <nav class="site-nav" aria-label="EAACA navigation">
@@ -1201,7 +1201,7 @@
 
   <section>
     <h2>Material database status</h2>
-    <p class="note" id="materialDatabaseStatus">Internal material database ready. Tool version V6_2026.</p>
+    <p class="note" id="materialDatabaseStatus">Internal material database ready. Tool version V7_2026.</p>
     <p class="note">This version stores all user data locally in this browser: the material database, saved wall constructions and the current comparison selection. No external <strong>materials.json</strong> file is loaded or required. Decimal inputs accept both comma and point, e.g. 12,5 or 12.5 mm.</p>
     <div class="refreshbar">
       <button class="success" onclick="exportAllToolData()">Export complete backup</button>
@@ -1253,24 +1253,19 @@
 
     <div class="grid-3">
       <div>
-        <label for="a4a5ScenarioFactor">A4-A5 scenario factor</label>
-        <input id="a4a5ScenarioFactor" type="text" inputmode="decimal" value="1" onchange="calculate()" />
-      </div>
-      <div>
         <label for="b1ScenarioFactor">B1 use-stage / recarbonation factor</label>
         <input id="b1ScenarioFactor" type="text" inputmode="decimal" value="1" onchange="calculate()" />
       </div>
       <div>
         <label>&nbsp;</label>
         <button class="secondary" onclick="setAac50YearB1Factor()">Set AAC 50-year B1 factor 80/95</button>
-        <button class="secondary" onclick="resetScenarioFactors()">Reset factors</button>
+        <button class="secondary" onclick="resetScenarioFactors()">Reset B1 factor</button>
+      </div>
+      <div>
+        <label>&nbsp;</label>
+        <p class="note">For AAC recarbonation, the practical guide uses 80/95 = 0.842 as a conservative 50-year adjustment of the declared B1 value.</p>
       </div>
     </div>
-
-    <p class="note">
-      Scenario factors are applied to the current calculation. Use the A4-A5 factor only where the underlying dataset and scenario allow adjustment.
-      For AAC recarbonation, the practical guide uses 80/95 = 0.842 as a conservative 50-year adjustment of the declared B1 value.
-    </p>
 
     <div class="grid-3">
       <div>
@@ -1572,7 +1567,7 @@
       <tbody>
         <tr><td>Declared unit</td><td>Confirm whether the EPD value is per m³, m², lfdm/m, kg, tonne or another unit. Select the matching basis in the material editor.</td></tr>
         <tr><td>Actual quantity</td><td>Use actual layer thickness, product share, linear amount or kg/m² quantity to convert to kg CO₂e/m² wall area.</td></tr>
-        <tr><td>Scenario assumptions</td><td>Check whether transport distance, installation assumptions, replacement cycles, surface conditions and end-of-life route match the building case.</td></tr>
+        <tr><td>Scenario assumptions</td><td>Check whether transport distance, installation assumptions, replacement cycles, surface conditions and end-of-life route match the building case. Transport and installation are not adjusted by a global factor in this tool.</td></tr>
         <tr><td>Missing modules</td><td>Do not automatically treat “not declared” as zero in formal assessments. Apply national rules or justified assumptions where required.</td></tr>
         <tr><td>C3/C4</td><td>Use the representative end-of-life route or a justified split. Do not add mutually exclusive 100% recycling and 100% disposal scenarios.</td></tr>
         <tr><td>Module D</td><td>Report D separately. It is not deducted from the A-C total in this tool.</td></tr>
@@ -2605,11 +2600,6 @@ function baseLayerGwp(layer, mat) {
 }
 
 
-function getA4A5ScenarioFactor() {
-  const el = document.getElementById("a4a5ScenarioFactor");
-  const f = el ? parseUserNumber(el.value, 1) : 1;
-  return isFinite(f) && f >= 0 ? f : 1;
-}
 
 function getB1ScenarioFactor() {
   const el = document.getElementById("b1ScenarioFactor");
@@ -2624,9 +2614,7 @@ function setAac50YearB1Factor() {
 }
 
 function resetScenarioFactors() {
-  const a4 = document.getElementById("a4a5ScenarioFactor");
   const b1 = document.getElementById("b1ScenarioFactor");
-  if (a4) a4.value = "1";
   if (b1) b1.value = "1";
   calculate();
 }
@@ -2636,15 +2624,13 @@ function calculateLayerGwp(layer, mat, b1SurfaceFactor = 1) {
   const repl = Number(layer.replacements || 0);
   const b1Factor = normaliseB1CoatingFactor(b1SurfaceFactor) * getB1ScenarioFactor();
   const adjustedB1 = Number(base.B1 || 0) < 0 ? Number(base.B1 || 0) * b1Factor : Number(base.B1 || 0);
-  const adjustedA4A5 = Number(base.A4_A5 || 0) * getA4A5ScenarioFactor();
-
   const out = {
     A1_A3: base.A1_A3,
-    A4_A5: adjustedA4A5,
+    A4_A5: base.A4_A5,
     B1: adjustedB1,
     B2: base.B2,
     B3: base.B3,
-    B4: repl * (base.A1_A3 + adjustedA4A5 + base.C1 + base.C2 + base.C3_C4),
+    B4: repl * (base.A1_A3 + base.A4_A5 + base.C1 + base.C2 + base.C3_C4),
     C1: base.C1,
     C2: base.C2,
     C3_C4: base.C3_C4,
@@ -3211,7 +3197,7 @@ function calculate() {
   const uNote = document.getElementById("uValueNote");
   if (uNote) {
     uNote.textContent = result.thermal && result.thermal.hasIncludedLayers
-      ? "U-value surface resistance used: Rsi + Rse = " + format(getSurfaceResistance()) + " m²K/W. Adjacent partial-area layers with the same thickness and product shares summing to 100% are treated as one parallel thermal layer using λeq = Σ(share × λ). Share mode affects GWP only, not λeq. Layers marked 'Use for U-value = No' are excluded. Scenario factors: A4-A5 × " + format(getA4A5ScenarioFactor()) + ", B1 × " + format(getB1ScenarioFactor()) + "."
+      ? "U-value surface resistance used: Rsi + Rse = " + format(getSurfaceResistance()) + " m²K/W. Adjacent partial-area layers with the same thickness and product shares summing to 100% are treated as one parallel thermal layer using λeq = Σ(share × λ). Share mode affects GWP only, not λeq. Layers marked 'Use for U-value = No' are excluded. B1 scenario factor × " + format(getB1ScenarioFactor()) + "."
       : "U-value not calculated because no layer is activated for U-value. Set at least one layer to 'Use for U-value = Yes' to calculate U. Scenario factors: A4-A5 × " + format(getA4A5ScenarioFactor()) + ", B1 × " + format(getB1ScenarioFactor()) + ".";
   }
 
@@ -4493,4 +4479,3 @@ loadInitialData();
 </script>
 </body>
 </html>
-
