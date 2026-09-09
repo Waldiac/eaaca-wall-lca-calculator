@@ -12,7 +12,7 @@ https://waldiac.github.io/eaaca-wall-lca-calculator/
 
 The tool allows the environmental performance of wall constructions to be calculated and compared on a layer-by-layer basis.
 
-It includes life-cycle modules from production through end-of-life and benefits beyond the system boundary, based on the data available for the selected construction materials.
+It covers relevant life-cycle modules from production through end-of-life as well as benefits and loads beyond the system boundary, based on the data available for the selected construction materials.
 
 Main functions include:
 
